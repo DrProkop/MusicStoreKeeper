@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Configuration;
+using System.Windows.Input;
 
 namespace Vmv.ViewModel
 {
@@ -8,6 +9,7 @@ namespace Vmv.ViewModel
         {
             ScreenA=new ScreenAVm();
             ScreenB=new ScreenBVm();
+            var yolo = ConfigurationManager.AppSettings.Get("TestFolder");
         }
 
         private IScreenVm _screenA;
