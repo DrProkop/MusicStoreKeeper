@@ -11,8 +11,9 @@ namespace FileManager
     {
         private ILogger _logger;
         public string DefaultMusicDirectory { get; }
-        public FileManager()
+        public FileManager(ILoggerManager loggerManager)
         {
+            _logger = loggerManager.GetLogger(this);
             DefaultMusicDirectory = ConfigurationManager.AppSettings.Get("MusicStorage");
         }
 
@@ -23,19 +24,19 @@ namespace FileManager
         public void CreateDirectory(string path)
         {
             var dI=Directory.CreateDirectory(path);
-            Log.Information("Created directory {DirectoryName:l} at {DirectoryPath:l}.", dI.Name, dI.FullName);
+            _logger.Information("Created directory {DirectoryName:l} at {DirectoryPath:l}.", dI.Name, dI.FullName);
         }
 
         public void MoveDirectory(string sourcePath, string destPath)
         {
             Directory.Move(sourcePath, destPath);
-            Log.Information("Moved directory from {DirectorySource:l} to {DirectoryDestination:l}.", sourcePath, destPath);
+            _logger.Information("Moved directory from {DirectorySource:l} to {DirectoryDestination:l}.", sourcePath, destPath);
         }
 
         public void DeleteDirectory(string path)
         {
             Directory.Delete(path, true);
-            Log.Information("Deleted directory {DirectoryName:l} at {DirectoryParent:l}.", Path.GetFileName(path), Path.GetDirectoryName(path));
+            _logger.Information("Deleted directory {DirectoryName:l} at {DirectoryParent:l}.", Path.GetFileName(path), Path.GetDirectoryName(path));
         }
 
         //TODO: Add possibility to pass an array of certain file types.
@@ -52,8 +53,8 @@ namespace FileManager
                     continue;
                 }
                 musicDirectories.Add(di);
-                Log.Information("Found directory with {FileExtension} files: {PossibleDirectoryName:l}. ", fileExtension, di.FullName);
-                Console.WriteLine($"Folder with music files: {di.Name}");
+                _logger.Information("Found directory with {FileExtension} files: {PossibleDirectoryName:l}. ", fileExtension, di.FullName);
+                
             }
 
             return musicDirectories;

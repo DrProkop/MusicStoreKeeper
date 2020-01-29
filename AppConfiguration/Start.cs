@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Common;
 using Vmv.View;
 using Vmv.ViewModel;
 
@@ -10,6 +11,9 @@ namespace AppConfiguration
         public static void Configure()
         {
             var builder = new ContainerBuilder();
+
+            builder.RegisterType<LoggerManager>().As<ILoggerManager>().SingleInstance();
+
             builder.RegisterType<MainWindowVm>();
 
             builder.RegisterType<MainWindow>().OnActivated(e =>

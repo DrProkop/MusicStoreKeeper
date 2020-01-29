@@ -1,15 +1,19 @@
 ﻿using System.Configuration;
 using System.Windows.Input;
+using Common;
+using Serilog;
 
 namespace Vmv.ViewModel
 {
     public class MainWindowVm : NotifyPropertyChangedBase
     {
-        public MainWindowVm()
+        private ILogger log;
+        public MainWindowVm(ILoggerManager manager)
         {
+            log = manager.GetLogger(this);
             ScreenA=new ScreenAVm();
             ScreenB=new ScreenBVm();
-            var yolo = ConfigurationManager.AppSettings.Get("TestFolder");
+            log.Information("Application started");
         }
 
         private IScreenVm _screenA;

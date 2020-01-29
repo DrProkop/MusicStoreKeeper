@@ -27,7 +27,7 @@ namespace FileManager.Tests
         [SetUp]
         public void Setup()
         {
-            fM = new FileManager();
+            fM = new FileManager(new LoggerManager());
         }
 
         [Test]
