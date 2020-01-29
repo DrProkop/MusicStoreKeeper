@@ -46,11 +46,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileManager.cs" />
-    <Compile Include="IFileManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{c30ddd5f-51a2-46e8-b146-9635a82eff54}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

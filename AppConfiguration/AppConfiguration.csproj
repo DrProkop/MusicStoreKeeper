@@ -84,6 +84,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{c30ddd5f-51a2-46e8-b146-9635a82eff54}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FileManager\FileManager.csproj">
       <Project>{5093c2e8-99fa-451c-9779-3e9fee29884d}</Project>
       <Name>FileManager</Name>

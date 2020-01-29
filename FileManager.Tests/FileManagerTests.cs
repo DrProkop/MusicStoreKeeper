@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System.Configuration;
 using System.IO;
+using Common;
 
 namespace FileManager.Tests
 {
