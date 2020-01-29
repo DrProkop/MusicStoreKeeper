@@ -13,6 +13,8 @@ namespace AppConfiguration
             var builder = new ContainerBuilder();
 
             builder.RegisterType<LoggerManager>().As<ILoggerManager>().SingleInstance();
+            builder.RegisterType<FileManager.FileManager>().As<IFileManager>().SingleInstance();
+            builder.RegisterType<FileAnalyzer.FileAnalyzer>().As<IFileAnalyzer>();
 
             builder.RegisterType<MainWindowVm>();
 
