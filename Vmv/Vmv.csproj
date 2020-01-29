@@ -105,6 +105,18 @@
       <Project>{c30ddd5f-51a2-46e8-b146-9635a82eff54}</Project>
       <Name>Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Discogs\Discogs.csproj">
+      <Project>{793820cf-90e6-475a-bde4-495f3b79208a}</Project>
+      <Name>Discogs</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FileAnalyzer\FileAnalyzer.csproj">
+      <Project>{a9ceb6cb-425c-43f4-bcdc-9aeb463afaea}</Project>
+      <Name>FileAnalyzer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FileManager\FileManager.csproj">
+      <Project>{5093c2e8-99fa-451c-9779-3e9fee29884d}</Project>
+      <Name>FileManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Model\Model.csproj">
       <Project>{5e330b60-bb17-440c-acaa-182483a0418e}</Project>
       <Name>Model</Name>
