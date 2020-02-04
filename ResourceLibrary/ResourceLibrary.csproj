@@ -78,5 +78,14 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\TreeViewIcons\close_folder_icon.png" />
+    <Resource Include="Images\TreeViewIcons\document_blank_icon.png" />
+    <Resource Include="Images\TreeViewIcons\opened_folder_icon.png" />
+    <Resource Include="Images\TreeViewIcons\audio_file_icon.png" />
+    <Resource Include="Images\TreeViewIcons\document_icon.png" />
+    <Resource Include="Images\TreeViewIcons\image_file_icon.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
