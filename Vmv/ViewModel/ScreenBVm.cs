@@ -1,30 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Common;
+using System;
 using System.Collections.ObjectModel;
 using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Media3D;
-using System.Windows.Navigation;
-using Common;
+using System.Windows.Media;
 
 namespace Vmv.ViewModel
 {
     //TODO: Create base class for vms, add logging to it.
-    public class ScreenBVm:NotifyPropertyChangedBase, IScreenVm
+    public class ScreenBVm : NotifyPropertyChangedBase, IScreenVm
     {
-        public ScreenBVm()
+        public ScreenBVm(IFileAnalyzer fileAnalyzer)
         {
-           
-
-
+            _fileAnalyzer = fileAnalyzer;
         }
 
+        #region [  fields  ]
+
+        private readonly IFileAnalyzer _fileAnalyzer;
+
+        #endregion
 
         #region [  properties  ]
 
@@ -44,16 +43,23 @@ namespace Vmv.ViewModel
             set { _selectedMusicDirectory = value; OnPropertyChanged(); }
         }
 
-        #endregion
+        private IPreviewVm _filePreview;
+
+        public IPreviewVm FilePreview
+        {
+            get { return _filePreview; }
+            set { _filePreview = value;OnPropertyChanged(); }
+        }
+
+        #endregion [  properties  ]
 
         #region [  commands  ]
 
         private ICommand _selectedItemChangedCommand;
 
-        public ICommand SelectedItemChangedCommand => _selectedItemChangedCommand?? (_selectedItemChangedCommand = new RelayCommand<ISimpleFileInfo>( arg =>
+        public ICommand SelectedItemChangedCommand => _selectedItemChangedCommand ?? (_selectedItemChangedCommand = new RelayCommand<ISimpleFileInfo>(arg =>
         {
             ChangeSelectedItem(arg);
-            
         }));
 
         private ICommand _itemExpandedCommand;
@@ -64,18 +70,36 @@ namespace Vmv.ViewModel
 
         public ICommand ScanDirectoryCommand => _scanDirectoryCommand ?? (_scanDirectoryCommand = new RelayCommand<object>(arg =>
         {
-           TempInit();
+            TempInit();
         }));
 
-        #endregion
-
-        #region [  public methods  ]
-
-        
-
-        #endregion
+        #endregion [  commands  ]
 
         #region [  private methods  ]
+
+        private IPreviewVm CreatePreview(ISimpleFileInfo file)
+        {
+            //TODO: Add enum PreviewableFiles to ISimpleFileInfo
+            if (file.IsAudioFile)
+            {
+                var basicTrackInfo = _fileAnalyzer.GetBasicAlbumInfoFromAudioFile(file.Info);
+                var audioPreview = new AudioFilePreviewVm(file,basicTrackInfo);
+                return audioPreview;
+            }
+            if (file.IsImage)
+            {
+                var imageSource=new ImageSourceConverter().ConvertFromString(file.Info.FullName) as ImageSource;
+              //  var imageSource = new ImageSourceConverter().
+                var imagePreview=new ImagePreviewVm(file, imageSource);
+                return imagePreview;
+            }
+
+            if (file.IsTextDocument)
+            {
+                return new TextFilePreviewVm(file);
+            }
+            return null;
+        }
 
         private void ExpandTreeViewItem(RoutedEventArgs arg)
         {
@@ -102,7 +126,7 @@ namespace Vmv.ViewModel
                 }
                 foreach (var subDir in subDirs)
                 {
-                    var subDirFi=new SimpleFileInfo(new FileInfo(subDir));
+                    var subDirFi = new SimpleFileInfo(new FileInfo(subDir));
                     subDirFi.Children.Add(new DummySimpleFileInfo());
                     dir.Children.Add(subDirFi);
                 }
@@ -113,7 +137,6 @@ namespace Vmv.ViewModel
             }
             catch (Exception e)
             {
-
             }
         }
 
@@ -128,19 +151,14 @@ namespace Vmv.ViewModel
                 simpleFi.Children.Add(new DummySimpleFileInfo());
                 MusicDirectories.Add(simpleFi);
             }
-
         }
 
         private void ChangeSelectedItem(ISimpleFileInfo arg)
         {
             SelectedMusicDirectory = arg;
+            FilePreview = CreatePreview(arg);
         }
 
-        #endregion
-
-
-
-
+        #endregion [  private methods  ]
     }
-
 }

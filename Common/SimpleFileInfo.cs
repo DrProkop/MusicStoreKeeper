@@ -13,7 +13,6 @@ namespace Common
     //TODO: Implement INotifyPropertyChanged
     public interface ISimpleFileInfo
     {
-        string Icon { get; }
         FileInfo Info { get; }
         string Name { get; }
         string Extension { get; }
@@ -55,9 +54,6 @@ namespace Common
 
         public bool IsAudioFile => AudioExtensions.Contains(Extension);
     
-
-        public string Icon { get; }
-
         private ObservableCollection<ISimpleFileInfo> _children = new ObservableCollection<ISimpleFileInfo>();
 
         public ObservableCollection<ISimpleFileInfo> Children
@@ -82,7 +78,6 @@ namespace Common
         public bool IsImage => false;
         public bool IsTextDocument => false;
         public bool IsAudioFile => false;
-        public string Icon { get; }
         public ObservableCollection<ISimpleFileInfo> Children { get; set; }
     }
 }

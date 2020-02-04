@@ -21,5 +21,7 @@ namespace Common
         IBasicAlbumInfo GetBasicAlbumInfoFromDirectory(DirectoryInfo dirInfo);
 
         IBasicAlbumInfo GetBasicAlbumInfoFromDirectory(string path);
+
+        IBasicAlbumInfo GetBasicAlbumInfoFromAudioFile(FileInfo fileInfo);
     }
 }

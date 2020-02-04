@@ -22,13 +22,13 @@ namespace Vmv.View.Converters
         {
             if (value is ISimpleFileInfo item)
             {
-                var converter = new ImageSourceConverter();
-                var resName = "pack://application:,,,/ResourceLibrary;component/Images/TreeViewIcons/close_folder_icon.png";
-
                 if (item is DummySimpleFileInfo)
                 {
                     return DependencyProperty.UnsetValue;
                 }
+
+                var converter = new ImageSourceConverter();
+                var resName = "pack://application:,,,/ResourceLibrary;component/Images/TreeViewIcons/close_folder_icon.png";
                 if (item.IsDirectory)
                 {
                     return "pack://application:,,,/ResourceLibrary;component/Images/TreeViewIcons/close_folder_icon.png";

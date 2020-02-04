@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using Common;
 using Serilog;
+using FileAnalyzer = FileAnalyzer.FileAnalyzer;
 
 namespace Vmv.ViewModel
 {
@@ -12,7 +13,7 @@ namespace Vmv.ViewModel
         {
             log = manager.GetLogger(this);
             ScreenA=new ScreenAVm();
-            ScreenB=new ScreenBVm();
+            ScreenB=new ScreenBVm(new global::FileAnalyzer.FileAnalyzer());
             log.Information("Application started");
         }
 

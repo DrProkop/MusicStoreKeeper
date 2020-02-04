@@ -87,15 +87,23 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="View\Preview\AudioFilePreviewView.xaml.cs">
+      <DependentUpon>AudioFilePreviewView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModel\IScreenVm.cs" />
     <Compile Include="ViewModel\MainWindowVm.cs" />
-    <Compile Include="ViewModel\NotifyPropertyChangedBase.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
     <Compile Include="ViewModel\ScreenAVm.cs" />
     <Compile Include="ViewModel\ScreenBVm.cs" />
     <Compile Include="View\Attached\AttachedProps.cs" />
     <Compile Include="View\Converters\TreeViewIconConverter.cs" />
+    <Compile Include="View\Preview\TextFilePreviewView.xaml.cs">
+      <DependentUpon>TextFilePreviewView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Preview\ImagePreviewView.xaml.cs">
+      <DependentUpon>ImagePreviewView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -107,6 +115,18 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="View\Preview\AudioFilePreviewView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Preview\TextFilePreviewView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Preview\ImagePreviewView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

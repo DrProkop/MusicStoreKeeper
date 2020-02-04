@@ -9,48 +9,45 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
-        <ResourceDictionary  Source="pack://application:,,,/ResourceLibrary;component/Brushes.xaml"/>
+        <ResourceDictionary  Source="pack://application:,,,/ResourceLibrary;component/Brushes.xaml" />
     </Window.Resources>
     <Grid Background="{StaticResource MainBackgroundBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-       
-        <Fluent:Ribbon Grid.Row="0" Background="BlueViolet">
-            <!--Backstage--><!--
-            <Fluent:Ribbon.Menu>
-                <Fluent:Backstage>
-                </Fluent:Backstage>
-            </Fluent:Ribbon.Menu>-->
 
+        <Fluent:Ribbon Grid.Row="0" Background="BlueViolet">
             <!--Tabs-->
-            <Fluent:RibbonTabItem Header="Home" >
+            <!-- Music collection -->
+            <Fluent:RibbonTabItem Header="Collection">
                 <Fluent:RibbonGroupBox Header="Screens">
                     <Fluent:Button Header="ScreenA"  Content="ScreenA" Command="{Binding ChangeScreenCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding ScreenA}" />
-                    <Fluent:Button Header="ScreenB" Content="ScreenB" Command="{Binding ChangeScreenCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding ScreenB}"  />
-                    
+                    <Fluent:Button Header="ScreenB" Content="ScreenB" Command="{Binding ChangeScreenCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding ScreenB}" />
                 </Fluent:RibbonGroupBox>
-                <Fluent:RibbonGroupBox Header="Screen B" DataContext="{Binding CurrentScreen}">
-                    <Fluent:Button Header="ScreenA"  Content="Scan Directory" Command="{Binding ScanDirectoryCommand}" />
-                    
-
+                <Fluent:RibbonGroupBox Header="File manager" DataContext="{Binding CurrentScreen}">
+                    <Fluent:Button Header="Scan folder"  LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/search_icon.png" Command="{Binding ScanDirectoryCommand}" />
+                    <Fluent:Button Header="Add to collection" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/add_files_manually_icon.png"  Command="{Binding ScanDirectoryCommand}" />
+                    <Fluent:Button Header="Discogs"  LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/vinyl_record_icon.png"  Command="{Binding ScanDirectoryCommand}" />
                 </Fluent:RibbonGroupBox>
+            </Fluent:RibbonTabItem>
 
+            <!-- Adding files to collection -->
+            <Fluent:RibbonTabItem Header="Add files">
             </Fluent:RibbonTabItem>
         </Fluent:Ribbon>
 
         <!-- screen display area -->
         <Grid Grid.Row="1">
             <Grid.Resources>
-                <DataTemplate DataType="{x:Type viewModel:ScreenAVm}" >
-                    <local:ScreenAView/>
+                <DataTemplate DataType="{x:Type viewModel:ScreenAVm}">
+                    <local:ScreenAView />
                 </DataTemplate>
-                <DataTemplate DataType="{x:Type viewModel:ScreenBVm}" >
-                    <local:ScreenBView/>
+                <DataTemplate DataType="{x:Type viewModel:ScreenBVm}">
+                    <local:ScreenBView />
                 </DataTemplate>
             </Grid.Resources>
-            <ContentControl Grid.Row="0" Content="{Binding CurrentScreen}"/> 
+            <ContentControl Grid.Row="0" Content="{Binding CurrentScreen}" />
         </Grid>
     </Grid>
 </Fluent:RibbonWindow>

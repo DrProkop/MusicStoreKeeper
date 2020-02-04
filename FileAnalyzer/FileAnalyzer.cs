@@ -113,6 +113,24 @@ namespace FileAnalyzer
             return GetBasicAlbumInfoFromDirectory(di);
         }
 
+        //TODO: Add check for file type
+        public IBasicAlbumInfo GetBasicAlbumInfoFromAudioFile(FileInfo fileInfo)
+        {
+            var bai = new BasicAlbumInfo();
+            if (!FileExtension.Trim('*').Equals(fileInfo.Extension, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return bai;
+            }
+            using (var file = File.Create(fileInfo.FullName))
+            {
+                bai.ArtistName = file.Tag.FirstPerformer;
+                bai.AlbumTitle = file.Tag.Album;
+                bai.TrackName = file.Tag.Title;
+                bai.Year = file.Tag.Year;
+                return bai;
+            }
+        }
+
         #endregion [  public methods  ]
 
         #region [  private methods  ]
