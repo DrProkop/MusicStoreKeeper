@@ -2,7 +2,7 @@
 using RestSharp;
 using RestSharp.Serialization;
 
-namespace DiscogsApiTest
+namespace Discogs
 {
     internal class JsonNetSerializer : IRestSerializer
     {

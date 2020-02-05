@@ -1,13 +1,17 @@
 ﻿using Autofac;
 using Common;
-using Vmv.View;
-using Vmv.ViewModel;
+using Discogs;
+using FileManager;
+using FileAnalyzer;
+using MusicStoreKeeper.Vmv.View;
+using MusicStoreKeeper.Vmv.ViewModel;
 
 namespace AppConfiguration
 {
     public class Start
     {
         private static IContainer _container;
+
         public static void Configure()
         {
             var builder = new ContainerBuilder();
@@ -15,13 +19,17 @@ namespace AppConfiguration
             builder.RegisterType<LoggerManager>().As<ILoggerManager>().SingleInstance();
             builder.RegisterType<FileManager.FileManager>().As<IFileManager>().SingleInstance();
             builder.RegisterType<FileAnalyzer.FileAnalyzer>().As<IFileAnalyzer>();
+            builder.RegisterType<DiscogsClient>();
+            //Screens
+            builder.RegisterType<MainWindowVm>().SingleInstance();
+            builder.RegisterType<MusicCollectionScreenVm>();
+            builder.RegisterType<MusicSearchScreenVm>();
+            builder.RegisterType<SettingsScreenVm>();
 
-            builder.RegisterType<MainWindowVm>();
-
-            builder.RegisterType<MainWindow>().OnActivated(e =>
+            builder.RegisterType<MainWindow>().OnActivated(arg =>
             {
-                var context = e.Context;
-                var instance = e.Instance;
+                var context = arg.Context;
+                var instance = arg.Instance;
                 instance.DataContext = context.Resolve<MainWindowVm>();
             });
 

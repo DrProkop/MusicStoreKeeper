@@ -1,6 +1,4 @@
-﻿using DiscogsApiTest;
-
-namespace Discogs.Entity
+﻿namespace Discogs.Entity
 {
     public class DiscogsArtist:DiscogsEntity
     {

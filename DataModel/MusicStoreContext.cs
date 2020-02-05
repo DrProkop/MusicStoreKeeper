@@ -1,7 +1,7 @@
 ﻿using System.Data.Entity;
-using Model;
+using MusicStoreKeeper.Model;
 
-namespace DataModel
+namespace MusicStoreKeeper.DataModel
 {
     public class MusicStoreContext:DbContext
     {

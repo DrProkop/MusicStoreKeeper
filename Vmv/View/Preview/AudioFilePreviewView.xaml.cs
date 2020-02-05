@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace Vmv.View
+namespace MusicStoreKeeper.Vmv.View
 {
     /// <summary>
     /// Interaction logic for AudioFilePreviewView.xaml

@@ -7,8 +7,8 @@
     <ProjectGuid>{E3C1E8B7-A27C-484D-A3AB-79A873153855}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Vmv</RootNamespace>
-    <AssemblyName>Vmv</AssemblyName>
+    <RootNamespace>MusicStoreKeeper.Vmv</RootNamespace>
+    <AssemblyName>MusicStoreKeeper.Vmv</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -87,6 +87,14 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\BaseScreenVm.cs" />
+    <Compile Include="ViewModel\DiscogsConverter.cs" />
+    <Compile Include="ViewModel\SettingsScreenVm.cs" />
     <Compile Include="View\Preview\AudioFilePreviewView.xaml.cs">
       <DependentUpon>AudioFilePreviewView.xaml</DependentUpon>
     </Compile>
@@ -94,8 +102,8 @@
     <Compile Include="ViewModel\IScreenVm.cs" />
     <Compile Include="ViewModel\MainWindowVm.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
-    <Compile Include="ViewModel\ScreenAVm.cs" />
-    <Compile Include="ViewModel\ScreenBVm.cs" />
+    <Compile Include="ViewModel\MusicCollectionScreenVm.cs" />
+    <Compile Include="ViewModel\MusicSearchScreenVm.cs" />
     <Compile Include="View\Attached\AttachedProps.cs" />
     <Compile Include="View\Converters\TreeViewIconConverter.cs" />
     <Compile Include="View\Preview\TextFilePreviewView.xaml.cs">
@@ -107,11 +115,14 @@
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\ScreenAView.xaml.cs">
-      <DependentUpon>ScreenAView.xaml</DependentUpon>
+    <Compile Include="View\MusicCollectionScreenView.xaml.cs">
+      <DependentUpon>MusicCollectionScreenView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\ScreenBView.xaml.cs">
-      <DependentUpon>ScreenBView.xaml</DependentUpon>
+    <Compile Include="View\MusicSearchScreenView.xaml.cs">
+      <DependentUpon>MusicSearchScreenView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SettingsScreenView.xaml.cs">
+      <DependentUpon>SettingsScreenView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -131,11 +142,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\ScreenAView.xaml">
+    <Page Include="View\MusicCollectionScreenView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\ScreenBView.xaml">
+    <Page Include="View\MusicSearchScreenView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SettingsScreenView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -157,9 +172,9 @@
       <Project>{5093c2e8-99fa-451c-9779-3e9fee29884d}</Project>
       <Name>FileManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Model\Model.csproj">
+    <ProjectReference Include="..\Model\MusicStoreKeeper.Model.csproj">
       <Project>{5e330b60-bb17-440c-acaa-182483a0418e}</Project>
-      <Name>Model</Name>
+      <Name>MusicStoreKeeper.Model</Name>
     </ProjectReference>
     <ProjectReference Include="..\ResourceLibrary\ResourceLibrary.csproj">
       <Project>{c1524334-3a27-4015-b74f-ad3c54d45fee}</Project>
@@ -167,7 +182,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,11 +1,11 @@
-﻿namespace Model
+﻿namespace MusicStoreKeeper.Model
 {
-    public class Track
+    public class Track:BaseEntity
     {
-        public int Id { get; set; }
         public int Number { get; set; }
         public string Name { get; set; }
-        public Album Album { get; set; }
-        public Artist Artist { get; set; }
+        public string Duration { get; set; }
+        public int AlbumId { get; set; }
+        public int ArtistId { get; set; }
     }
 }

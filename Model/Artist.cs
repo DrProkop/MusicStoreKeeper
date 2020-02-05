@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 
-namespace Model
+namespace MusicStoreKeeper.Model
 {
-    public class Artist
+    public class Artist:BaseEntity
     {
         public Artist()
         {
             Albums = new List<Album>();
         }
 
-        public int Id { get; set; }
+        public int DiscogsId { get; set; }
         public string Name { get; set; }
         public List<Album> Albums { get; set; }
+        public string StoragePath { get; set; }
     }
 }

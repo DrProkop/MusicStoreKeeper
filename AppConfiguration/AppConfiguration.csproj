@@ -99,12 +99,17 @@
     <Compile Include="Start.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{c30ddd5f-51a2-46e8-b146-9635a82eff54}</Project>
       <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataModel\MusicStoreKeeper.DataModel.csproj">
+      <Project>{845c7161-8e1f-4118-ba19-9d18f0b08402}</Project>
+      <Name>MusicStoreKeeper.DataModel</Name>
     </ProjectReference>
     <ProjectReference Include="..\Discogs\Discogs.csproj">
       <Project>{793820cf-90e6-475a-bde4-495f3b79208a}</Project>
@@ -118,13 +123,13 @@
       <Project>{5093c2e8-99fa-451c-9779-3e9fee29884d}</Project>
       <Name>FileManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Model\Model.csproj">
+    <ProjectReference Include="..\Model\MusicStoreKeeper.Model.csproj">
       <Project>{5e330b60-bb17-440c-acaa-182483a0418e}</Project>
-      <Name>Model</Name>
+      <Name>MusicStoreKeeper.Model</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Vmv\Vmv.csproj">
+    <ProjectReference Include="..\Vmv\MusicStoreKeeper.Vmv.csproj">
       <Project>{e3c1e8b7-a27c-484d-a3ab-79a873153855}</Project>
-      <Name>Vmv</Name>
+      <Name>MusicStoreKeeper.Vmv</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

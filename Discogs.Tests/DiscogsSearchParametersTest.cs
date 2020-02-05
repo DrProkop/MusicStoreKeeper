@@ -1,5 +1,4 @@
 ﻿using Discogs.Enums;
-using DiscogsApiTest;
 using NUnit.Framework;
 
 namespace Discogs.Tests

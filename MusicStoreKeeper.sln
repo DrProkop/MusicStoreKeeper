@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicStoreKeeper", "MusicSt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppConfiguration", "AppConfiguration\AppConfiguration.csproj", "{EB28F6AC-77B8-4056-B600-DDE9632936EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Model\Model.csproj", "{5E330B60-BB17-440C-ACAA-182483A0418E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicStoreKeeper.Model", "Model\MusicStoreKeeper.Model.csproj", "{5E330B60-BB17-440C-ACAA-182483A0418E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vmv", "Vmv\Vmv.csproj", "{E3C1E8B7-A27C-484D-A3AB-79A873153855}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicStoreKeeper.Vmv", "Vmv\MusicStoreKeeper.Vmv.csproj", "{E3C1E8B7-A27C-484D-A3AB-79A873153855}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceLibrary", "ResourceLibrary\ResourceLibrary.csproj", "{C1524334-3A27-4015-B74F-AD3C54D45FEE}"
 EndProject
@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discogs", "Discogs\Discogs.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discogs.Tests", "Discogs.Tests\Discogs.Tests.csproj", "{8DCC673E-0941-477B-8E94-C9E0CD2C7694}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataModel", "DataModel\DataModel.csproj", "{845C7161-8E1F-4118-BA19-9D18F0B08402}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicStoreKeeper.DataModel", "DataModel\MusicStoreKeeper.DataModel.csproj", "{845C7161-8E1F-4118-BA19-9D18F0B08402}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileAnalyzer.Tests", "FileAnalyzer.Tests\FileAnalyzer.Tests.csproj", "{C69E7ACA-A886-4558-93E1-84F508DF8A4B}"
 EndProject

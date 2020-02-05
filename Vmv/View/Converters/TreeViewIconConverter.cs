@@ -1,11 +1,11 @@
-﻿using Common;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using Common;
 
-namespace Vmv.View.Converters
+namespace MusicStoreKeeper.Vmv.View.Converters
 {
     /// <summary>
     /// Returns icon image sources for different file types.

@@ -31,11 +31,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ComposableAsync.Core, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ComposableAsync.Core.1.1.0\lib\netstandard2.0\ComposableAsync.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="RateLimiter, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RateLimiter.2.1.0\lib\netstandard2.0\RateLimiter.dll</HintPath>
+    </Reference>
     <Reference Include="RestSharp, Version=106.0.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharp.106.10.1\lib\net452\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharpHelper, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharpHelper.1.1.1\lib\net461\RestSharpHelper.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -55,23 +64,26 @@
     <Compile Include="Entity\DiscogsArtistReleases.cs" />
     <Compile Include="Entity\DiscogsEntity.cs" />
     <Compile Include="Entity\DiscogsImage.cs" />
+    <Compile Include="Entity\DiscogsMasterRelease.cs" />
     <Compile Include="Entity\DiscogsPaginatedResult.cs" />
     <Compile Include="Entity\DiscogsPagination.cs" />
     <Compile Include="Entity\DiscogsRelease.cs" />
     <Compile Include="Entity\DiscogsReleaseArtist.cs" />
+    <Compile Include="Entity\DiscogsReleaseBase.cs" />
     <Compile Include="Entity\DiscogsReleaseLabel.cs" />
     <Compile Include="Entity\DiscogsSearchResult.cs" />
     <Compile Include="Entity\DiscogsSearchResults.cs" />
     <Compile Include="Entity\DiscogsTrack.cs" />
+    <Compile Include="Entity\DiscogsVideo.cs" />
     <Compile Include="Enums\DiscogsArtistReleaseSort.cs" />
     <Compile Include="Enums\DiscogsImageType.cs" />
     <Compile Include="Enums\DiscogsSearchObjectType.cs" />
     <Compile Include="Enums\DiscogsSortOrder.cs" />
     <Compile Include="JsonNetSerializer.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

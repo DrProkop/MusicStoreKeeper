@@ -63,12 +63,16 @@
     <Compile Include="IBasicAlbumInfo.cs" />
     <Compile Include="IFileAnalyzer.cs" />
     <Compile Include="IFileManager.cs" />
-    <Compile Include="ILoggerManager.cs" />
-    <Compile Include="LoggerManager.cs" />
+    <Compile Include="Logging\ILoggerManager.cs" />
+    <Compile Include="Logging\LoggerManager.cs" />
     <Compile Include="NotifyPropertyChangedBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleFileInfo.cs" />
-    <Compile Include="ViewModel\IPreviewVm.cs" />
+    <Compile Include="ViewModel\Preview\AudioFilePreviewVm.cs" />
+    <Compile Include="ViewModel\Preview\ImagePreviewVm.cs" />
+    <Compile Include="ViewModel\Preview\IPreviewVm.cs" />
+    <Compile Include="ViewModel\Preview\PreviewVmBase.cs" />
+    <Compile Include="ViewModel\Preview\TextFilePreviewVm.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

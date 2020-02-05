@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using Common;
-using Model;
+using MusicStoreKeeper.Model;
 
-namespace Vmv.ViewModel
+namespace MusicStoreKeeper.Vmv.ViewModel
 {
-    public class ScreenAVm: NotifyPropertyChangedBase, IScreenVm
+    public class MusicCollectionScreenVm: BaseScreenVm
     {
-        public ScreenAVm()
+        public MusicCollectionScreenVm(ILoggerManager manager):base(manager)
         {
             ArtistsList = new ObservableCollection<Artist>();
             SetupTestArtistData();

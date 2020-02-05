@@ -1,9 +1,9 @@
-﻿using RestSharp.Extensions;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Text;
 using Discogs.Enums;
+using RestSharp.Extensions;
 
-namespace DiscogsApiTest
+namespace Discogs
 {
     /// <summary>
     /// Contains search query and additional parameters for search on Discogs.

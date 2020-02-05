@@ -1,18 +1,19 @@
-﻿using RestSharp;
+﻿using Discogs.Entity;
+using Discogs.Enums;
+using RateLimiter;
+using RestSharp;
 using RestSharp.Authenticators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Discogs.Entity;
-using Discogs.Enums;
 
-namespace DiscogsApiTest
+namespace Discogs
 {
     public class DiscogsClient
     {
         private static readonly string userAgent = "MusicStoreKeeper/0.1";
-        private static RestClient client = new RestClient("https://api.discogs.com/") { UserAgent = userAgent };
+        private static readonly RestClient client= new RestClient("https://api.discogs.com/") { UserAgent = userAgent };
         private static readonly string token = "SXxVxPpSgbTxskTqVrwFzqrbcLvMNtnAKDyIbuub";
 
         //TODO: Use some OAuth1.0(a) library for proper authentication
@@ -26,22 +27,25 @@ namespace DiscogsApiTest
         private const string ArtistReleasesPath = "artists/{artistId}/releases";
         private const string SearchStringPath = "database/search?";
         private const string ReleasePath = "releases/{releaseId}";
+        private const string MasterReleasePath = "/masters/{masterId}";
+
+        private TimeLimiter timeConstraint;
 
         public DiscogsClient()
         {
             client.UseSerializer(() => new JsonNetSerializer());
             client.Authenticator = new SimpleAuthenticator("key", ConsumerKey, "secret", ConsumerSecret);
+            timeConstraint = TimeLimiter.GetFromMaxCountByInterval(60, TimeSpan.FromSeconds(1));
         }
 
         #region [methods]
-        
+
         #region [ artist ]
 
         public async Task<DiscogsArtist> GetArtistById(int artistId)
         {
             var request = new RestRequest(ArtistPath).AddUrlSegment(nameof(artistId), artistId.ToString());
-            var response = await client.GetAsync<DiscogsArtist>(request);
-            return response;
+            return await client.GetAsync<DiscogsArtist>(request);
         }
 
         public async Task<DiscogsArtist> GetArtistByName(string artistName)
@@ -53,7 +57,7 @@ namespace DiscogsApiTest
             return await GetArtistById(firstResult.id);
         }
 
-        #endregion
+        #endregion [ artist ]
 
         #region [ release ]
 
@@ -67,8 +71,13 @@ namespace DiscogsApiTest
         public async Task<DiscogsRelease> GetReleaseById(int releaseId)
         {
             var request = new RestRequest(ReleasePath).AddUrlSegment(nameof(releaseId), releaseId.ToString());
-            var response = await client.GetAsync<DiscogsRelease>(request);
-            return response;
+            return await client.GetAsync<DiscogsRelease>(request);
+        }
+
+        public async Task<DiscogsMasterRelease> GetMaterReleaseById(int masterId)
+        {
+            var request = new RestRequest(MasterReleasePath).AddUrlSegment(nameof(masterId), masterId.ToString());
+            return await client.GetAsync<DiscogsMasterRelease>(request);
         }
 
         public async Task<DiscogsRelease> GetReleaseByTitle(string releaseTitle, string trackName)
@@ -80,6 +89,7 @@ namespace DiscogsApiTest
             var results = discogsSearchResults.ToList();
             foreach (var result in results)
             {
+                //TODO: Add check for master releases
                 release = GetReleaseById(result.id).Result;
                 var tracks = release.tracklist;
                 if (tracks.Any(arg => arg.title.Equals(trackName, StringComparison.InvariantCultureIgnoreCase)))
@@ -91,7 +101,7 @@ namespace DiscogsApiTest
             return releaseId == 0 ? null : release;
         }
 
-        #endregion
+        #endregion [ release ]
 
         public async Task<IEnumerable<DiscogsSearchResult>> DiscogsSearch(DiscogsSearchParameters arg)
         {
@@ -107,6 +117,7 @@ namespace DiscogsApiTest
             var response = client.Get(request);
             return response.Content;
         }
+
         #endregion [methods]
     }
 }

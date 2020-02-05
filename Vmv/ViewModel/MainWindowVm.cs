@@ -1,49 +1,132 @@
-﻿using System.Configuration;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Common;
-using Serilog;
-using FileAnalyzer = FileAnalyzer.FileAnalyzer;
 
-namespace Vmv.ViewModel
+namespace MusicStoreKeeper.Vmv.ViewModel
 {
-    public class MainWindowVm : NotifyPropertyChangedBase
+    public class MainWindowVm : BaseScreenVm
     {
-        private ILogger log;
-        public MainWindowVm(ILoggerManager manager)
+        
+
+        public MainWindowVm(MusicCollectionScreenVm musicCollectionScreen,
+            MusicSearchScreenVm musicSearchScreen,
+            SettingsScreenVm settingsScreen,
+            ILoggerManager manager):base(manager)
         {
-            log = manager.GetLogger(this);
-            ScreenA=new ScreenAVm();
-            ScreenB=new ScreenBVm(new global::FileAnalyzer.FileAnalyzer());
+            MusicCollectionScreen = musicCollectionScreen;
+            MusicSearchScreen = musicSearchScreen;
+            SettingsScreen = settingsScreen;
             log.Information("Application started");
         }
 
-        private IScreenVm _screenA;
+        #region [  properties  ]
 
-        public IScreenVm ScreenA
+        private IScreenVm _musicCollectionScreen;
+
+        public IScreenVm MusicCollectionScreen
         {
-            get => _screenA;
-            set { _screenA = value;OnPropertyChanged(); }
+            get => _musicCollectionScreen;
+            set { _musicCollectionScreen = value; OnPropertyChanged(); }
         }
 
-        private IScreenVm _screenB;
+        private IScreenVm _musicSearchScreen;
 
-        public IScreenVm ScreenB
+        public IScreenVm MusicSearchScreen
         {
-            get => _screenB;
-            set { _screenB = value; OnPropertyChanged(); }
+            get => _musicSearchScreen;
+            set { _musicSearchScreen = value; OnPropertyChanged(); }
         }
 
-        private object _currentScreen;
+        private IScreenVm _settingsScreen;
 
-        public object CurrentScreen
+        public IScreenVm SettingsScreen
+        {
+            get => _settingsScreen;
+            set
+            {
+                _settingsScreen = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private IScreenVm _currentScreen;
+
+        public IScreenVm CurrentScreen
         {
             get => _currentScreen;
-            set{_currentScreen = value;OnPropertyChanged();}
+            set { _currentScreen = value; OnPropertyChanged(); }
         }
+
+        #region [  tab item selected  ]
+
+        private bool _musicCollectionScreenSelected;
+
+        public bool MusicCollectionScreenSelected
+        {
+            get => _musicCollectionScreenSelected;
+            set
+            {
+                if (_musicCollectionScreenSelected == value) return;
+                _musicCollectionScreenSelected = value;
+                if (value)
+                {
+                    SetCurrentScreen(MusicCollectionScreen);
+                }
+            }
+        }
+
+        private bool _searchMusicScreenSelected;
+
+        public bool SearchMusicScreenSelected
+        {
+            get => _searchMusicScreenSelected;
+            set
+            {
+                if (_searchMusicScreenSelected == value) return;
+                _searchMusicScreenSelected = value;
+                if (value)
+                {
+                    SetCurrentScreen(MusicSearchScreen);
+                }
+            }
+        }
+
+        private bool _settingsScreenSelected;
+
+        public bool SettingsScreenSelected
+        {
+            get => _settingsScreenSelected;
+            set
+            {
+                if (_settingsScreenSelected == value) return;
+                _settingsScreenSelected = value;
+                if (value)
+                {
+                    SetCurrentScreen(SettingsScreen);
+                }
+                
+            }
+        }
+
+        #endregion [  tab item selected  ]
+
+        #endregion [  properties  ]
+
+        #region [  commands  ]
 
         private ICommand _changeScreenCommand;
 
         public ICommand ChangeScreenCommand => _changeScreenCommand ??
                                                (_changeScreenCommand = new RelayCommand<IScreenVm>(screen => CurrentScreen = screen));
+
+        #endregion [  commands  ]
+
+        #region [  private methods  ]
+
+        private void SetCurrentScreen(IScreenVm screen)
+        {
+            CurrentScreen = screen;
+        }
+
+        #endregion [  private methods  ]
     }
 }

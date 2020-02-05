@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Vmv.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="MusicSearchDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">d:\MusicStoreTest\</Value>
+    </Setting>
+    <Setting Name="MusicCollectionDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">d:\MusicCollectionTest\</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
