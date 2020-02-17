@@ -1,10 +1,11 @@
 ﻿using System.Windows.Media;
+using Common;
 
-namespace Common
+namespace MusicStoreKeeper.Vmv.ViewModel
 {
-    public class ImagePreviewVm : PreviewVmBase
+    public class ImageFilePreviewVm : FilePreviewVmBase
     {
-        public ImagePreviewVm(ISimpleFileInfo fileInfo, ImageSource imageSource) : base(fileInfo)
+        public ImageFilePreviewVm(ISimpleFileInfo fileInfo, ImageSource imageSource) : base(fileInfo)
         {
             Image = imageSource;
         }

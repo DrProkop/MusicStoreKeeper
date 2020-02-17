@@ -11,15 +11,17 @@ using System.Windows.Media;
 using Common;
 using Discogs;
 using MusicStoreKeeper.Model;
+using MusicStoreKeeper.DataModel;
 
 namespace MusicStoreKeeper.Vmv.ViewModel
 {
     //TODO: Create base class for vms, add logging to it.
     public class MusicSearchScreenVm : BaseScreenVm
     {
-        public MusicSearchScreenVm(DiscogsClient client, IFileAnalyzer fileAnalyzer, IFileManager fileManager, ILoggerManager manager) : base(manager)
+        public MusicSearchScreenVm(DiscogsClient client,IRepository repository, IFileAnalyzer fileAnalyzer, IFileManager fileManager, ILoggerManager manager) : base(manager)
         {
             _discogsClient = client;
+            _repo = repository;
             _fileAnalyzer = fileAnalyzer;
             _fileManager = fileManager;
             _discogsConverter = new DiscogsConverter(new DiscogsClient());
@@ -29,11 +31,11 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         #region [  fields  ]
 
         private readonly DiscogsClient _discogsClient;
+        private readonly IRepository _repo;
         private readonly IFileAnalyzer _fileAnalyzer;
         private readonly IFileManager _fileManager;
         private readonly DiscogsConverter _discogsConverter;
-
-        #endregion [  fields  ]
+       #endregion [  fields  ]
 
         #region [  properties  ]
 
@@ -141,6 +143,8 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             var artist = _discogsConverter.CreateArtist(dArtist);
             var album = _discogsConverter.CreateAlbum(dRelease);
             artist.Albums.Add(album);
+            _repo.AddNewArtist(artist);
+            _repo.Save();
             return artist;
         }
 
@@ -158,7 +162,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             {
                 var imageSource = new ImageSourceConverter().ConvertFromString(file.Info.FullName) as ImageSource;
                 //  var imageSource = new ImageSourceConverter().
-                var imagePreview = new ImagePreviewVm(file, imageSource);
+                var imagePreview = new ImageFilePreviewVm(file, imageSource);
                 return imagePreview;
             }
 

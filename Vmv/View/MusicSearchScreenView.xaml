@@ -7,6 +7,7 @@
              xmlns:common="clr-namespace:Common;assembly=Common"
              xmlns:converters="clr-namespace:MusicStoreKeeper.Vmv.View.Converters"
              xmlns:view="clr-namespace:MusicStoreKeeper.Vmv.View"
+             xmlns:viewModel="clr-namespace:MusicStoreKeeper.Vmv.ViewModel"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -58,13 +59,14 @@
         <Border Grid.Column="1" Margin="5">
             <Grid>
                 <Grid.Resources>
-                    <DataTemplate DataType="{x:Type common:AudioFilePreviewVm}">
+                    <!-- templates for preview-->
+                    <DataTemplate DataType="{x:Type viewModel:AudioFilePreviewVm}">
                         <view:AudioFilePreviewView />
                     </DataTemplate>
-                    <DataTemplate DataType="{x:Type common:ImagePreviewVm}">
+                    <DataTemplate DataType="{x:Type viewModel:ImageFilePreviewVm}">
                         <view:ImagePreviewView />
                     </DataTemplate>
-                    <DataTemplate DataType="{x:Type common:TextFilePreviewVm}">
+                    <DataTemplate DataType="{x:Type viewModel:TextFilePreviewVm}">
                         <view:TextFilePreviewView />
                     </DataTemplate>
                 </Grid.Resources>

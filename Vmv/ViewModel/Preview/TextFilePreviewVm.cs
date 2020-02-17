@@ -1,8 +1,9 @@
 ﻿using System.IO;
+using Common;
 
-namespace Common
+namespace MusicStoreKeeper.Vmv.ViewModel
 {
-    public class TextFilePreviewVm : PreviewVmBase
+    public class TextFilePreviewVm : FilePreviewVmBase
     {
         public TextFilePreviewVm(ISimpleFileInfo fileInfo) : base(fileInfo)
         {

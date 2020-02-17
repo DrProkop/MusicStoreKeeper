@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Input;
 using Common;
 using MusicStoreKeeper.Model;
 
@@ -8,19 +10,19 @@ namespace MusicStoreKeeper.Vmv.ViewModel
     {
         public MusicCollectionScreenVm(ILoggerManager manager):base(manager)
         {
-            ArtistsList = new ObservableCollection<Artist>();
+            ArtistsCollection = new ObservableCollection<Artist>();
             SetupTestArtistData();
 
         }
 
         #region [  properties  ]
 
-        private ObservableCollection<Artist> _artistsList;
+        private ObservableCollection<Artist> _artistsCollection;
 
-        public ObservableCollection<Artist> ArtistsList
+        public ObservableCollection<Artist> ArtistsCollection
         {
-            get => _artistsList;
-            set { _artistsList = value; OnPropertyChanged(); }
+            get => _artistsCollection;
+            set { _artistsCollection = value; OnPropertyChanged(); }
         }
 
         private Artist _selectedArtist;
@@ -41,6 +43,17 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         #endregion
 
+        #region [  commands  ]
+
+        private ICommand _artistExpandedCommand;
+
+        public ICommand ArtistExpandedCommand => _artistExpandedCommand ?? (_artistExpandedCommand = new RelayCommand<RoutedEventArgs>(
+                                                   arg =>
+                                                   {
+
+                                                   }));
+
+        #endregion
 
         private void SetupTestArtistData()
         {
@@ -76,9 +89,9 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             artistB.Albums.Add(albumB);
             artistC.Albums.Add(albumC);
 
-            ArtistsList.Add(artistA);
-            ArtistsList.Add(artistB);
-            ArtistsList.Add(artistC);
+            ArtistsCollection.Add(artistA);
+            ArtistsCollection.Add(artistB);
+            ArtistsCollection.Add(artistC);
         }
     }
     

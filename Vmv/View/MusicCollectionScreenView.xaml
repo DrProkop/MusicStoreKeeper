@@ -3,47 +3,73 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:model="clr-namespace:MusicStoreKeeper.Model;assembly=MusicStoreKeeper.Model"
+             xmlns:view="clr-namespace:MusicStoreKeeper.Vmv.View"
+             xmlns:viewModel="clr-namespace:MusicStoreKeeper.Vmv.ViewModel"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="1000">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <!-- artists list -->
-        <ListBox Grid.Row="0" ItemsSource="{Binding ArtistsList ,Mode=OneWay}" SelectedItem="{Binding SelectedArtist}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name, Mode=OneWay, UpdateSourceTrigger=PropertyChanged }" TextWrapping="Wrap"/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        <!-- albums list -->
-        <ListBox Grid.Column="1" ItemsSource="{Binding SelectedArtist.Albums ,Mode=OneWay}" SelectedItem="{Binding SelectedAlbum}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Title, Mode=OneWay, UpdateSourceTrigger=PropertyChanged }" TextWrapping="Wrap"/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <Grid.Resources>
+            <!-- templates for treeview-->
+            <HierarchicalDataTemplate x:Key="AlbumsTemplate" DataType="{x:Type model:Album}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding Title}" />
+                </StackPanel>
+            </HierarchicalDataTemplate>
+            <HierarchicalDataTemplate x:Key="ArtistsTemplate" DataType="{x:Type model:Artist}" ItemsSource="{Binding Albums}" ItemTemplate="{StaticResource AlbumsTemplate}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding Name}" />
+                </StackPanel>
+            </HierarchicalDataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModel:ArtistPreviewVm}">
+                <view:ArtistPreviewView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModel:AlbumPreviewVm}">
+                <view:AlbumPreviewView />
+            </DataTemplate>
+
+        </Grid.Resources>
+        <!-- artists with albums list -->
+        <TreeView Grid.Column="0" Name="MusicCollectionTreeView" ItemsSource="{Binding ArtistsCollection}" ItemTemplate="{StaticResource ArtistsTemplate}">
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="{x:Type TreeViewItem}">
+                    <Setter Property="view:AttachedProps.ExpandingProperty" Value="{Binding ElementName=MusicCollectionTreeView, Path=DataContext.ArtistExpandedCommand}" />
+                    <Style.Triggers>
+                        <Trigger Property="IsExpanded"  Value="True">
+                            <Setter Property="FontWeight" Value="Bold" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TreeView.ItemContainerStyle>
+
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectedItemChanged">
+                    <i:InvokeCommandAction Command="{Binding SelectedItemChangedCommand}" CommandParameter="{Binding ElementName=MusicCollectionTreeView, Path=SelectedItem}" />
+                    <i:InvokeCommandAction />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TreeView>
+
         <!-- albums cover and track list-->
-        <Grid Grid.Column="2">
+        <Grid Grid.Column="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="2*"/>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <!-- track list-->
-            <ListBox Grid.Row="1" ItemsSource="{Binding SelectedAlbum.Tracks ,Mode=OneWay}" >
+            <ListBox Grid.Row="1" ItemsSource="{Binding SelectedAlbum.Tracks ,Mode=OneWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Name, Mode=OneWay, UpdateSourceTrigger=PropertyChanged }" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding Name, Mode=OneWay, UpdateSourceTrigger=PropertyChanged }" TextWrapping="Wrap" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-
-
         </Grid>
-
     </Grid>
 </UserControl>

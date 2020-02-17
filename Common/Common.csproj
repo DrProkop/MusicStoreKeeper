@@ -68,16 +68,12 @@
     <Compile Include="NotifyPropertyChangedBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleFileInfo.cs" />
-    <Compile Include="ViewModel\Preview\AudioFilePreviewVm.cs" />
-    <Compile Include="ViewModel\Preview\ImagePreviewVm.cs" />
-    <Compile Include="ViewModel\Preview\IPreviewVm.cs" />
-    <Compile Include="ViewModel\Preview\PreviewVmBase.cs" />
-    <Compile Include="ViewModel\Preview\TextFilePreviewVm.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="ViewModel\" />
     <Folder Include="View\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,17 +1,19 @@
-﻿namespace Common
+﻿using Common;
+
+namespace MusicStoreKeeper.Vmv.ViewModel
 {
-    public abstract class PreviewVmBase : NotifyPropertyChangedBase, IPreviewVm
+    public abstract class FilePreviewVmBase : NotifyPropertyChangedBase, IPreviewVm
     {
-        protected PreviewVmBase(ISimpleFileInfo fileInfo)
+        protected FilePreviewVmBase(ISimpleFileInfo fileInfo)
         {
-            FileName = fileInfo.Name;
+            ItemName = fileInfo.Name;
         }
 
         #region [  properties  ]
 
         private string _fileName;
 
-        public string FileName
+        public string ItemName
         {
             get => _fileName;
             set

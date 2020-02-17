@@ -3,6 +3,7 @@ using Common;
 using Discogs;
 using FileManager;
 using FileAnalyzer;
+using MusicStoreKeeper.DataModel;
 using MusicStoreKeeper.Vmv.View;
 using MusicStoreKeeper.Vmv.ViewModel;
 
@@ -20,6 +21,7 @@ namespace AppConfiguration
             builder.RegisterType<FileManager.FileManager>().As<IFileManager>().SingleInstance();
             builder.RegisterType<FileAnalyzer.FileAnalyzer>().As<IFileAnalyzer>();
             builder.RegisterType<DiscogsClient>();
+            builder.RegisterType<Repository>().As<IRepository>();
             //Screens
             builder.RegisterType<MainWindowVm>().SingleInstance();
             builder.RegisterType<MusicCollectionScreenVm>();

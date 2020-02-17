@@ -1,6 +1,9 @@
-﻿namespace Common
+﻿using Common;
+
+namespace MusicStoreKeeper.Vmv.ViewModel
+
 {
-    public class AudioFilePreviewVm : PreviewVmBase
+    public class AudioFilePreviewVm : FilePreviewVmBase
     {
         public AudioFilePreviewVm(ISimpleFileInfo fileInfo, IBasicAlbumInfo trackInfo) : base(fileInfo)
         {

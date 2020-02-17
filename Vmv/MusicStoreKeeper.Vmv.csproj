@@ -94,7 +94,18 @@
     </Compile>
     <Compile Include="ViewModel\BaseScreenVm.cs" />
     <Compile Include="ViewModel\DiscogsConverter.cs" />
+    <Compile Include="ViewModel\Preview\AlbumPreviewVm.cs" />
+    <Compile Include="ViewModel\Preview\ArtistPreviewVm.cs" />
+    <Compile Include="ViewModel\Preview\AudioFilePreviewVm.cs" />
+    <Compile Include="ViewModel\Preview\ImageFilePreviewVm.cs" />
+    <Compile Include="ViewModel\Preview\IPreviewVm.cs" />
+    <Compile Include="ViewModel\Preview\FilePreviewVmBase.cs" />
+    <Compile Include="ViewModel\Preview\ModelPreviewVmBase.cs" />
+    <Compile Include="ViewModel\Preview\TextFilePreviewVm.cs" />
     <Compile Include="ViewModel\SettingsScreenVm.cs" />
+    <Compile Include="View\Preview\AlbumPreviewView.xaml.cs">
+      <DependentUpon>AlbumPreviewView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Preview\AudioFilePreviewView.xaml.cs">
       <DependentUpon>AudioFilePreviewView.xaml</DependentUpon>
     </Compile>
@@ -106,6 +117,9 @@
     <Compile Include="ViewModel\MusicSearchScreenVm.cs" />
     <Compile Include="View\Attached\AttachedProps.cs" />
     <Compile Include="View\Converters\TreeViewIconConverter.cs" />
+    <Compile Include="View\Preview\ArtistPreviewView.xaml.cs">
+      <DependentUpon>ArtistPreviewView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Preview\TextFilePreviewView.xaml.cs">
       <DependentUpon>TextFilePreviewView.xaml</DependentUpon>
     </Compile>
@@ -126,9 +140,17 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="View\Preview\AlbumPreviewView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\Preview\AudioFilePreviewView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Preview\ArtistPreviewView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="View\Preview\TextFilePreviewView.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -159,6 +181,10 @@
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{c30ddd5f-51a2-46e8-b146-9635a82eff54}</Project>
       <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataModel\MusicStoreKeeper.DataModel.csproj">
+      <Project>{845c7161-8e1f-4118-ba19-9d18f0b08402}</Project>
+      <Name>MusicStoreKeeper.DataModel</Name>
     </ProjectReference>
     <ProjectReference Include="..\Discogs\Discogs.csproj">
       <Project>{793820cf-90e6-475a-bde4-495f3b79208a}</Project>
