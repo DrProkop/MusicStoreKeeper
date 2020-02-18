@@ -1,5 +1,4 @@
-﻿using Discogs;
-using Discogs.Entity;
+﻿using Discogs.Entity;
 using MusicStoreKeeper.Model;
 
 namespace MusicStoreKeeper.Vmv.ViewModel
@@ -7,21 +6,16 @@ namespace MusicStoreKeeper.Vmv.ViewModel
     //TODO: Rename DiscogsConverter class and its methods
     public class DiscogsConverter
     {
-        private readonly DiscogsClient _client;
-
-        public DiscogsConverter(DiscogsClient client)
+        public DiscogsConverter()
         {
-            _client = client;
         }
-
-
 
         #region [  public methods  ]
 
-        public Artist  CreateArtist(DiscogsArtist dArtist)
+        public Artist CreateArtist(DiscogsArtist dArtist)
         {
             var artist = new Artist();
-            artist.Name = dArtist.Name;
+            artist.Name = dArtist.name;
             artist.DiscogsId = dArtist.id;
 
             return artist;
@@ -54,11 +48,5 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         }
 
         #endregion [  public methods  ]
-
-        #region [  private methods  ]
-
-
-
-        #endregion [  private methods  ]
     }
 }

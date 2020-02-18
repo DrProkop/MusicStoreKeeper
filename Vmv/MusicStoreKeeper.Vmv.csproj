@@ -101,6 +101,7 @@
     <Compile Include="ViewModel\Preview\IPreviewVm.cs" />
     <Compile Include="ViewModel\Preview\FilePreviewVmBase.cs" />
     <Compile Include="ViewModel\Preview\ModelPreviewVmBase.cs" />
+    <Compile Include="ViewModel\Preview\PreviewFactory.cs" />
     <Compile Include="ViewModel\Preview\TextFilePreviewVm.cs" />
     <Compile Include="ViewModel\SettingsScreenVm.cs" />
     <Compile Include="View\Preview\AlbumPreviewView.xaml.cs">

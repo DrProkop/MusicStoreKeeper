@@ -2,8 +2,12 @@
 {
     public class DiscogsArtist:DiscogsEntity
     {
-        public string Name { get; set; }
-        public string[] NameVariations { get; set; }
-        public string Profile { get; set; }
+        public DiscogsImage[] images { get; set; }
+
+        public string name { get; set; }
+        public string realname { get; set; }
+        public string[] nameVariations { get; set; }
+        public string profile { get; set; }
+
     }
 }

@@ -7,7 +7,19 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Border BorderBrush="CadetBlue" BorderThickness="1">
-            <Image HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding Image}" Margin="10" Stretch="None" />
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <!-- artist name -->
+                <TextBlock Grid.Row="0" Text="{Binding ItemName}"/>
+                <!-- artist image -->
+                <Image Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding ArtistImage}" Margin="10" Stretch="None" />
+                <!-- artist profile -->
+                <TextBlock Grid.Row="2" Text="{Binding Profile}"/>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

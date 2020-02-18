@@ -1,19 +1,38 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Common;
+using MusicStoreKeeper.DataModel;
 using MusicStoreKeeper.Model;
 
 namespace MusicStoreKeeper.Vmv.ViewModel
 {
     public class MusicCollectionScreenVm: BaseScreenVm
     {
-        public MusicCollectionScreenVm(ILoggerManager manager):base(manager)
+        public MusicCollectionScreenVm(IRepository repository, PreviewFactory previewFactory, ILoggerManager manager):base(manager)
         {
-            ArtistsCollection = new ObservableCollection<Artist>();
-            SetupTestArtistData();
+            _repo = repository;
+            _previewFactory = previewFactory;
+            var dbArtists = _repo.GetAllArtists().ToList();
+            foreach (var dbArtist in dbArtists)
+            {
+                dbArtist.Albums.Add(new Album());
+            }
+            ArtistsCollection = new ObservableCollection<Artist>(dbArtists);
+            
+          //  SetupTestArtistData();
 
         }
+
+        #region [  fields  ]
+
+        private readonly IRepository _repo;
+        private readonly PreviewFactory _previewFactory;
+
+        #endregion
 
         #region [  properties  ]
 
@@ -41,6 +60,18 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             set { _selectedAlbum = value; OnPropertyChanged(); }
         }
 
+        private IPreviewVm _collectionItemPreview;
+
+        public IPreviewVm CollectionItemPreview
+        {
+            get => _collectionItemPreview;
+            set
+            {
+                _collectionItemPreview = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region [  commands  ]
@@ -48,10 +79,39 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         private ICommand _artistExpandedCommand;
 
         public ICommand ArtistExpandedCommand => _artistExpandedCommand ?? (_artistExpandedCommand = new RelayCommand<RoutedEventArgs>(
-                                                   arg =>
-                                                   {
+                                                   arg => { ExpandTreeViewItem(arg); }));
 
-                                                   }));
+
+        private void ExpandTreeViewItem(RoutedEventArgs arg)
+        {
+            if (!(arg.OriginalSource is TreeViewItem item)) return;
+            if (item.DataContext is Artist art)
+            {
+                LoadArtistAlbums(art);
+            }
+        }
+
+        private void LoadArtistAlbums(Artist artist)
+        {
+            artist.Albums = _repo.GetAllArtistAlbums(artist.Id).ToList();
+        }
+
+        private ICommand _selectedItemChangedCommand;
+
+        public ICommand SelectedItemChangedCommand => _selectedItemChangedCommand ?? (_selectedItemChangedCommand = new RelayCommand<object>(arg =>
+                                                          {
+                                                              ChangeSelectedItem(arg);
+                                                          }));
+
+
+        #endregion
+
+        #region [  private methods  ]
+
+        private void ChangeSelectedItem(object arg)
+        {
+            CollectionItemPreview = _previewFactory.CreatePreviewVm(arg);
+        }
 
         #endregion
 

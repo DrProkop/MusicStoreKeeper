@@ -62,6 +62,11 @@ namespace MusicStoreKeeper.DataModel
 
         #region [  album  ]
 
+        public IEnumerable<Album> GetAllArtistAlbums(int artistId)
+        {
+            return _musicStoreContext.Albums.Where(alb => alb.ArtistId == artistId);
+        }
+
         #endregion
 
         public void Save()

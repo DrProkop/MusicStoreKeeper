@@ -13,6 +13,7 @@ namespace MusicStoreKeeper.DataModel
         Artist FindArtistById(int id);
         IEnumerable<Artist> GetAllArtists();
         Artist GetArtistWithAlbums(int id);
+        IEnumerable<Album> GetAllArtistAlbums(int artistId);
         void Save();
     }
 }

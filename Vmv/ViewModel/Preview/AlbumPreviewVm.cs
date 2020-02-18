@@ -1,31 +1,50 @@
-﻿namespace MusicStoreKeeper.Vmv.ViewModel
+﻿using MusicStoreKeeper.Model;
+using System.Collections.ObjectModel;
+using System.Windows.Media;
+
+namespace MusicStoreKeeper.Vmv.ViewModel
 {
-    public class AlbumPreviewVm:ModelPreviewVmBase
+    public class AlbumPreviewVm : ModelPreviewVmBase
     {
-        public AlbumPreviewVm()
+        public AlbumPreviewVm(Album album)
         {
-            
+            _album = album;
+            ItemName = album.Title;
+            AlbumTracks=new ObservableCollection<Track>(album.Tracks);
         }
 
         #region [  fields  ]
 
-        #endregion
+        private readonly Album _album;
+
+        #endregion [  fields  ]
 
         #region [  properties  ]
 
-        #endregion
+        private ObservableCollection<Track> _albumTracks;
 
-        #region [  commands  ]
+        public ObservableCollection<Track> AlbumTracks
+        {
+            get => _albumTracks;
+            set
+            {
+                _albumTracks = value;
+                OnPropertyChanged();
+            }
+        }
 
-        #endregion
+        private ImageSource _mainCover;
 
-        #region [  public methods  ]
+        public ImageSource MainCover
+        {
+            get => _mainCover;
+            set
+            {
+                _mainCover = value;
+                OnPropertyChanged();
+            }
+        }
 
-        #endregion
-
-        #region [  private methods  ]
-
-        #endregion
-
+        #endregion [  properties  ]
     }
 }

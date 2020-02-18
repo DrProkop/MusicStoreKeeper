@@ -11,6 +11,8 @@ namespace MusicStoreKeeper.Model
 
         public int DiscogsId { get; set; }
         public string Name { get; set; }
+        public string RealName { get; set; }
+        public string Profile { get; set; }
         public List<Album> Albums { get; set; }
         public string StoragePath { get; set; }
     }

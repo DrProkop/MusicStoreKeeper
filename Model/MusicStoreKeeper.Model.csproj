@@ -67,11 +67,5 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Track.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ResourceLibrary\ResourceLibrary.csproj">
-      <Project>{c1524334-3a27-4015-b74f-ad3c54d45fee}</Project>
-      <Name>ResourceLibrary</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

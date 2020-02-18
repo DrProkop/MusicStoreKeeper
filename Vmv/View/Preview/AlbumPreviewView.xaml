@@ -4,9 +4,31 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MusicStoreKeeper.Vmv.View"
+             xmlns:model="clr-namespace:MusicStoreKeeper.Model;assembly=MusicStoreKeeper.Model"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-            
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!-- album title -->
+        <TextBlock Grid.Row="0" Text="{Binding ItemName}"/>
+        <!-- album cover -->
+        <Image Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MainCover}" Margin="10" Stretch="None" />
+        <!-- album track list -->
+        <ListBox Grid.Row="2" ItemsSource="{Binding AlbumTracks}">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type model:Track}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Number}"/>
+                        <TextBlock Text="{Binding Name}"/>
+                        <TextBlock Text="{Binding Duration}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        
     </Grid>
 </UserControl>

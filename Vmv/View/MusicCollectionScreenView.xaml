@@ -16,24 +16,26 @@
         </Grid.ColumnDefinitions>
         <Grid.Resources>
             <!-- templates for treeview-->
+            <!-- template for album-->
             <HierarchicalDataTemplate x:Key="AlbumsTemplate" DataType="{x:Type model:Album}">
                 <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding ReleaseDate}" />
                     <TextBlock Text="{Binding Title}" />
                 </StackPanel>
             </HierarchicalDataTemplate>
+            <!-- template for artist-->
             <HierarchicalDataTemplate x:Key="ArtistsTemplate" DataType="{x:Type model:Artist}" ItemsSource="{Binding Albums}" ItemTemplate="{StaticResource AlbumsTemplate}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding Name}" />
                 </StackPanel>
             </HierarchicalDataTemplate>
-
+            <!-- templates for preview-->
             <DataTemplate DataType="{x:Type viewModel:ArtistPreviewVm}">
                 <view:ArtistPreviewView />
             </DataTemplate>
             <DataTemplate DataType="{x:Type viewModel:AlbumPreviewVm}">
                 <view:AlbumPreviewView />
             </DataTemplate>
-
         </Grid.Resources>
         <!-- artists with albums list -->
         <TreeView Grid.Column="0" Name="MusicCollectionTreeView" ItemsSource="{Binding ArtistsCollection}" ItemTemplate="{StaticResource ArtistsTemplate}">
@@ -57,19 +59,8 @@
         </TreeView>
 
         <!-- albums cover and track list-->
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <!-- track list-->
-            <ListBox Grid.Row="1" ItemsSource="{Binding SelectedAlbum.Tracks ,Mode=OneWay}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name, Mode=OneWay, UpdateSourceTrigger=PropertyChanged }" TextWrapping="Wrap" />
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </Grid>
+        <ContentControl Grid.Column="1"  Content="{Binding CollectionItemPreview}">
+           
+        </ContentControl>
     </Grid>
 </UserControl>

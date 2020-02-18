@@ -18,13 +18,14 @@ namespace MusicStoreKeeper.Vmv.ViewModel
     //TODO: Create base class for vms, add logging to it.
     public class MusicSearchScreenVm : BaseScreenVm
     {
-        public MusicSearchScreenVm(DiscogsClient client,IRepository repository, IFileAnalyzer fileAnalyzer, IFileManager fileManager, ILoggerManager manager) : base(manager)
+        public MusicSearchScreenVm(DiscogsClient client,IRepository repository, IFileAnalyzer fileAnalyzer, IFileManager fileManager, PreviewFactory previewFactory, ILoggerManager manager) : base(manager)
         {
             _discogsClient = client;
             _repo = repository;
             _fileAnalyzer = fileAnalyzer;
             _fileManager = fileManager;
-            _discogsConverter = new DiscogsConverter(new DiscogsClient());
+            _previewFactory = previewFactory;
+            _discogsConverter = new DiscogsConverter();
             Initialize();
         }
 
@@ -34,6 +35,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         private readonly IRepository _repo;
         private readonly IFileAnalyzer _fileAnalyzer;
         private readonly IFileManager _fileManager;
+        private readonly PreviewFactory _previewFactory;
         private readonly DiscogsConverter _discogsConverter;
        #endregion [  fields  ]
 
@@ -100,9 +102,9 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         private ICommand _getArtistFromDiscogsCommand;
 
         public ICommand GetArtistFromDiscogsCommand => _getArtistFromDiscogsCommand ?? (_getArtistFromDiscogsCommand = new RelayCommand<object>(async arg =>
-                                                              {
-                                                                  var artist = await SearchArtistAndAlbumOnDiscogs();
-                                                              }));
+        {
+            var artist = await SearchArtistAndAlbumOnDiscogs();
+        }));
 
         private ICommand _moveToCollectionManuallyCommand;
 
@@ -148,36 +150,13 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             return artist;
         }
 
-        private IPreviewVm CreatePreview(ISimpleFileInfo file)
-        {
-            if (file == null) return null;
-            //TODO: Add enum PreviewableFiles to ISimpleFileInfo
-            if (file.IsAudioFile)
-            {
-                var basicTrackInfo = _fileAnalyzer.GetBasicAlbumInfoFromAudioFile(file.Info);
-                var audioPreview = new AudioFilePreviewVm(file, basicTrackInfo);
-                return audioPreview;
-            }
-            if (file.IsImage)
-            {
-                var imageSource = new ImageSourceConverter().ConvertFromString(file.Info.FullName) as ImageSource;
-                //  var imageSource = new ImageSourceConverter().
-                var imagePreview = new ImageFilePreviewVm(file, imageSource);
-                return imagePreview;
-            }
-
-            if (file.IsTextDocument)
-            {
-                return new TextFilePreviewVm(file);
-            }
-            return null;
-        }
-
         private void ExpandTreeViewItem(RoutedEventArgs arg)
         {
             if (!(arg.OriginalSource is TreeViewItem item)) return;
-            var sfi = item.DataContext as ISimpleFileInfo;
-            LoadDirectory(sfi);
+            if (item.DataContext is ISimpleFileInfo sfi)
+            {
+                LoadDirectory(sfi);
+            }
         }
 
         /// <summary>
@@ -260,7 +239,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         private void ChangeSelectedItem(ISimpleFileInfo arg)
         {
             SelectedItem = arg;
-            FilePreview = CreatePreview(arg);
+            FilePreview = _previewFactory.CreatePreviewVm(arg);
         }
 
         private void Initialize()

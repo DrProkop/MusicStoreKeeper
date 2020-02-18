@@ -22,6 +22,7 @@ namespace AppConfiguration
             builder.RegisterType<FileAnalyzer.FileAnalyzer>().As<IFileAnalyzer>();
             builder.RegisterType<DiscogsClient>();
             builder.RegisterType<Repository>().As<IRepository>();
+            builder.RegisterType<PreviewFactory>();
             //Screens
             builder.RegisterType<MainWindowVm>().SingleInstance();
             builder.RegisterType<MusicCollectionScreenVm>();

@@ -75,6 +75,10 @@
     <Compile Include="Migrations\202002172047204_Initial.designer.cs">
       <DependentUpon>202002172047204_Initial.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202002181749563_ImproveArtist.cs" />
+    <Compile Include="Migrations\202002181749563_ImproveArtist.designer.cs">
+      <DependentUpon>202002181749563_ImproveArtist.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="MusicStoreContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -101,6 +105,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202002172047204_Initial.resx">
       <DependentUpon>202002172047204_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202002181749563_ImproveArtist.resx">
+      <DependentUpon>202002181749563_ImproveArtist.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
