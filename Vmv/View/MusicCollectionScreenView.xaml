@@ -6,6 +6,7 @@
              xmlns:model="clr-namespace:MusicStoreKeeper.Model;assembly=MusicStoreKeeper.Model"
              xmlns:view="clr-namespace:MusicStoreKeeper.Vmv.View"
              xmlns:viewModel="clr-namespace:MusicStoreKeeper.Vmv.ViewModel"
+             xmlns:converters="clr-namespace:MusicStoreKeeper.Vmv.View.Converters"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="1000">
@@ -15,11 +16,15 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.Resources>
+            <!-- converters -->
+            <converters:MultiValueConverterAdapter x:Key="WrappedBoolToVisibilityConverter">
+                <converters:TreeViewAlbumVisibilityConverter />
+            </converters:MultiValueConverterAdapter>
             <!-- templates for treeview-->
             <!-- template for album-->
             <HierarchicalDataTemplate x:Key="AlbumsTemplate" DataType="{x:Type model:Album}">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding ReleaseDate}" />
+                    <TextBlock Text="{Binding ReleaseDate}" Margin="5 0" Background="Chartreuse" />
                     <TextBlock Text="{Binding Title}" />
                 </StackPanel>
             </HierarchicalDataTemplate>
@@ -28,6 +33,25 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding Name}" />
                 </StackPanel>
+                <HierarchicalDataTemplate.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter>
+                            <Setter.Property>Visibility</Setter.Property>
+                            <Setter.Value>
+                                <MultiBinding Converter="{StaticResource WrappedBoolToVisibilityConverter}">
+                                    <Binding Path="InCollection" />
+                                    <Binding ElementName="MusicCollectionTreeView" Path="DataContext.ShowAlbumsNotInCollection"></Binding>
+                                </MultiBinding>
+                            </Setter.Value>
+                        </Setter>
+
+                        <Style.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="FontWeight" Value="Bold" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </HierarchicalDataTemplate.ItemContainerStyle>
             </HierarchicalDataTemplate>
             <!-- templates for preview-->
             <DataTemplate DataType="{x:Type viewModel:ArtistPreviewVm}">
@@ -42,11 +66,19 @@
             <TreeView.ItemContainerStyle>
                 <Style TargetType="{x:Type TreeViewItem}">
                     <Setter Property="view:AttachedProps.ExpandingProperty" Value="{Binding ElementName=MusicCollectionTreeView, Path=DataContext.ArtistExpandedCommand}" />
-                    <Style.Triggers>
-                        <Trigger Property="IsExpanded"  Value="True">
-                            <Setter Property="FontWeight" Value="Bold" />
-                        </Trigger>
-                    </Style.Triggers>
+
+                        <!--<Setter>
+                            <Setter.Property>Visibility</Setter.Property>
+                            <Setter.Value>
+                                <MultiBinding Converter="{StaticResource WrappedBoolToVisibilityConverter}">
+                                    <Binding Path="InCollection" />
+                                    <Binding ElementName="MusicCollectionTreeView" Path="DataContext.ShowAlbumsNotInCollection"></Binding>
+                                </MultiBinding>
+                            </Setter.Value>
+                        </Setter>-->
+
+
+
                 </Style>
             </TreeView.ItemContainerStyle>
 
@@ -60,7 +92,6 @@
 
         <!-- albums cover and track list-->
         <ContentControl Grid.Column="1"  Content="{Binding CollectionItemPreview}">
-           
         </ContentControl>
     </Grid>
 </UserControl>

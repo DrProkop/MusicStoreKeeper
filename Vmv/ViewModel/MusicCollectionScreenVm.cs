@@ -1,18 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using Common;
+using MusicStoreKeeper.DataModel;
+using MusicStoreKeeper.Model;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Common;
-using MusicStoreKeeper.DataModel;
-using MusicStoreKeeper.Model;
 
 namespace MusicStoreKeeper.Vmv.ViewModel
 {
-    public class MusicCollectionScreenVm: BaseScreenVm
+    public class MusicCollectionScreenVm : BaseScreenVm
     {
-        public MusicCollectionScreenVm(IRepository repository, PreviewFactory previewFactory, ILoggerManager manager):base(manager)
+        public MusicCollectionScreenVm(IRepository repository, PreviewFactory previewFactory, ILoggerManager manager) : base(manager)
         {
             _repo = repository;
             _previewFactory = previewFactory;
@@ -22,9 +21,8 @@ namespace MusicStoreKeeper.Vmv.ViewModel
                 dbArtist.Albums.Add(new Album());
             }
             ArtistsCollection = new ObservableCollection<Artist>(dbArtists);
-            
-          //  SetupTestArtistData();
-
+            ShowAlbumsNotInCollection = false;
+            //  SetupTestArtistData();
         }
 
         #region [  fields  ]
@@ -32,7 +30,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         private readonly IRepository _repo;
         private readonly PreviewFactory _previewFactory;
 
-        #endregion
+        #endregion [  fields  ]
 
         #region [  properties  ]
 
@@ -52,7 +50,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             set { _selectedArtist = value; OnPropertyChanged(); }
         }
 
-        private  Album _selectedAlbum;
+        private Album _selectedAlbum;
 
         public Album SelectedAlbum
         {
@@ -72,7 +70,19 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             }
         }
 
-        #endregion
+        private  bool _showAlbumsNotInCollection;
+
+        public bool ShowAlbumsNotInCollection
+        {
+            get => _showAlbumsNotInCollection;
+            set
+            {
+                _showAlbumsNotInCollection = value;
+                OnPropertyChanged();
+            }
+        }
+
+        #endregion [  properties  ]
 
         #region [  commands  ]
 
@@ -81,6 +91,33 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         public ICommand ArtistExpandedCommand => _artistExpandedCommand ?? (_artistExpandedCommand = new RelayCommand<RoutedEventArgs>(
                                                    arg => { ExpandTreeViewItem(arg); }));
 
+        private ICommand _selectedItemChangedCommand;
+
+        public ICommand SelectedItemChangedCommand => _selectedItemChangedCommand ?? (_selectedItemChangedCommand = new RelayCommand<object>(arg =>
+                                                          {
+                                                              ChangeSelectedItem(arg);
+                                                          }));
+
+        #endregion [  commands  ]
+
+        #region [  private methods  ]
+
+        private void ChangeSelectedItem(object arg)
+        {
+            switch (arg)
+            {
+                case Album album when album.InCollection:
+                    album = _repo.GetAlbumWithTracks(album.Id);
+                    CollectionItemPreview = _previewFactory.CreateAlbumPreviewVm(album);
+                    return;
+                case Album album:
+                    CollectionItemPreview = _previewFactory.CreateAlbumPreviewVm(album);
+                    break;
+                case Artist artist:
+                    CollectionItemPreview = _previewFactory.CreateArtistPreviewVm(artist);
+                    break;
+            }
+        }
 
         private void ExpandTreeViewItem(RoutedEventArgs arg)
         {
@@ -93,41 +130,25 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         private void LoadArtistAlbums(Artist artist)
         {
+            artist.Albums.Clear();
             artist.Albums = _repo.GetAllArtistAlbums(artist.Id).ToList();
         }
 
-        private ICommand _selectedItemChangedCommand;
-
-        public ICommand SelectedItemChangedCommand => _selectedItemChangedCommand ?? (_selectedItemChangedCommand = new RelayCommand<object>(arg =>
-                                                          {
-                                                              ChangeSelectedItem(arg);
-                                                          }));
-
-
-        #endregion
-
-        #region [  private methods  ]
-
-        private void ChangeSelectedItem(object arg)
-        {
-            CollectionItemPreview = _previewFactory.CreatePreviewVm(arg);
-        }
-
-        #endregion
+        #endregion [  private methods  ]
 
         private void SetupTestArtistData()
         {
-            var artistA=new Artist();
-            var artistB=new Artist();
-            var artistC=new Artist();
+            var artistA = new Artist();
+            var artistB = new Artist();
+            var artistC = new Artist();
 
-            var albumA=new Album();
+            var albumA = new Album();
             var albumB = new Album();
             var albumC = new Album();
 
-            var trackA=new Track();
-            var trackB=new Track();
-            var trackC=new Track();
+            var trackA = new Track();
+            var trackB = new Track();
+            var trackC = new Track();
 
             trackA.Name = "track A";
             trackB.Name = "track B";
@@ -154,5 +175,4 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             ArtistsCollection.Add(artistC);
         }
     }
-    
 }

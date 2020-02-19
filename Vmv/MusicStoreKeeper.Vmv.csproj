@@ -104,6 +104,8 @@
     <Compile Include="ViewModel\Preview\PreviewFactory.cs" />
     <Compile Include="ViewModel\Preview\TextFilePreviewVm.cs" />
     <Compile Include="ViewModel\SettingsScreenVm.cs" />
+    <Compile Include="View\Converters\MultiValueConverterAdapter.cs" />
+    <Compile Include="View\Converters\TreeViewAlbumVisibilityConverter.cs" />
     <Compile Include="View\Preview\AlbumPreviewView.xaml.cs">
       <DependentUpon>AlbumPreviewView.xaml</DependentUpon>
     </Compile>

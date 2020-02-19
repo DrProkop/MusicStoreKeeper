@@ -24,7 +24,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public string Profile
         {
-            get { return _profile; }
+            get => _profile;
             set
             {
                 _profile = value;

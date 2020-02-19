@@ -53,6 +53,16 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             return null;
         }
 
+        public ArtistPreviewVm CreateArtistPreviewVm(Artist artist)
+        {
+            return new ArtistPreviewVm(artist);
+        }
+
+        public AlbumPreviewVm CreateAlbumPreviewVm(Album album)
+        {
+            return new AlbumPreviewVm(album);
+        }
+
         #endregion [  public methods  ]
 
         #region [  private methods  ]
@@ -75,15 +85,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             return new TextFilePreviewVm(file);
         }
 
-        private ArtistPreviewVm CreateArtistPreviewVm(Artist artist)
-        {
-            return new ArtistPreviewVm(artist);
-        }
 
-        private AlbumPreviewVm CreateAlbumPreviewVm(Album album)
-        {
-            return new AlbumPreviewVm(album);
-        }
 
         #endregion [  private methods  ]
     }

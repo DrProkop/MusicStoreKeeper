@@ -1,4 +1,6 @@
-﻿using Discogs.Entity;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Discogs.Entity;
 using MusicStoreKeeper.Model;
 
 namespace MusicStoreKeeper.Vmv.ViewModel
@@ -17,6 +19,8 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             var artist = new Artist();
             artist.Name = dArtist.name;
             artist.DiscogsId = dArtist.id;
+            artist.Profile = dArtist.profile;
+            artist.RealName = dArtist.realname;
 
             return artist;
         }
@@ -32,6 +36,21 @@ namespace MusicStoreKeeper.Vmv.ViewModel
                 var track = CreateTrack(dTrack);
                 album.Tracks.Add(track);
             }
+            return album;
+        }
+
+        public List<Album> CreateArtistAlbums(IEnumerable<DiscogsArtistRelease> discogsArtistReleases)
+        {
+            return discogsArtistReleases.Select(CreateAlbum).ToList();
+        }
+
+        public Album CreateAlbum(DiscogsArtistRelease dArtRelease)
+        {
+            var album=new Album();
+            album.Title = dArtRelease.title;
+            album.DiscogsId = dArtRelease.id;
+            album.ReleaseDate = dArtRelease.year;
+            album.InCollection = false;
             return album;
         }
 

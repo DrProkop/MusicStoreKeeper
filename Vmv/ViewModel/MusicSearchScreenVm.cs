@@ -121,7 +121,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             var basicTrackInfo = _fileAnalyzer.GetBasicAlbumInfoFromAudioFile(SelectedItem.Info);
             var dArtist = await _discogsClient.GetArtistByName(basicTrackInfo.ArtistName);
             var allDArtistReleases = await _discogsClient.GetArtistReleases(dArtist.id);
-
+            
             var selectedArtistRelease = allDArtistReleases.FirstOrDefault(arg =>
                  arg.title.Equals(basicTrackInfo.AlbumTitle, StringComparison.InvariantCultureIgnoreCase));
             if (selectedArtistRelease == null)
@@ -141,12 +141,21 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             {
                 releaseId = selectedArtistRelease.id;
             }
-            var dRelease = await _discogsClient.GetReleaseById(releaseId);
+            //создаю исполнителя
             var artist = _discogsConverter.CreateArtist(dArtist);
-            var album = _discogsConverter.CreateAlbum(dRelease);
-            artist.Albums.Add(album);
-            _repo.AddNewArtist(artist);
-            _repo.Save();
+            //создаю коллекцию всех альбомов исполнителя
+            var allArtistAlbums = _discogsConverter.CreateArtistAlbums(allDArtistReleases);
+            artist.Albums = allArtistAlbums;
+            //сохраняю исполнителя в базе
+            var artistId=_repo.AddOrUpdateArtistFull(artist); 
+            //создаю альбом с полной информацией
+            var dRelease = await _discogsClient.GetReleaseById(releaseId);
+            var albumToCollection = _discogsConverter.CreateAlbum(dRelease);
+            //сохраняю альбом в базе
+            var albumId = _repo.AddOrUpdateAlbum(artistId, albumToCollection);
+            //добавляю запись про место сохранения физической копии альбома
+            _repo.AddAlbumToStorage(albumId, "ololo azaza");
+            
             return artist;
         }
 
