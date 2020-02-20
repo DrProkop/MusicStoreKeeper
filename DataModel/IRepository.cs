@@ -11,6 +11,8 @@ namespace MusicStoreKeeper.DataModel
         //artist
         int AddNewArtist(Artist artist);
         int AddOrUpdateArtistFull(Artist artist);
+        void AddArtistToStorage(Artist artist, string storagePath);
+        void AddArtistToStorage(int artistId, string storagePath);
         void DeleteArtist(Artist artist);
         void DeleteArtist(int artistId);
         Artist FindArtistById(int id);

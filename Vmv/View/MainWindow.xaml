@@ -7,7 +7,7 @@
         xmlns:viewModel="clr-namespace:MusicStoreKeeper.Vmv.ViewModel"
         xmlns:view="clr-namespace:MusicStoreKeeper.Vmv.View"
         mc:Ignorable="d"
-        Title="Music Storekeeper" Height="450" Width="800">
+        Title="Music Storekeeper" Height="768" Width="1024" BorderBrush="Chartreuse" BorderThickness="2" WindowStartupLocation="CenterScreen" TitleBackground="BlueViolet">
     <Window.Resources>
         <ResourceDictionary  Source="pack://application:,,,/ResourceLibrary;component/Brushes.xaml" />
     </Window.Resources>
@@ -31,19 +31,18 @@
             <!-- Music collection -->
             <Fluent:RibbonTabItem Header="Collection" ActiveTabBackground="Chartreuse" IsSelected="{Binding MusicCollectionScreenSelected, Mode=OneWayToSource}" Loaded="FrameworkElement_OnLoaded">
                 <Fluent:RibbonGroupBox Header="Collection Management">
-                    
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
 
             <!-- Adding files to collection -->
             <Fluent:RibbonTabItem Header="Add Music"  ActiveTabBackground="Aqua" IsSelected="{Binding SearchMusicScreenSelected, Mode=OneWayToSource}">
                 <Fluent:RibbonGroupBox Header="Search" DataContext="{Binding CurrentScreen}">
-                    <Fluent:Button Header="Scan folder"  LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/search_icon.png" Command="{Binding ScanDirectoryCommand}" ToolTip="{Binding MusicSearchDirectory}"/>
+                    <Fluent:Button Header="Scan folder"  LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/search_icon.png" Command="{Binding ScanDirectoryCommand}" ToolTip="{Binding MusicSearchDirectory}" />
                     <Fluent:Button Header="Add to collection" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/add_files_manually_icon.png"  Command="{Binding MoveToCollectionManuallyCommand}" />
                     <Fluent:Button Header="Discogs"  LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/vinyl_record_icon.png"  Command="{Binding GetArtistFromDiscogsCommand}" />
                 </Fluent:RibbonGroupBox>
                 <Fluent:RibbonGroupBox Header="FileManager" DataContext="{Binding CurrentScreen}">
-                    <Fluent:Button Header="Delete" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/delete_icon.png"/>
+                    <Fluent:Button Header="Delete" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/delete_icon.png" />
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
             <!-- settings screen -->
@@ -51,15 +50,6 @@
                 <Fluent:RibbonGroupBox DataContext="{Binding CurrentScreen}">
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
-
-            <!-- test tabitem -->
-            <!--<Fluent:RibbonTabItem Header="Test"  ActiveTabBackground="Aqua">
-                <Fluent:RibbonTabItem.HeaderTemplate>
-                    <DataTemplate>
-                        <Button Content="AZAZA" Command="{Binding ChangeScreenCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding ScreenB}" ></Button>
-                    </DataTemplate>
-                </Fluent:RibbonTabItem.HeaderTemplate>
-            </Fluent:RibbonTabItem>-->
         </Fluent:Ribbon>
 
         <!-- screen display area -->

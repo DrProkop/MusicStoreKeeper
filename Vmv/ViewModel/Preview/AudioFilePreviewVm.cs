@@ -5,7 +5,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 {
     public class AudioFilePreviewVm : FilePreviewVmBase
     {
-        public AudioFilePreviewVm(ISimpleFileInfo fileInfo, IBasicAlbumInfo trackInfo) : base(fileInfo)
+        public AudioFilePreviewVm(ISimpleFileInfo fileInfo, IBasicTrackInfo trackInfo) : base(fileInfo)
         {
             ArtistName = trackInfo.ArtistName;
             AlbumTitle = trackInfo.AlbumTitle;

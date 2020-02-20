@@ -82,6 +82,23 @@ namespace MusicStoreKeeper.DataModel
             return existingArtist.Id;
         }
 
+        public void AddArtistToStorage(Artist artist, string storagePath)
+        {
+            if (artist == null) throw new ArgumentNullException(nameof(artist));
+            _musicStoreContext.Entry(artist).Property(p => p.StoragePath).CurrentValue = storagePath ?? throw new ArgumentNullException(nameof(storagePath));
+
+            Save();
+        }
+
+        public void AddArtistToStorage(int artistId, string storagePath)
+        {
+            var artist = _musicStoreContext.Artists.Find(artistId);
+            if (artist != null)
+            {
+                AddArtistToStorage(artist, storagePath);
+            }
+        }
+
         public void DeleteArtist(Artist artist)
         {
             if (artist == null) throw new ArgumentNullException(nameof(artist));
@@ -93,7 +110,7 @@ namespace MusicStoreKeeper.DataModel
         public void DeleteArtist(int artistId)
         {
             var artist = _musicStoreContext.Artists.Find(artistId);
-            if (artist!=null)
+            if (artist != null)
             {
                 DeleteArtist(artist);
             }
@@ -147,7 +164,19 @@ namespace MusicStoreKeeper.DataModel
             var updatedAlbum = artistAlbums.FirstOrDefault(alb => alb.Title.Equals(album.Title));
             if (updatedAlbum == null) return AddNewAlbum(artistId, album);
             //logic for updating album here
-            updatedAlbum.Tracks = album.Tracks;
+            foreach (var track in album.Tracks)
+            {
+                var existingTrack = updatedAlbum.Tracks.FirstOrDefault(et =>
+                    et.Name.Equals(track.Name, StringComparison.InvariantCultureIgnoreCase));
+                if (existingTrack != null)
+                {
+                    existingTrack.Merge(track);
+                }
+                else
+                {
+                    updatedAlbum.Tracks.Add(track);
+                }
+            }
             Save();
             return updatedAlbum.Id;
         }
@@ -195,13 +224,11 @@ namespace MusicStoreKeeper.DataModel
         public void DeleteAlbum(int albumId)
         {
             var album = _musicStoreContext.Albums.Find(albumId);
-            if (album!=null)
+            if (album != null)
             {
                 DeleteAlbum(album);
             }
         }
-
-       
 
         #endregion [  album  ]
 

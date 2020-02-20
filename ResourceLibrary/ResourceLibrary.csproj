@@ -96,5 +96,12 @@
   <ItemGroup>
     <Resource Include="Images\Buttons\delete_icon.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\TreeViewIcons\license.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\TreeViewIcons\album_icon.png" />
+    <Resource Include="Images\TreeViewIcons\artist_icon.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

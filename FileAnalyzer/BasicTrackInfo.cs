@@ -3,7 +3,7 @@
 namespace FileAnalyzer
 {
 
-    public class BasicAlbumInfo : IBasicAlbumInfo
+    public class BasicTrackInfo : IBasicTrackInfo
     {
         public string ArtistName { get; set; }
         public string AlbumTitle { get; set; }

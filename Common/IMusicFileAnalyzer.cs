@@ -2,7 +2,7 @@
 
 namespace Common
 {
-    public interface IFileAnalyzer
+    public interface IMusicFileAnalyzer
     {
         string GetArtistNameFromFileTags(string path);
 
@@ -18,10 +18,10 @@ namespace Common
 
         string GetTrackNameFromFileTags(string path);
 
-        IBasicAlbumInfo GetBasicAlbumInfoFromDirectory(DirectoryInfo dirInfo);
+        IBasicTrackInfo GetBasicAlbumInfoFromDirectory(DirectoryInfo dirInfo);
 
-        IBasicAlbumInfo GetBasicAlbumInfoFromDirectory(string path);
+        IBasicTrackInfo GetBasicAlbumInfoFromDirectory(string path);
 
-        IBasicAlbumInfo GetBasicAlbumInfoFromAudioFile(FileInfo fileInfo);
+        IBasicTrackInfo GetBasicAlbumInfoFromAudioFile(FileInfo fileInfo);
     }
 }

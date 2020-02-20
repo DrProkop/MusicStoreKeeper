@@ -1,6 +1,6 @@
 ﻿namespace Common
 {
-    public interface IBasicAlbumInfo
+    public interface IBasicTrackInfo
     {
         string ArtistName { get; set; }
         string AlbumTitle { get; set; }

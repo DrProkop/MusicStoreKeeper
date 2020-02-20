@@ -6,14 +6,14 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 {
     public class PreviewFactory
     {
-        public PreviewFactory(IFileAnalyzer fileAnalyzer)
+        public PreviewFactory(IMusicFileAnalyzer musicFileAnalyzer)
         {
-            _fileAnalyzer = fileAnalyzer;
+            _musicFileAnalyzer = musicFileAnalyzer;
         }
 
         #region [  fields  ]
 
-        private readonly IFileAnalyzer _fileAnalyzer;
+        private readonly IMusicFileAnalyzer _musicFileAnalyzer;
 
         #endregion [  fields  ]
 
@@ -25,18 +25,16 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             if (arg is ISimpleFileInfo file)
             {
                 //TODO: Add enum PreviewableFiles to ISimpleFileInfo
-                if (file.IsAudioFile)
+                switch (file.Type)
                 {
-                    return CreateAudioFilePreviewVm(file);
-                }
-                if (file.IsImage)
-                {
-                    return CreateImageFilePreviewVm(file);
-                }
+                    case SfiType.AudioFile:
+                        return CreateAudioFilePreviewVm(file);
 
-                if (file.IsTextDocument)
-                {
-                    return CreateTextFilePreviewVm(file);
+                    case SfiType.ImageFile:
+                        return CreateImageFilePreviewVm(file);
+
+                    case SfiType.TextFile:
+                        return CreateTextFilePreviewVm(file);
                 }
             }
 
@@ -69,7 +67,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         private AudioFilePreviewVm CreateAudioFilePreviewVm(ISimpleFileInfo file)
         {
-            var basicTrackInfo = _fileAnalyzer.GetBasicAlbumInfoFromAudioFile(file.Info);
+            var basicTrackInfo = _musicFileAnalyzer.GetBasicAlbumInfoFromAudioFile(file.Info);
             return new AudioFilePreviewVm(file, basicTrackInfo);
         }
 
@@ -84,8 +82,6 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         {
             return new TextFilePreviewVm(file);
         }
-
-
 
         #endregion [  private methods  ]
     }

@@ -44,8 +44,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileAnalyzer.cs" />
-    <Compile Include="BasicAlbumInfo.cs" />
+    <Compile Include="MusicDirInfo.cs" />
+    <Compile Include="MusicDirAnalyzer.cs" />
+    <Compile Include="MusicFileAnalyzer.cs" />
+    <Compile Include="BasicTrackInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

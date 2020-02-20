@@ -5,7 +5,9 @@ using RestSharp;
 using RestSharp.Authenticators;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Discogs
@@ -74,7 +76,7 @@ namespace Discogs
             return await client.GetAsync<DiscogsRelease>(request);
         }
 
-        public async Task<DiscogsMasterRelease> GetMaterReleaseById(int masterId)
+        public async Task<DiscogsMasterRelease> GetMatserReleaseById(int masterId)
         {
             var request = new RestRequest(MasterReleasePath).AddUrlSegment(nameof(masterId), masterId.ToString());
             return await client.GetAsync<DiscogsMasterRelease>(request);
@@ -102,6 +104,18 @@ namespace Discogs
         }
 
         #endregion [ release ]
+
+        #region [  image  ]
+
+        public void SaveImage(DiscogsImage dImage, string path, string fileName, DiscogsImageFormatType type = DiscogsImageFormatType.Normal)
+        {
+            var uri = (type==DiscogsImageFormatType.Thumbnail) ? dImage.uri : dImage.uri150;
+            var request=new RestRequest(uri, Method.GET);
+            var bytes = client.DownloadData(request);
+            File.WriteAllBytes(Path.Combine(path, fileName),bytes);
+        }
+
+        #endregion
 
         public async Task<IEnumerable<DiscogsSearchResult>> DiscogsSearch(DiscogsSearchParameters arg)
         {

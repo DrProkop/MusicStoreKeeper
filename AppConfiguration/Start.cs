@@ -19,7 +19,8 @@ namespace AppConfiguration
 
             builder.RegisterType<LoggerManager>().As<ILoggerManager>().SingleInstance();
             builder.RegisterType<FileManager.FileManager>().As<IFileManager>().SingleInstance();
-            builder.RegisterType<FileAnalyzer.FileAnalyzer>().As<IFileAnalyzer>();
+            builder.RegisterType<MusicFileAnalyzer>().As<IMusicFileAnalyzer>();
+            builder.RegisterType<MusicDirAnalyzer>().As<IMusicDirAnalyzer>();
             builder.RegisterType<DiscogsClient>();
             builder.RegisterType<Repository>().As<IRepository>();
             builder.RegisterType<PreviewFactory>();

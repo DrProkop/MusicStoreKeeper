@@ -76,6 +76,7 @@
     <Compile Include="Entity\DiscogsTrack.cs" />
     <Compile Include="Entity\DiscogsVideo.cs" />
     <Compile Include="Enums\DiscogsArtistReleaseSort.cs" />
+    <Compile Include="Enums\DiscogsImageFormatType.cs" />
     <Compile Include="Enums\DiscogsImageType.cs" />
     <Compile Include="Enums\DiscogsSearchObjectType.cs" />
     <Compile Include="Enums\DiscogsSortOrder.cs" />

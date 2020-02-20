@@ -8,9 +8,9 @@ namespace FileAnalyzer
     /// <summary>
     /// Serves for getting information about artist name, album titles, track names etc. using music files tags.
     /// </summary>
-    public class FileAnalyzer : IFileAnalyzer
+    public class MusicFileAnalyzer : IMusicFileAnalyzer
     {
-        public FileAnalyzer(string fileExtension="*.mp3")
+        public MusicFileAnalyzer(string fileExtension="*.mp3")
         {
             FileExtension = fileExtension;
         }
@@ -92,9 +92,9 @@ namespace FileAnalyzer
 
         #endregion [  track  ]
 
-        public IBasicAlbumInfo GetBasicAlbumInfoFromDirectory(DirectoryInfo dirInfo)
+        public IBasicTrackInfo GetBasicAlbumInfoFromDirectory(DirectoryInfo dirInfo)
         {
-            var bai = new BasicAlbumInfo();
+            var bai = new BasicTrackInfo();
             var fInfos = dirInfo.GetFiles(FileExtension);
             if (fInfos.Length <= 0) return bai;
             using (var file = File.Create(fInfos[0].FullName))
@@ -107,16 +107,16 @@ namespace FileAnalyzer
             }
         }
 
-        public IBasicAlbumInfo GetBasicAlbumInfoFromDirectory(string path)
+        public IBasicTrackInfo GetBasicAlbumInfoFromDirectory(string path)
         {
             var di = GetDirInfo(path);
             return GetBasicAlbumInfoFromDirectory(di);
         }
 
         //TODO: Add check for file type
-        public IBasicAlbumInfo GetBasicAlbumInfoFromAudioFile(FileInfo fileInfo)
+        public IBasicTrackInfo GetBasicAlbumInfoFromAudioFile(FileInfo fileInfo)
         {
-            var bai = new BasicAlbumInfo();
+            var bai = new BasicTrackInfo();
             if (!FileExtension.Trim('*').Equals(fileInfo.Extension, StringComparison.InvariantCultureIgnoreCase))
             {
                 return bai;

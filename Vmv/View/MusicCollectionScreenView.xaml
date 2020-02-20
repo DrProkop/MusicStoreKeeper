@@ -22,16 +22,20 @@
             </converters:MultiValueConverterAdapter>
             <!-- templates for treeview-->
             <!-- template for album-->
-            <HierarchicalDataTemplate x:Key="AlbumsTemplate" DataType="{x:Type model:Album}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding ReleaseDate}" Margin="5 0" Background="Chartreuse" />
-                    <TextBlock Text="{Binding Title}" />
+            <HierarchicalDataTemplate x:Key="AlbumsTemplate" DataType="{x:Type viewModel:AlbumWrap}">
+                <StackPanel Orientation="Horizontal" Margin="0 5">
+                    <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" />
+                    <CheckBox IsChecked="{Binding IsChecked}" Margin="0 0 5 0" />
+                    <TextBlock Text="{Binding Value.ReleaseDate}" Margin="5 0" Background="Chartreuse" />
+                    <TextBlock Text="{Binding Value.Title}" />
                 </StackPanel>
             </HierarchicalDataTemplate>
             <!-- template for artist-->
-            <HierarchicalDataTemplate x:Key="ArtistsTemplate" DataType="{x:Type model:Artist}" ItemsSource="{Binding Albums}" ItemTemplate="{StaticResource AlbumsTemplate}">
+            <HierarchicalDataTemplate x:Key="ArtistsTemplate" DataType="{x:Type viewModel:ArtistWrap}" ItemsSource="{Binding Children}" ItemTemplate="{StaticResource AlbumsTemplate}">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding Name}" />
+                    <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" />
+                    <CheckBox IsChecked="{Binding IsChecked}" Margin="0 0 5 0" />
+                    <TextBlock Text="{Binding Value.Name}" />
                 </StackPanel>
                 <HierarchicalDataTemplate.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
@@ -39,7 +43,7 @@
                             <Setter.Property>Visibility</Setter.Property>
                             <Setter.Value>
                                 <MultiBinding Converter="{StaticResource WrappedBoolToVisibilityConverter}">
-                                    <Binding Path="InCollection" />
+                                    <Binding Path="Value.InCollection" />
                                     <Binding ElementName="MusicCollectionTreeView" Path="DataContext.ShowAlbumsNotInCollection"></Binding>
                                 </MultiBinding>
                             </Setter.Value>
@@ -66,19 +70,6 @@
             <TreeView.ItemContainerStyle>
                 <Style TargetType="{x:Type TreeViewItem}">
                     <Setter Property="view:AttachedProps.ExpandingProperty" Value="{Binding ElementName=MusicCollectionTreeView, Path=DataContext.ArtistExpandedCommand}" />
-
-                        <!--<Setter>
-                            <Setter.Property>Visibility</Setter.Property>
-                            <Setter.Value>
-                                <MultiBinding Converter="{StaticResource WrappedBoolToVisibilityConverter}">
-                                    <Binding Path="InCollection" />
-                                    <Binding ElementName="MusicCollectionTreeView" Path="DataContext.ShowAlbumsNotInCollection"></Binding>
-                                </MultiBinding>
-                            </Setter.Value>
-                        </Setter>-->
-
-
-
                 </Style>
             </TreeView.ItemContainerStyle>
 

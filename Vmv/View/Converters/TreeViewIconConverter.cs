@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Common;
+using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Media;
-using Common;
 
 namespace MusicStoreKeeper.Vmv.View.Converters
 {
@@ -27,29 +26,19 @@ namespace MusicStoreKeeper.Vmv.View.Converters
                     return DependencyProperty.UnsetValue;
                 }
 
-                var converter = new ImageSourceConverter();
-                var resName = "pack://application:,,,/ResourceLibrary;component/Images/TreeViewIcons/close_folder_icon.png";
-                if (item.IsDirectory)
+                switch (item.Type)
                 {
-                    return "pack://application:,,,/ResourceLibrary;component/Images/TreeViewIcons/close_folder_icon.png";
-
-                    //var source = converter.ConvertFromString(resName) as ImageSource;
-                    //return source;
+                    case SfiType.Directory:
+                        return "pack://application:,,,/ResourceLibrary;component/Images/TreeViewIcons/close_folder_icon.png";
+                    case SfiType.AudioFile:
+                        return "pack://application:,,,/ResourceLibrary;component/Images/TreeViewIcons/audio_file_icon.png";
+                    case SfiType.ImageFile:
+                        return "pack://application:,,,/ResourceLibrary;component/Images/TreeViewIcons/image_file_icon.png";
+                    case SfiType.TextFile:
+                        return "pack://application:,,,/ResourceLibrary;component/Images/TreeViewIcons/document_icon.png";
+                    case SfiType.Unknown:
+                        return "pack://application:,,,/ResourceLibrary;component/Images/TreeViewIcons/document_blank_icon.png";
                 }
-                if (item.IsAudioFile)
-                {
-                    return "pack://application:,,,/ResourceLibrary;component/Images/TreeViewIcons/audio_file_icon.png";
-                }
-                if (item.IsImage)
-                {
-                    return "pack://application:,,,/ResourceLibrary;component/Images/TreeViewIcons/image_file_icon.png";
-                }
-                if (item.IsTextDocument)
-                {
-                    return "pack://application:,,,/ResourceLibrary;component/Images/TreeViewIcons/document_icon.png";
-                }
-
-                return "pack://application:,,,/ResourceLibrary;component/Images/TreeViewIcons/document_blank_icon.png";
             }
 
             return DependencyProperty.UnsetValue;

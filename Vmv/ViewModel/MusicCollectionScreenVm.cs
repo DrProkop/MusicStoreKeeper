@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using System.Collections.Generic;
+using Common;
 using MusicStoreKeeper.DataModel;
 using MusicStoreKeeper.Model;
 using System.Collections.ObjectModel;
@@ -15,12 +16,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         {
             _repo = repository;
             _previewFactory = previewFactory;
-            var dbArtists = _repo.GetAllArtists().ToList();
-            foreach (var dbArtist in dbArtists)
-            {
-                dbArtist.Albums.Add(new Album());
-            }
-            ArtistsCollection = new ObservableCollection<Artist>(dbArtists);
+            LoadArtistsInCollection();
             ShowAlbumsNotInCollection = false;
             //  SetupTestArtistData();
         }
@@ -34,9 +30,9 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         #region [  properties  ]
 
-        private ObservableCollection<Artist> _artistsCollection;
+        private ObservableCollection<ArtistWrap> _artistsCollection;
 
-        public ObservableCollection<Artist> ArtistsCollection
+        public ObservableCollection<ArtistWrap> ArtistsCollection
         {
             get => _artistsCollection;
             set { _artistsCollection = value; OnPropertyChanged(); }
@@ -104,17 +100,18 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         private void ChangeSelectedItem(object arg)
         {
+
             switch (arg)
             {
-                case Album album when album.InCollection:
-                    album = _repo.GetAlbumWithTracks(album.Id);
-                    CollectionItemPreview = _previewFactory.CreateAlbumPreviewVm(album);
+                case AlbumWrap albumWrap when albumWrap.Value.InCollection:
+                    albumWrap.Value = _repo.GetAlbumWithTracks(albumWrap.Value.Id);
+                    CollectionItemPreview = _previewFactory.CreateAlbumPreviewVm(albumWrap.Value);
                     return;
-                case Album album:
-                    CollectionItemPreview = _previewFactory.CreateAlbumPreviewVm(album);
+                case AlbumWrap albumWrap:
+                    CollectionItemPreview = _previewFactory.CreateAlbumPreviewVm(albumWrap.Value);
                     break;
-                case Artist artist:
-                    CollectionItemPreview = _previewFactory.CreateArtistPreviewVm(artist);
+                case ArtistWrap artistWrap:
+                    CollectionItemPreview = _previewFactory.CreateArtistPreviewVm(artistWrap.Value);
                     break;
             }
         }
@@ -122,57 +119,37 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         private void ExpandTreeViewItem(RoutedEventArgs arg)
         {
             if (!(arg.OriginalSource is TreeViewItem item)) return;
-            if (item.DataContext is Artist art)
+            if (item.DataContext is ArtistWrap wrap)
             {
-                LoadArtistAlbums(art);
+                LoadArtistAlbums(wrap);
             }
         }
 
-        private void LoadArtistAlbums(Artist artist)
+        private void LoadArtistAlbums(ArtistWrap artWrap)
         {
-            artist.Albums.Clear();
-            artist.Albums = _repo.GetAllArtistAlbums(artist.Id).ToList();
+            artWrap.Children.Clear();
+            var albums= _repo.GetAllArtistAlbums(artWrap.Value.Id).ToList();
+            foreach (var album in albums)
+            {
+                artWrap.Children.Add(new AlbumWrap(album));
+            }
+        }
+
+        private void LoadArtistsInCollection()
+        {
+            var dbArtists = _repo.GetAllArtists().ToList();
+            var dbArtistWrap = new List<ArtistWrap>();
+            foreach (var dbArtist in dbArtists)
+            {
+                var artWrap=new ArtistWrap(dbArtist);
+                artWrap.Children.Add(new AlbumWrap(new Album()));
+                dbArtistWrap.Add(artWrap);
+                
+            }
+            ArtistsCollection = new ObservableCollection<ArtistWrap>(dbArtistWrap);
         }
 
         #endregion [  private methods  ]
 
-        private void SetupTestArtistData()
-        {
-            var artistA = new Artist();
-            var artistB = new Artist();
-            var artistC = new Artist();
-
-            var albumA = new Album();
-            var albumB = new Album();
-            var albumC = new Album();
-
-            var trackA = new Track();
-            var trackB = new Track();
-            var trackC = new Track();
-
-            trackA.Name = "track A";
-            trackB.Name = "track B";
-            trackC.Name = "track C";
-
-            albumA.Title = "Album A";
-            albumB.Title = "Album B";
-            albumC.Title = "Album C";
-
-            artistA.Name = "Artist A";
-            artistB.Name = "Artist B";
-            artistC.Name = "Artist C";
-
-            albumA.Tracks.Add(trackA);
-            albumB.Tracks.Add(trackB);
-            albumC.Tracks.Add(trackC);
-
-            artistA.Albums.Add(albumA);
-            artistB.Albums.Add(albumB);
-            artistC.Albums.Add(albumC);
-
-            ArtistsCollection.Add(artistA);
-            ArtistsCollection.Add(artistB);
-            ArtistsCollection.Add(artistC);
-        }
     }
 }
