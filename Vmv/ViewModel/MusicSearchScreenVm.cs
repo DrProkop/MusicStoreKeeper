@@ -1,10 +1,7 @@
 ﻿using Common;
 using Discogs;
-using Discogs.Entity;
 using MusicStoreKeeper.DataModel;
-using MusicStoreKeeper.Model;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -18,27 +15,28 @@ namespace MusicStoreKeeper.Vmv.ViewModel
     //TODO: Create base class for vms, add logging to it.
     public class MusicSearchScreenVm : BaseScreenVm
     {
-        public MusicSearchScreenVm(DiscogsClient client, IRepository repository, IMusicFileAnalyzer musicFileAnalyzer, IMusicDirAnalyzer musicDirAnalyzer, IFileManager fileManager, PreviewFactory previewFactory, ILoggerManager manager) : base(manager)
+        public MusicSearchScreenVm(DiscogsClient client, ICollectionManager collectionManager, IRepository repository, IMusicFileAnalyzer musicFileAnalyzer, IMusicDirAnalyzer musicDirAnalyzer, IFileManager fileManager, PreviewFactory previewFactory, ILoggerManager manager) : base(manager)
         {
             _discogsClient = client;
+            _collectionManager = collectionManager;
             _repo = repository;
             _musicFileAnalyzer = musicFileAnalyzer;
             _musicDirAnalyzer = musicDirAnalyzer;
             _fileManager = fileManager;
             _previewFactory = previewFactory;
-            _discogsConverter = new DiscogsConverter();
-            Initialize();
+
+            
         }
 
         #region [  fields  ]
 
         private readonly DiscogsClient _discogsClient;
+        private readonly ICollectionManager _collectionManager;
         private readonly IRepository _repo;
         private readonly IMusicFileAnalyzer _musicFileAnalyzer;
         private readonly IMusicDirAnalyzer _musicDirAnalyzer;
         private readonly IFileManager _fileManager;
         private readonly PreviewFactory _previewFactory;
-        private readonly DiscogsConverter _discogsConverter;
 
         #endregion [  fields  ]
 
@@ -72,10 +70,10 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public string MusicSearchDirectory
         {
-            get => _musicSearchDirectory;
+            get => _collectionManager.MusicSearchDirectory;
             set
             {
-                _musicSearchDirectory = value;
+                _collectionManager.MusicSearchDirectory = value;
                 OnPropertyChanged();
             }
         }
@@ -84,10 +82,10 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public string MusicCollectionDirectory
         {
-            get => _musicCollectionDirectory;
+            get => _collectionManager.MusicCollectionDirectory;
             set
             {
-                _musicCollectionDirectory = value;
+                _collectionManager.MusicCollectionDirectory = value;
                 OnPropertyChanged();
             }
         }
@@ -123,7 +121,9 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         private ICommand _moveToCollectionManuallyCommand;
 
-        public ICommand MoveToCollectionManuallyCommand => _moveToCollectionManuallyCommand ?? (_moveToCollectionManuallyCommand = new RelayCommand<object>(MoveToCollectionManually));
+        public ICommand MoveToCollectionManuallyCommand => _moveToCollectionManuallyCommand ?? (_moveToCollectionManuallyCommand = new RelayCommand<object>(AddAlbumToCollectionManually));
+
+        
 
         #endregion [  commands  ]
 
@@ -139,105 +139,13 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             //получение информации о выбранном каталоге с музыкой
             var mdi = _musicDirAnalyzer.AnalyzeMusicDirectory(dirSfi);
             //поиск информации на дискогс
-            await SearchArtistAndAllAlbumsOnDiscogs(mdi);
+            var artist=await _collectionManager.SearchArtistAndAllAlbumsOnDiscogs(mdi);
+            await _collectionManager.SearchFullAlbumOnDiscogs(artist, mdi);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="mDirInfo"></param>
-        /// <returns></returns>
-        private async Task<Artist> SearchArtistAndAllAlbumsOnDiscogs(IMusicDirInfo mDirInfo)
+        private void AddAlbumToCollectionManually()
         {
-            //получение имени артиста. переделать
-            var artistTrackInfo = mDirInfo.TrackInfos.FirstOrDefault();
-            if (artistTrackInfo == null) return null;
-            //получение DiscogsArtist
-            var dArtist = await _discogsClient.GetArtistByName(artistTrackInfo.ArtistName);
-            //получение DiscogsArtistReleases
-            var allDArtistReleases = await _discogsClient.GetArtistReleases(dArtist.id);
-            //создание исполнителя и списка его альбомов
-            //создаю исполнителя
-            var artist = _discogsConverter.CreateArtist(dArtist);
-            //создаю коллекцию всех альбомов исполнителя
-            var allArtistAlbums = _discogsConverter.CreateArtistAlbums(allDArtistReleases);
-            artist.Albums = allArtistAlbums;
-            //сохраняю исполнителя в базе
-            var artistId = _repo.AddOrUpdateArtistFull(artist);
-            //создаю папку с исполнителем на диске
-            var artPath = _fileManager.CreateArtistStorageDirectory(MusicCollectionDirectory, artist.Name);
-            //добавляю путь к папке исполнителя в базу
-            _repo.AddArtistToStorage(artistId, artPath);
-            //TODO:добавляю фотографии
-            var imagePath = Path.Combine(artPath, "photos");
-            DownloadArtistImages(dArtist.images, imagePath);
-
-            //Получаю информацию о выбранном альбоме
-            await SearchFullAlbumOnDiscogs(allDArtistReleases, artistId, mDirInfo);
-
-            return artist;
-        }
-
-        private void DownloadArtistImages(DiscogsImage[] dImages, string dirPath)
-        {
-            var number = 1;
-            foreach (var discogsImage in dImages)
-            {
-                var photoName = $"photo_{number}";
-                _discogsClient.SaveImage(discogsImage, dirPath, photoName);
-            }
-        }
-
-        private async Task<Album> SearchFullAlbumOnDiscogs(IEnumerable<DiscogsArtistRelease> dArtReleases, int artistId, IMusicDirInfo mDirInfo)
-        {
-            //получение имени артиста. переделать
-            var artistTrackInfo = mDirInfo.TrackInfos.FirstOrDefault();
-            if (artistTrackInfo == null) return null;
-            //поиск заданного альбома в списке всех альбомов исполнителя
-            var selectedArtistRelease = dArtReleases.FirstOrDefault(arg =>
-                arg.title.Equals(artistTrackInfo.AlbumTitle, StringComparison.InvariantCultureIgnoreCase));
-            if (selectedArtistRelease == null)
-            {
-                //TODO: Try searching by album and track names
-                return null;
-            }
-            //получение discogsId для заданного альбома. Пока пропускаю master release
-            var releaseId = 0;
-            if (selectedArtistRelease.type == "master")
-            {
-                //Always searches for main release
-                var dMasterRelease = await _discogsClient.GetMatserReleaseById(selectedArtistRelease.id);
-                releaseId = dMasterRelease.main_release;
-            }
-            else
-            {
-                releaseId = selectedArtistRelease.id;
-            }
-            //получение информации об альбоме с дискогс
-            var dRelease = await _discogsClient.GetReleaseById(releaseId);
-            //создаю альбом с полной информацией
-            var albumToCollection = _discogsConverter.CreateAlbum(dRelease);
-            //сохраняю альбом в базе
-            var albumId = _repo.AddOrUpdateAlbum(artistId, albumToCollection);
-            var storedArtist = _repo.FindArtistById(artistId);
-            var storedAlbum = _repo.FindAlbumById(albumId);
-            //TODO:Получаю путь для сохранения альбома. Переделать
-            var albumStorageName = CreateAlbumDirectoryName(storedAlbum);
-            var albumStoragePath = _fileManager.CreateAlbumStorageDirectory(storedArtist.StoragePath, albumStorageName);
-            //Сохраняю физическую копию альбома в хранилище.
-            _fileManager.MoveMusicDirectory(mDirInfo, albumStoragePath);
-            //TODO: Сохраняю фотографии из дискогс
-
-            //добавляю запись про место сохранения физической копии альбома
-            _repo.AddAlbumToStorage(storedAlbum, albumStoragePath);
-
-            return albumToCollection;
-        }
-
-        //TODO:Move to another class
-        private string CreateAlbumDirectoryName(Album album)
-        {
-            return $"({album.ReleaseDate}) {album.Title}";
+            _collectionManager.MoveToCollectionManually(SelectedItem.Value);
         }
 
         private void ExpandTreeViewItem(RoutedEventArgs arg)
@@ -333,31 +241,13 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             }
         }
 
-        private void MoveToCollectionManually()
-        {
-            var dirInfo = new DirectoryInfo(SelectedItem.Value.Info.FullName);
-            var musicFiles = dirInfo.GetFiles("*.mp3");
-            if (musicFiles.Length == 0) return;
-            //get album information
-            var albumInfo = _musicFileAnalyzer.GetBasicAlbumInfoFromDirectory(dirInfo);
-            //create destination path
-            var collectionDirectory = Properties.Settings.Default.MusicCollectionDirectory;
-            var destPath = Path.Combine(collectionDirectory, albumInfo.ArtistName, albumInfo.AlbumTitle);
 
-            _fileManager.MoveMusicDirectory(dirInfo.FullName, destPath);
-            MusicDirectories.Remove(SelectedItem);
-        }
 
         private void ChangeSelectedItem(SimpleFileInfoWrap arg)
         {
+            if (arg == null) return;
             SelectedItem = arg;
             FilePreview = _previewFactory.CreatePreviewVm(arg.Value);
-        }
-
-        private void Initialize()
-        {
-            MusicSearchDirectory = Properties.Settings.Default.MusicSearchDirectory;
-            MusicCollectionDirectory = Properties.Settings.Default.MusicCollectionDirectory;
         }
 
         #endregion [  private methods  ]

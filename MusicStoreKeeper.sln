@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicStoreKeeper.DataModel"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileAnalyzer.Tests", "FileAnalyzer.Tests\FileAnalyzer.Tests.csproj", "{C69E7ACA-A886-4558-93E1-84F508DF8A4B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicStoreKeeper.CollectionManager", "MusicStoreKeeper.CollectionManager\MusicStoreKeeper.CollectionManager.csproj", "{0ADBC15E-3CBA-411C-804C-E8FE44E50811}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,6 +143,14 @@ Global
 		{C69E7ACA-A886-4558-93E1-84F508DF8A4B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C69E7ACA-A886-4558-93E1-84F508DF8A4B}.Release|x86.ActiveCfg = Release|Any CPU
 		{C69E7ACA-A886-4558-93E1-84F508DF8A4B}.Release|x86.Build.0 = Release|Any CPU
+		{0ADBC15E-3CBA-411C-804C-E8FE44E50811}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ADBC15E-3CBA-411C-804C-E8FE44E50811}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ADBC15E-3CBA-411C-804C-E8FE44E50811}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0ADBC15E-3CBA-411C-804C-E8FE44E50811}.Debug|x86.Build.0 = Debug|Any CPU
+		{0ADBC15E-3CBA-411C-804C-E8FE44E50811}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ADBC15E-3CBA-411C-804C-E8FE44E50811}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0ADBC15E-3CBA-411C-804C-E8FE44E50811}.Release|x86.ActiveCfg = Release|Any CPU
+		{0ADBC15E-3CBA-411C-804C-E8FE44E50811}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

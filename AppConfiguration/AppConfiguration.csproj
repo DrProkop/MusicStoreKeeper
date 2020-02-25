@@ -127,6 +127,10 @@
       <Project>{5e330b60-bb17-440c-acaa-182483a0418e}</Project>
       <Name>MusicStoreKeeper.Model</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MusicStoreKeeper.CollectionManager\MusicStoreKeeper.CollectionManager.csproj">
+      <Project>{0adbc15e-3cba-411c-804c-e8fe44e50811}</Project>
+      <Name>MusicStoreKeeper.CollectionManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Vmv\MusicStoreKeeper.Vmv.csproj">
       <Project>{e3c1e8b7-a27c-484d-a3ab-79a873153855}</Project>
       <Name>MusicStoreKeeper.Vmv</Name>

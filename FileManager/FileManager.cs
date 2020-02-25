@@ -22,7 +22,7 @@ namespace FileManager
         #region [constants]
 
         private const long MaxFileSize = 500000000;
-        private const string DefaultArtistPhotosDirectory = "photos";
+        private const string DefaultArtistPhotosDirectory = "artist photos";
         private const string DefaultAlbumImagesDirectory = "images";
         private const string DefaultAlbumDocsDirectory = "doc";
         private const string DefaultAlbumUnknownFilesDirectory = "other";

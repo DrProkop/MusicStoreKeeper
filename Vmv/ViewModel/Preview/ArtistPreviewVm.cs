@@ -1,9 +1,8 @@
-﻿using System.Windows.Media;
-using MusicStoreKeeper.Model;
+﻿using MusicStoreKeeper.Model;
 
 namespace MusicStoreKeeper.Vmv.ViewModel
 {
-    public class ArtistPreviewVm:ModelPreviewVmBase
+    public class ArtistPreviewVm : ModelEntityPreviewVmBase
     {
         public ArtistPreviewVm(Artist artist)
         {
@@ -16,11 +15,11 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         private readonly Artist _artist;
 
-        #endregion
+        #endregion [  fields  ]
 
         #region [  properties  ]
 
-        private  string _profile;
+        private string _profile;
 
         public string Profile
         {
@@ -32,31 +31,6 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             }
         }
 
-        private ImageSource _artistImage;
-
-        public ImageSource ArtistImage
-        {
-            get => _artistImage;
-            set
-            {
-                _artistImage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region [  commands  ]
-
-        #endregion
-
-        #region [  public methods  ]
-
-        #endregion
-
-        #region [  private methods  ]
-
-        #endregion
-
+        #endregion [  properties  ]
     }
 }

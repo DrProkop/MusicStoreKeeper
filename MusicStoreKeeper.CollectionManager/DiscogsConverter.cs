@@ -3,7 +3,7 @@ using System.Linq;
 using Discogs.Entity;
 using MusicStoreKeeper.Model;
 
-namespace MusicStoreKeeper.Vmv.ViewModel
+namespace MusicStoreKeeper.CollectionManager
 {
     //TODO: Rename DiscogsConverter class and its methods
     public class DiscogsConverter

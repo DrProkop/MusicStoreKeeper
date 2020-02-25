@@ -1,6 +1,11 @@
 ﻿using Common;
 using MusicStoreKeeper.Model;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace MusicStoreKeeper.Vmv.ViewModel
 {
@@ -53,12 +58,24 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public ArtistPreviewVm CreateArtistPreviewVm(Artist artist)
         {
-            return new ArtistPreviewVm(artist);
+            var artistPreviewVm = new ArtistPreviewVm(artist);
+            var imgDirPath = Path.Combine(artist.StoragePath, "photos");
+            var images = LoadImages(imgDirPath);
+            if (!images.Any()) return artistPreviewVm;
+            artistPreviewVm.ImageCollection = images;
+            artistPreviewVm.SelectedImage = artistPreviewVm.ImageCollection.First();
+            return artistPreviewVm;
         }
 
         public AlbumPreviewVm CreateAlbumPreviewVm(Album album)
         {
-            return new AlbumPreviewVm(album);
+            var albumPreviewVm = new AlbumPreviewVm(album);
+            var imgDirPath = Path.Combine(album.StoragePath, "images");
+            var images = LoadImages(imgDirPath);
+            if (!images.Any()) return albumPreviewVm;
+            albumPreviewVm.ImageCollection = images;
+            albumPreviewVm.SelectedImage = albumPreviewVm.ImageCollection.First();
+            return albumPreviewVm;
         }
 
         #endregion [  public methods  ]
@@ -81,6 +98,26 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         private TextFilePreviewVm CreateTextFilePreviewVm(ISimpleFileInfo file)
         {
             return new TextFilePreviewVm(file);
+        }
+
+        //TODO: Rework LoadImages
+        private List<ImageSource> LoadImages(string imgDirPath)
+        {
+            var di = new DirectoryInfo(imgDirPath);
+            var imgFileInfos = di.GetFiles("*.jpg");
+            var images = new List<ImageSource>();
+            foreach (var fi in imgFileInfos)
+            {
+                var bi = new BitmapImage();
+
+                bi.BeginInit();
+                bi.UriSource = new Uri(fi.FullName);
+                bi.EndInit();
+
+                images.Add(bi);
+            }
+
+            return images;
         }
 
         #endregion [  private methods  ]

@@ -109,7 +109,7 @@ namespace Discogs
 
         public void SaveImage(DiscogsImage dImage, string path, string fileName, DiscogsImageFormatType type = DiscogsImageFormatType.Normal)
         {
-            var uri = (type==DiscogsImageFormatType.Thumbnail) ? dImage.uri : dImage.uri150;
+            var uri = (type==DiscogsImageFormatType.Normal) ? dImage.uri : dImage.uri150;
             var request=new RestRequest(uri, Method.GET);
             var bytes = client.DownloadData(request);
             File.WriteAllBytes(Path.Combine(path, fileName),bytes);

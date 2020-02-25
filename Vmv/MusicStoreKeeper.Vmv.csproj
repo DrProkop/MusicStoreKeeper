@@ -87,19 +87,14 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
     <Compile Include="ViewModel\BaseScreenVm.cs" />
-    <Compile Include="ViewModel\DiscogsConverter.cs" />
     <Compile Include="ViewModel\Preview\AlbumPreviewVm.cs" />
     <Compile Include="ViewModel\Preview\ArtistPreviewVm.cs" />
     <Compile Include="ViewModel\Preview\AudioFilePreviewVm.cs" />
     <Compile Include="ViewModel\Preview\ImageFilePreviewVm.cs" />
     <Compile Include="ViewModel\Preview\IPreviewVm.cs" />
     <Compile Include="ViewModel\Preview\FilePreviewVmBase.cs" />
+    <Compile Include="ViewModel\Preview\ModelEntityPreviewVmBase.cs" />
     <Compile Include="ViewModel\Preview\ModelPreviewVmBase.cs" />
     <Compile Include="ViewModel\Preview\PreviewFactory.cs" />
     <Compile Include="ViewModel\Preview\TextFilePreviewVm.cs" />
@@ -214,10 +209,6 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IBasicTrackInfo.cs" />
+    <Compile Include="ICollectionManager.cs" />
     <Compile Include="IMusicFileAnalyzer.cs" />
     <Compile Include="IFileManager.cs" />
     <Compile Include="IMusicDirAnalyzer.cs" />
@@ -81,6 +82,16 @@
   <ItemGroup>
     <Folder Include="ViewModel\" />
     <Folder Include="View\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Discogs\Discogs.csproj">
+      <Project>{793820cf-90e6-475a-bde4-495f3b79208a}</Project>
+      <Name>Discogs</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Model\MusicStoreKeeper.Model.csproj">
+      <Project>{5e330b60-bb17-440c-acaa-182483a0418e}</Project>
+      <Name>MusicStoreKeeper.Model</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
