@@ -2,6 +2,6 @@
 {
     public interface IScreenVm
     {
-
+        string StatusBarMessage { get; set; }
     }
 }

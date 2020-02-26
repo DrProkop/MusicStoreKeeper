@@ -10,6 +10,16 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="1000">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ResourceLibrary;component/Styles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/ResourceLibrary;component/Brushes.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+        
+
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -26,18 +36,20 @@
                 <StackPanel Orientation="Horizontal" Margin="0 5">
                     <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" />
                     <CheckBox IsChecked="{Binding IsChecked}" Margin="0 0 5 0" />
-                    <TextBlock Text="{Binding Value.ReleaseDate}" Margin="5 0" Background="Chartreuse" />
+                    <TextBlock Text="{Binding Value.ReleaseDate}" Margin="5 0" />
                     <TextBlock Text="{Binding Value.Title}" />
                 </StackPanel>
             </HierarchicalDataTemplate>
             <!-- template for artist-->
-            <HierarchicalDataTemplate x:Key="ArtistsTemplate" DataType="{x:Type viewModel:ArtistWrap}" ItemsSource="{Binding Children}" ItemTemplate="{StaticResource AlbumsTemplate}">
+            <HierarchicalDataTemplate x:Key="ArtistsTemplate" DataType="{x:Type viewModel:ArtistWrap}" 
+                                      ItemsSource="{Binding Children}" ItemTemplate="{StaticResource AlbumsTemplate}"
+                                      ItemContainerStyle="{StaticResource TreeViewItemAlbumStyle}">
                 <StackPanel Orientation="Horizontal">
                     <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" />
                     <CheckBox IsChecked="{Binding IsChecked}" Margin="0 0 5 0" />
                     <TextBlock Text="{Binding Value.Name}" />
                 </StackPanel>
-                <HierarchicalDataTemplate.ItemContainerStyle>
+                <!--<HierarchicalDataTemplate.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
                         <Setter>
                             <Setter.Property>Visibility</Setter.Property>
@@ -49,13 +61,9 @@
                             </Setter.Value>
                         </Setter>
 
-                        <Style.Triggers>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter Property="FontWeight" Value="Bold" />
-                            </Trigger>
-                        </Style.Triggers>
+
                     </Style>
-                </HierarchicalDataTemplate.ItemContainerStyle>
+                </HierarchicalDataTemplate.ItemContainerStyle>-->
             </HierarchicalDataTemplate>
             <!-- templates for preview-->
             <DataTemplate DataType="{x:Type viewModel:ArtistPreviewVm}">
@@ -66,7 +74,7 @@
             </DataTemplate>
         </Grid.Resources>
         <!-- artists with albums list -->
-        <TreeView Grid.Column="0" Name="MusicCollectionTreeView" ItemsSource="{Binding ArtistsCollection}" ItemTemplate="{StaticResource ArtistsTemplate}">
+        <TreeView Grid.Column="0" Name="MusicCollectionTreeView" ItemsSource="{Binding ArtistsCollection}" ItemTemplate="{StaticResource ArtistsTemplate}" Style="{StaticResource TreeViewStyle}" >
             <TreeView.ItemContainerStyle>
                 <Style TargetType="{x:Type TreeViewItem}">
                     <Setter Property="view:AttachedProps.ExpandingProperty" Value="{Binding ElementName=MusicCollectionTreeView, Path=DataContext.ArtistExpandedCommand}" />

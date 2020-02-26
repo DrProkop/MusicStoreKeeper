@@ -18,6 +18,18 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         #region [  properties  ]
 
+        private string _message;
+
+        public string StatusBarMessage
+        {
+            get => _message;
+            set
+            {
+                _message = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region [  commands  ]
@@ -31,6 +43,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         #region [  private methods  ]
 
         #endregion
+
 
     }
 }

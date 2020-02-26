@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using AppConfiguration;
+using Fluent;
 
 namespace MusicStoreKeeper
 {
@@ -18,7 +19,10 @@ namespace MusicStoreKeeper
         /// <param name="e">A <see cref="T:System.Windows.StartupEventArgs" /> that contains the event data.</param>
         protected override void OnStartup(StartupEventArgs e)
         {
-            base.OnStartup(e);
+            ThemeManager.AddTheme(new Uri("pack://application:,,,/ResourceLibrary;component/DarkTeal.xaml"));
+            var theme = ThemeManager.DetectTheme(Application.Current);
+            ThemeManager.ChangeTheme(Application.Current, ThemeManager.GetTheme("Dark.Teal"));
+            base.OnStartup(e);;
             Start.Configure();
             Start.Run();
         }

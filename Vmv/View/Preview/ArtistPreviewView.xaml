@@ -30,7 +30,7 @@
                 </ListBox>
 
                 <!-- artist profile -->
-                <TextBox Grid.Row="3" Text="{Binding Profile}" Padding="4" IsReadOnly="True" VerticalScrollBarVisibility="Auto" 
+                <TextBox Grid.Row="3" Text="{Binding Profile}" Background="{StaticResource LightBackgroundBrush}" Foreground="{StaticResource MainForegroundBrush}" Padding="4" IsReadOnly="True" VerticalScrollBarVisibility="Auto" 
                          TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" />
             </Grid>
         </Border>

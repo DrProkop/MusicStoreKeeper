@@ -19,6 +19,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             LoadArtistsInCollection();
             ShowAlbumsNotInCollection = false;
             //  SetupTestArtistData();
+            
         }
 
         #region [  fields  ]
