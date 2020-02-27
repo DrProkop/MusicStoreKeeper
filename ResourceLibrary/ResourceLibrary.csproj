@@ -98,7 +98,7 @@
     <Resource Include="Images\Buttons\vinyl_record_icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Buttons\delete_icon.png" />
+    <Resource Include="Images\Buttons\delete_trashcan_icon.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Images\TreeViewIcons\license.txt" />
@@ -106,6 +106,10 @@
   <ItemGroup>
     <Resource Include="Images\TreeViewIcons\album_icon.png" />
     <Resource Include="Images\TreeViewIcons\artist_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\Buttons\delete_cross_icon.png" />
+    <Content Include="Images\Buttons\delete_file_icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

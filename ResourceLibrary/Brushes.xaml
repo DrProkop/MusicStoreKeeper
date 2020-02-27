@@ -8,6 +8,9 @@
 
     <!--Colors-->
     <Color x:Key="BasicBackgroundColor">#626266</Color>
+    <Color x:Key="LightBlueColor">#FF00FFFF</Color>
+    <Color x:Key="IconBlueColor">#FF19CDCA</Color>
+
 
     <!--Gray-->
     <Color x:Key="Gray1">#FFF9F9F9</Color>
@@ -26,7 +29,7 @@
     <Color x:Key="LightBackgroundColor">#3E3E42</Color>
 
     <!--Foreground-->
-    <Color x:Key="MainForegroundColor">White</Color>
+    <Color x:Key="MainForegroundColor">#FFCCCCCC</Color>
     <Color x:Key="DisabledForegroundColor">Wheat</Color>
 
     <!-- END COLORS -->
@@ -75,6 +78,7 @@
     <!-- Background -->
     <SolidColorBrush x:Key="LightBackgroundBrush" Color="{StaticResource DarkBackgroundColor}" presentationOptions:Freeze="True" />
     <SolidColorBrush x:Key="DarkBackgroundBrush" Color="{StaticResource LightBackgroundColor}" presentationOptions:Freeze="True" />
+    <SolidColorBrush x:Key="PanelBackgroundBrush" Color="{StaticResource DarkBackgroundColor}" presentationOptions:Freeze="True" />
 
     <!-- Foreground -->
     <SolidColorBrush x:Key="MainForegroundBrush" Color="{StaticResource MainForegroundColor}" />
@@ -82,6 +86,7 @@
 
     <!-- Border -->
     <SolidColorBrush x:Key="Border.BackgroundBrush" Color="{StaticResource Gray7}" presentationOptions:Freeze="True" />
+    <SolidColorBrush x:Key="Border.LightBlueBorderBrush" Color="{StaticResource LightBlueColor}" presentationOptions:Freeze="True" />
 
     <!-- TextBox -->
     <SolidColorBrush x:Key="TextBox.MainForegroundBrush" Color="{StaticResource MainForegroundColor}" presentationOptions:Freeze="True" />
@@ -92,5 +97,5 @@
 
     <!-- CheckBox -->
     <SolidColorBrush x:Key="CheckBox.BorderBrush" Color="{StaticResource Gray3}" presentationOptions:Freeze="True" />
-    <SolidColorBrush x:Key="CheckBox.Background" Color="{StaticResource Gray10}" presentationOptions:Freeze="True" />
+    <SolidColorBrush x:Key="CheckBox.Background" Color="{StaticResource Gray7}" presentationOptions:Freeze="True" />
 </ResourceDictionary>

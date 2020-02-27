@@ -6,33 +6,44 @@
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="800">
     <UserControl.Resources>
-        <ResourceDictionary Source="pack://application:,,,/ResourceLibrary;component/Styles.xaml" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ResourceLibrary;component/Styles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/ResourceLibrary;component/Brushes.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <Border BorderBrush="CadetBlue" BorderThickness="1">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="100" />
-                </Grid.RowDefinitions>
-                <!-- artist name -->
-                <TextBlock Grid.Row="0" Text="{Binding ItemName}" />
-                <!-- selected artist image -->
-                <Border Grid.Row="1" BorderBrush="White" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="1" Margin="5">
-                    <Image HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Source="{Binding SelectedImage}"  Stretch="Uniform" />
-                </Border>
-                <!-- list of artist images -->
-                <ListBox Grid.Row="2" ItemsSource="{Binding ImageCollection}" SelectedItem="{Binding SelectedImage}" Style="{StaticResource ImageListBoxStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="100" />
+            </Grid.RowDefinitions>
 
-                </ListBox>
+            <!-- artist name -->
+            <Border Grid.Row="0" Style="{StaticResource BorderBasicStyle}" Margin="4" Background="{StaticResource PanelBackgroundBrush}" >
+                <StackPanel  Style="{StaticResource StackPanelBasicStyle}" HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding ItemName}" FontSize="18" Style="{StaticResource TextBlockBasicStyle}" />
+                </StackPanel>
+            </Border>
 
-                <!-- artist profile -->
-                <TextBox Grid.Row="3" Text="{Binding Profile}" Background="{StaticResource LightBackgroundBrush}" Foreground="{StaticResource MainForegroundBrush}" Padding="4" IsReadOnly="True" VerticalScrollBarVisibility="Auto" 
-                         TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            </Grid>
-        </Border>
+            <!-- selected artist image -->
+            <Border Grid.Row="1" Style="{StaticResource BorderImageStyle}">
+                <Image Source="{Binding SelectedImage}"  Style="{StaticResource ImageBasicStyle}" />
+            </Border>
+
+            <!-- list of artist images -->
+            <ListBox Grid.Row="2" ItemsSource="{Binding ImageCollection}" SelectedItem="{Binding SelectedImage}" Style="{StaticResource ListBoxImageStyle}" >
+            </ListBox>
+
+            <!-- artist profile -->
+            <TextBox Grid.Row="3" Text="{Binding Profile}" Margin="2 6 2 8" Padding="4 1"
+                     Background="{StaticResource PanelBackgroundBrush}"
+                     Foreground="{StaticResource MainForegroundBrush}" IsReadOnly="True"
+                     VerticalScrollBarVisibility="Auto"
+                     TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Grid>
     </Grid>
 </UserControl>

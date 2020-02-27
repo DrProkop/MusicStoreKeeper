@@ -8,30 +8,55 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <ResourceDictionary Source="pack://application:,,,/ResourceLibrary;component/Styles.xaml" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ResourceLibrary;component/Styles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/ResourceLibrary;component/Brushes.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30" />
+            <RowDefinition Height="40" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="200" />
         </Grid.RowDefinitions>
         <!-- album title -->
-        <TextBlock Grid.Row="0" Text="{Binding ItemName}" />
+        <Border Grid.Row="0" Style="{StaticResource BorderBasicStyle}" Margin="4" Background="{StaticResource PanelBackgroundBrush}">
+            <StackPanel  Style="{StaticResource StackPanelBasicStyle}" HorizontalAlignment="Center">
+                <TextBlock Text="{Binding ItemName}" FontSize="18" Style="{StaticResource TextBlockBasicStyle}" />
+                <TextBlock Text="{Binding ReleaseDate, StringFormat=({0})}" FontSize="18" Style="{StaticResource TextBlockBasicStyle}" />
+            </StackPanel>
+        </Border>
+
         <!-- selected album image -->
-        <Image Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding SelectedImage}"  Margin="5" Stretch="Uniform" />
+        <Border Grid.Row="1" Style="{StaticResource BorderImageStyle}">
+            <Image Source="{Binding SelectedImage}"  Style="{StaticResource ImageBasicStyle}" />
+        </Border>
+
         <!-- list of album images -->
-        <ListBox Grid.Row="2" ItemsSource="{Binding ImageCollection}" SelectedItem="{Binding SelectedImage}" Style="{StaticResource ImageListBoxStyle}" />
+        <ListBox Grid.Row="2" ItemsSource="{Binding ImageCollection}" SelectedItem="{Binding SelectedImage}" Style="{StaticResource ListBoxImageStyle}" />
+
         <!-- album track list -->
-        <ListBox Grid.Row="3" ItemsSource="{Binding AlbumTracks}">
+        <ListBox Grid.Row="3" ItemsSource="{Binding AlbumTracks}"  HorizontalContentAlignment="Stretch" Margin="4 4 4 8" Style="{StaticResource ListboxBasicStyle}">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type model:Track}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Number}" />
-                        <TextBlock Text="{Binding Name}" />
-                        <TextBlock Text="{Binding Duration}" />
-                    </StackPanel>
+                    <Border Style="{StaticResource BorderBasicStyle}">
+                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="30" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{Binding Number}"
+                                       Style="{StaticResource TextBlockBasicStyle}" HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="{Binding Name}"
+                                       Style="{StaticResource TextBlockBasicStyle}" />
+                            <TextBlock Grid.Column="2" Text="{Binding Duration}" Margin="0 0 6 0"
+                                       Style="{StaticResource TextBlockBasicStyle}" HorizontalAlignment="Right" />
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

@@ -17,39 +17,45 @@
                 <ResourceDictionary Source="pack://application:,,,/ResourceLibrary;component/Brushes.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-        
-
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <Grid.Resources>
             <!-- converters -->
+            <!--TODO: Move to ResourceLibrary-->
             <converters:MultiValueConverterAdapter x:Key="WrappedBoolToVisibilityConverter">
                 <converters:TreeViewAlbumVisibilityConverter />
             </converters:MultiValueConverterAdapter>
             <!-- templates for treeview-->
             <!-- template for album-->
             <HierarchicalDataTemplate x:Key="AlbumsTemplate" DataType="{x:Type viewModel:AlbumWrap}">
-                <StackPanel Orientation="Horizontal" Margin="0 5">
-                    <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" />
-                    <CheckBox IsChecked="{Binding IsChecked}" Margin="0 0 5 0" />
-                    <TextBlock Text="{Binding Value.ReleaseDate}" Margin="5 0" />
-                    <TextBlock Text="{Binding Value.Title}" />
+                <StackPanel Style="{StaticResource StackPanelTreeViewItemStyle}">
+                    <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" VerticalAlignment="Center" />
+                    <CheckBox IsChecked="{Binding IsChecked}" Style="{StaticResource CheckBoxTreeViewStyle}" />
+                    <Border Style="{StaticResource BorderTreeViewItemStyle}">
+                        <StackPanel Style="{StaticResource StackPanelTreeViewItemStyle}">
+                            <TextBlock Text="{Binding Value.ReleaseDate}" Style="{StaticResource TextBlockTreeViewItemStyle}" />
+                            <TextBlock Text=" - " Style="{StaticResource TextBlockTreeViewItemStyle}" />
+                            <TextBlock Text="{Binding Value.Title}"  Style="{StaticResource TextBlockTreeViewItemStyle}" />
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </HierarchicalDataTemplate>
             <!-- template for artist-->
-            <HierarchicalDataTemplate x:Key="ArtistsTemplate" DataType="{x:Type viewModel:ArtistWrap}" 
-                                      ItemsSource="{Binding Children}" ItemTemplate="{StaticResource AlbumsTemplate}"
-                                      ItemContainerStyle="{StaticResource TreeViewItemAlbumStyle}">
-                <StackPanel Orientation="Horizontal">
-                    <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" />
-                    <CheckBox IsChecked="{Binding IsChecked}" Margin="0 0 5 0" />
-                    <TextBlock Text="{Binding Value.Name}" />
+            <HierarchicalDataTemplate x:Key="ArtistsTemplate" DataType="{x:Type viewModel:ArtistWrap}"
+                                      ItemsSource="{Binding Children}" ItemTemplate="{StaticResource AlbumsTemplate}">
+                <StackPanel Style="{StaticResource StackPanelTreeViewItemStyle}">
+                    <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" VerticalAlignment="Center" />
+                    <CheckBox IsChecked="{Binding IsChecked}" Style="{StaticResource CheckBoxTreeViewStyle}" />
+                    <Border Style="{StaticResource BorderTreeViewItemStyle}">
+                        <TextBlock Text="{Binding Value.Name}" FontSize="16" Style="{StaticResource TextBlockTreeViewItemStyle}" />
+                    </Border>
                 </StackPanel>
-                <!--<HierarchicalDataTemplate.ItemContainerStyle>
+                <HierarchicalDataTemplate.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
                         <Setter>
                             <Setter.Property>Visibility</Setter.Property>
@@ -60,10 +66,14 @@
                                 </MultiBinding>
                             </Setter.Value>
                         </Setter>
-
-
+                        <Setter Property="Foreground" Value="{StaticResource MainForegroundBrush}" />
+                        <Style.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="FontWeight" Value="Bold" />
+                            </Trigger>
+                        </Style.Triggers>
                     </Style>
-                </HierarchicalDataTemplate.ItemContainerStyle>-->
+                </HierarchicalDataTemplate.ItemContainerStyle>
             </HierarchicalDataTemplate>
             <!-- templates for preview-->
             <DataTemplate DataType="{x:Type viewModel:ArtistPreviewVm}">
@@ -73,24 +83,33 @@
                 <view:AlbumPreviewView />
             </DataTemplate>
         </Grid.Resources>
+
         <!-- artists with albums list -->
-        <TreeView Grid.Column="0" Name="MusicCollectionTreeView" ItemsSource="{Binding ArtistsCollection}" ItemTemplate="{StaticResource ArtistsTemplate}" Style="{StaticResource TreeViewStyle}" >
+        <TreeView Grid.Column="0" Name="MusicCollectionTreeView" ItemsSource="{Binding ArtistsCollection}"
+                  ItemTemplate="{StaticResource ArtistsTemplate}" Style="{StaticResource TreeViewStyle}"
+                  Width="Auto" Margin="0">
             <TreeView.ItemContainerStyle>
                 <Style TargetType="{x:Type TreeViewItem}">
-                    <Setter Property="view:AttachedProps.ExpandingProperty" Value="{Binding ElementName=MusicCollectionTreeView, Path=DataContext.ArtistExpandedCommand}" />
+                    <Setter Property="view:AttachedProps.ExpandingProperty"
+                            Value="{Binding ElementName=MusicCollectionTreeView, Path=DataContext.ArtistExpandedCommand}" />
                 </Style>
             </TreeView.ItemContainerStyle>
 
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectedItemChanged">
-                    <i:InvokeCommandAction Command="{Binding SelectedItemChangedCommand}" CommandParameter="{Binding ElementName=MusicCollectionTreeView, Path=SelectedItem}" />
+                    <i:InvokeCommandAction Command="{Binding SelectedItemChangedCommand}"
+                                           CommandParameter="{Binding ElementName=MusicCollectionTreeView, Path=SelectedItem}" />
                     <i:InvokeCommandAction />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </TreeView>
 
-        <!-- albums cover and track list-->
-        <ContentControl Grid.Column="1"  Content="{Binding CollectionItemPreview}">
-        </ContentControl>
+        <!-- gridsplitter-->
+        <GridSplitter Grid.Column="1" Style="{StaticResource GridSplitterVerticalStyle}" />
+
+        <!-- artist and album previews-->
+        <Border Grid.Column="2" BorderBrush="{StaticResource Border.LightBlueBorderBrush}" BorderThickness="1">
+            <ContentControl Content="{Binding CollectionItemPreview}" />
+        </Border>
     </Grid>
 </UserControl>

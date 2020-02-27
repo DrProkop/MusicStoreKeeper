@@ -6,9 +6,127 @@
         <ResourceDictionary Source="Brushes.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
+    <!-- border -->
+    <!-- border basic-->
+    <Style x:Key="BorderBasicStyle" TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{StaticResource GrayBrush8}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GrayBrush3}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Margin" Value="2" />
+        <Setter Property="Padding" Value="2" />
+    </Style>
+    <!-- border image -->
+    <Style x:Key="BorderImageStyle" TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{StaticResource GrayBrush1}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <!-- border treeview item -->
+    <Style x:Key="BorderTreeViewItemStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource BorderBasicStyle}">
+        <Setter Property="Background" Value="{StaticResource GrayBrush8}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GrayBrush3}" />
+        <Setter Property="Margin" Value="2 0" />
+    </Style>
+    <!-- border panel -->
+    <Style x:Key="BorderPanelStyle" TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource GrayBrush3}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Margin" Value="4" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <!-- end border -->
+
+    <!-- textblock -->
+    <!-- basic textblock -->
+    <Style x:Key="TextBlockBasicStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource MainForegroundBrush}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <!-- treeview item textblock -->
+    <Style x:Key="TextBlockTreeViewItemStyle" TargetType="TextBlock" BasedOn="{StaticResource TextBlockBasicStyle}">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Margin" Value="2 0" />
+    </Style>
+    <!-- end textblock -->
+
+    <!-- textbox -->
+    <!-- basic textbox -->
+    <Style x:Key="TextBoxBasicStyle" TargetType="TextBox">
+        <Setter Property="BorderBrush" Value="{StaticResource GrayBrush3}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource MainForegroundBrush}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Padding" Value="4 2"/>
+        <Setter Property="Margin" Value="4 2"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    </Style>
+    <!-- end textbox -->
+
+    <!-- stackpanel -->
+    <!-- stackpanel basic -->
+    <Style x:Key="StackPanelBasicStyle" TargetType="{x:Type StackPanel}">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="Margin" Value="4" />
+    </Style>
+    <!-- stackpanel treeview item -->
+    <Style x:Key="StackPanelTreeViewItemStyle" TargetType="{x:Type StackPanel}" BasedOn="{StaticResource StackPanelBasicStyle}">
+        <Setter Property="Margin" Value="2" />
+    </Style>
+    <!-- end stackpanel -->
+
+    <!-- checkbox -->
+    <!-- tree view checkbox -->
+    <Style x:Key="CheckBoxTreeViewStyle" TargetType="{x:Type CheckBox}">
+        <Setter Property="Background" Value="{StaticResource CheckBox.Background}" />
+        <Setter Property="BorderBrush" Value="{StaticResource CheckBox.BorderBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource GrayBrush2}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="2 0 2 0" />
+    </Style>
+    <!-- end checkbox -->
+
+    <!-- image -->
+    <Style x:Key="ImageBasicStyle" TargetType="{x:Type Image}">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Stretch" Value="Uniform" />
+    </Style>
+    <!-- end image -->
+
+    <!-- gridsplitter -->
+    <!-- vertical gridsplitter -->
+    <Style x:Key="GridSplitterVerticalStyle" TargetType="{x:Type GridSplitter}">
+        <Setter Property="Width" Value="2" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="ShowsPreview" Value="True" />
+        <Setter Property="Margin" Value="1 0"/>
+        <Setter Property="Background" Value="{StaticResource Border.LightBlueBorderBrush}" />
+    </Style>
+    <!-- end gridsplitter -->
+
+    <!-- listbox -->
+    <Style x:Key="ListboxBasicStyle" TargetType="{x:Type ListBox}">
+        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}" />
+        <Setter Property="Margin" Value="4" />
+        <Setter Property="Padding" Value="4 0" />
+    </Style>
+
     <!-- listbox for images -->
-    <Style x:Key="ImageListBoxStyle" TargetType="{x:Type ListBox}">
-        <Setter Property="Background" Value="{StaticResource DarkBackgroundBrush}" />
+    <Style x:Key="ListBoxImageStyle" TargetType="{x:Type ListBox}" BasedOn="{StaticResource ListboxBasicStyle}">
+        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}" />
+        <Setter Property="Margin" Value="4 0" />
+        <Setter Property="Padding" Value="4 0" />
         <Setter Property="ItemsPanel">
             <Setter.Value>
                 <ItemsPanelTemplate>
@@ -19,7 +137,7 @@
         <Setter Property="ItemTemplate">
             <Setter.Value>
                 <DataTemplate>
-                    <Border BorderBrush="White" Margin="4 0" MaxWidth="80" MaxHeight="120" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="1">
+                    <Border Margin="4 0" MaxWidth="80" MaxHeight="120" Style="{StaticResource BorderImageStyle}">
                         <Image Source="{Binding}" />
                     </Border>
                 </DataTemplate>
@@ -37,32 +155,20 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <!-- end listbox -->
 
-    <!-- tree view -->
+    <!-- treeview -->
     <Style x:Key="TreeViewStyle" TargetType="{x:Type TreeView}">
         <Setter Property="Background" Value="{StaticResource DarkCarbonBackgroundBrush}" />
-        <Setter Property="Foreground" Value="{StaticResource MainForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource MainForegroundBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Border.LightBlueBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        
     </Style>
 
-    <!-- tree view item -->
+    <!-- treeview item -->
     <Style x:Key="TreeViewItemAlbumStyle" TargetType="{x:Type TreeViewItem}">
-        <!--<Setter>
-            <Setter.Property>Visibility</Setter.Property>
-            <Setter.Value>
-                <MultiBinding Converter="{StaticResource WrappedBoolToVisibilityConverter}">
-                    <Binding Path="Value.InCollection" />
-                    <Binding ElementName="MusicCollectionTreeView" Path="DataContext.ShowAlbumsNotInCollection"/>
-                </MultiBinding>
-            </Setter.Value>
-        </Setter>-->
-<Setter Property="Foreground" Value="{StaticResource MainForegroundBrush}"></Setter>
-        <Style.Triggers>
-            <Trigger Property="IsFocused" Value="True">
-                <Setter Property="FontWeight" Value="Bold" />
-                <Setter Property="Background" Value="Chartreuse"></Setter>
-            </Trigger>
-        </Style.Triggers>
     </Style>
-
+    <!-- end treeview -->
 
 </ResourceDictionary>

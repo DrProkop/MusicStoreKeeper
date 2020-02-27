@@ -62,7 +62,7 @@
                     <Fluent:Button Header="Discogs"  LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/vinyl_record_icon.png"  Command="{Binding GetArtistFromDiscogsCommand}" />
                 </Fluent:RibbonGroupBox>
                 <Fluent:RibbonGroupBox Header="FileManager" DataContext="{Binding CurrentScreen}">
-                    <Fluent:Button Header="Delete" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/delete_icon.png" />
+                    <Fluent:Button Header="Delete" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/delete_trashcan_icon.png" />
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
             <!-- settings screen -->

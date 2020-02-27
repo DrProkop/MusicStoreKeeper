@@ -16,21 +16,26 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.Resources>
             <converters:TreeViewIconConverter x:Key="TreeViewIconConverter" />
         </Grid.Resources>
-        <!-- file tree view -->
+
+        <!-- file treeview -->
         <TreeView Name="MyTreeView" Grid.Column="0" ItemsSource="{Binding MusicDirectories}" Style="{StaticResource TreeViewStyle}">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type viewModel:SimpleFileInfoWrap}" ItemsSource="{Binding Children}">
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Style="{StaticResource StackPanelTreeViewItemStyle}">
                         <!--<Image Height="16" Width="16" Source="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type StackPanel}},
                             Path=DataContext, Converter={StaticResource TreeViewIconConverter}}" />-->
                         <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" Margin="2 0" />
-                        <CheckBox IsChecked="{Binding IsChecked}" IsEnabled="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TreeViewItem}}, Path=IsExpanded}" Margin="2,0" VerticalAlignment="Center"></CheckBox>
-                        <TextBlock Margin="4" Text="{Binding Value.Name}" />
+                        <CheckBox IsChecked="{Binding IsChecked}" Style="{StaticResource CheckBoxTreeViewStyle}" />
+                        <Border Style="{StaticResource BorderTreeViewItemStyle}" Padding="2 0">
+                            <TextBlock Margin="4" Text="{Binding Value.Name}"
+                                       Style="{StaticResource TextBlockTreeViewItemStyle}" />
+                        </Border>
                     </StackPanel>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
@@ -39,7 +44,7 @@
                 <Style TargetType="{x:Type TreeViewItem}">
                     <Setter Property="view:AttachedProps.ExpandingProperty" Value="{Binding ElementName=MyTreeView, Path=DataContext.ItemExpandedCommand}" />
                     <Style.Triggers>
-                        <Trigger Property="IsExpanded"  Value="True">
+                        <Trigger Property="IsSelected"  Value="True">
                             <Setter Property="FontWeight" Value="Bold" />
                         </Trigger>
                     </Style.Triggers>
@@ -58,8 +63,11 @@
             </i:Interaction.Triggers>
         </TreeView>
 
+        <!-- gridsplitter-->
+        <GridSplitter Grid.Column="1" Style="{StaticResource GridSplitterVerticalStyle}" />
+
         <!-- item preview -->
-        <Border Grid.Column="1" Margin="5">
+        <Border Grid.Column="2" BorderBrush="{StaticResource Border.LightBlueBorderBrush}" BorderThickness="1">
             <Grid>
                 <Grid.Resources>
                     <!-- templates for preview-->
@@ -77,13 +85,17 @@
                     <RowDefinition Height="50" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
+
                 <!-- file name -->
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="File name: " VerticalAlignment="Center" />
-                    <TextBlock Text="{Binding FilePreview.ItemName}" FontSize="20" VerticalAlignment="Center" />
-                </StackPanel>
-                <!-- content -->
-                <ContentControl Grid.Row="1" Content="{Binding FilePreview, UpdateSourceTrigger=PropertyChanged}" />
+                <Border Style="{StaticResource BorderBasicStyle}" Margin="4" Background="{StaticResource PanelBackgroundBrush}">
+                    <StackPanel Style="{StaticResource StackPanelBasicStyle}">
+                        <TextBlock Text="File name:  " Style="{StaticResource TextBlockBasicStyle}" />
+                        <TextBlock Text="{Binding FilePreview.ItemName}" FontSize="18" Style="{StaticResource TextBlockBasicStyle}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- file preview -->
+                <ContentControl Grid.Row="1" Content="{Binding FilePreview, UpdateSourceTrigger=PropertyChanged}" Margin="0 0 0 6" />
             </Grid>
         </Border>
     </Grid>
