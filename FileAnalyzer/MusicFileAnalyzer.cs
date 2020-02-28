@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Common;
+using System;
 using System.IO;
-using Common;
 using File = TagLib.File;
 
 namespace FileAnalyzer
@@ -10,7 +10,7 @@ namespace FileAnalyzer
     /// </summary>
     public class MusicFileAnalyzer : IMusicFileAnalyzer
     {
-        public MusicFileAnalyzer(string fileExtension="*.mp3")
+        public MusicFileAnalyzer(string fileExtension = "*.mp3")
         {
             FileExtension = fileExtension;
         }
@@ -94,17 +94,8 @@ namespace FileAnalyzer
 
         public IBasicTrackInfo GetBasicAlbumInfoFromDirectory(DirectoryInfo dirInfo)
         {
-            var bai = new BasicTrackInfo();
             var fInfos = dirInfo.GetFiles(FileExtension);
-            if (fInfos.Length <= 0) return bai;
-            using (var file = File.Create(fInfos[0].FullName))
-            {
-                bai.ArtistName = file.Tag.FirstPerformer;
-                bai.AlbumTitle = file.Tag.Album;
-                bai.TrackName = file.Tag.Title;
-                bai.Year = file.Tag.Year;
-                return bai;
-            }
+            return fInfos.Length <= 0 ? new BasicTrackInfo() : GetTrackInfo(fInfos[0].FullName);
         }
 
         public IBasicTrackInfo GetBasicAlbumInfoFromDirectory(string path)
@@ -116,24 +107,27 @@ namespace FileAnalyzer
         //TODO: Add check for file type
         public IBasicTrackInfo GetBasicAlbumInfoFromAudioFile(FileInfo fileInfo)
         {
-            var bai = new BasicTrackInfo();
-            if (!FileExtension.Trim('*').Equals(fileInfo.Extension, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return bai;
-            }
-            using (var file = File.Create(fileInfo.FullName))
-            {
-                bai.ArtistName = file.Tag.FirstPerformer;
-                bai.AlbumTitle = file.Tag.Album;
-                bai.TrackName = file.Tag.Title;
-                bai.Year = file.Tag.Year;
-                return bai;
-            }
+            return !FileExtension.Trim('*').Equals(fileInfo.Extension, StringComparison.InvariantCultureIgnoreCase) ? new BasicTrackInfo() : GetTrackInfo(fileInfo.FullName);
         }
 
         #endregion [  public methods  ]
 
         #region [  private methods  ]
+
+        private IBasicTrackInfo GetTrackInfo(string path)
+        {
+            using (var file = File.Create(path))
+            {
+                var bti = new BasicTrackInfo
+                {
+                    ArtistName = file.Tag.FirstPerformer,
+                    AlbumTitle = file.Tag.Album,
+                    TrackName = file.Tag.Title,
+                    Year = file.Tag.Year
+                };
+                return bti;
+            }
+        }
 
         private bool CheckFilePathAndExtension(string path)
         {

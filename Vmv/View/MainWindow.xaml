@@ -32,30 +32,21 @@
                         </Trigger>
                     </Style.Triggers>
                 </Style>
-                <!--<Style TargetType="{x:Type Fluent:RibbonTabControl}">
-                    <Setter Property="Background" Value="{StaticResource LightBackgroundBrush}" />
-                    <Setter Property="BorderBrush" Value="Transparent"/>
-                    <Setter Property="ContentGapHeight" Value="5"/>
-
-                </Style>
-
-                <Style TargetType="{x:Type Fluent:RibbonTabsContainer}">
-                    <Setter Property="Background" Value="{StaticResource LightBackgroundBrush}" />
-                    
-
-                </Style>-->
             </Fluent:Ribbon.Resources>
 
             <!--Tabs-->
-            <!-- Music collection -->
-
-            <Fluent:RibbonTabItem Header="Collection" ActiveTabBackground="Chartreuse" IsSelected="{Binding MusicCollectionScreenSelected, Mode=OneWayToSource}" Loaded="FrameworkElement_OnLoaded">
-                <Fluent:RibbonGroupBox Header="Collection Management">
+            <!-- music collection screen -->
+            <Fluent:RibbonTabItem Header="Collection" ActiveTabBackground="{StaticResource AccentBaseColorBrush40}" IsSelected="{Binding MusicCollectionScreenSelected, Mode=OneWayToSource}" Loaded="FrameworkElement_OnLoaded">
+                <Fluent:RibbonGroupBox Header="Collection Management" MinWidth="250" DataContext="{Binding CurrentScreen}">
+                    <Fluent:Button Header="Refresh" Command="{Binding RefreshCollectionCommand}" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/refresh_collection_icon.png" />
+                    <Fluent:Button Header="Delete from collection" Command="{Binding DeleteFromCollectionCommand}" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/delete_file_icon.png" />
+                    <Fluent:ToggleButton Header="Enable selection" Command="{Binding EnableSelectionCommand}" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/allow_selection_icon.png" />
+                    <Fluent:ToggleButton Header="Show missing albums" Command="{Binding ShowMissingAlbumsCommand}" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/show_hidden_icon.png" />
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
 
-            <!-- Adding files to collection -->
-            <Fluent:RibbonTabItem Header="Add Music"  ActiveTabBackground="Aqua" IsSelected="{Binding SearchMusicScreenSelected, Mode=OneWayToSource}">
+            <!-- music search screen -->
+            <Fluent:RibbonTabItem Header="Add Music"  ActiveTabBackground="{StaticResource AccentBaseColorBrush40}" IsSelected="{Binding SearchMusicScreenSelected, Mode=OneWayToSource}">
                 <Fluent:RibbonGroupBox Header="Search" DataContext="{Binding CurrentScreen}">
                     <Fluent:Button Header="Scan folder"  LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/search_icon.png" Command="{Binding ScanDirectoryCommand}" ToolTip="{Binding MusicSearchDirectory}" />
                     <Fluent:Button Header="Add to collection" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/add_files_manually_icon.png"  Command="{Binding MoveToCollectionManuallyCommand}" />
@@ -63,10 +54,13 @@
                 </Fluent:RibbonGroupBox>
                 <Fluent:RibbonGroupBox Header="FileManager" DataContext="{Binding CurrentScreen}">
                     <Fluent:Button Header="Delete" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/delete_trashcan_icon.png" />
+                    <Fluent:ToggleButton Header="Enable selection" Command="{Binding EnableSelectionCommand}"
+                                         LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/allow_selection_icon.png" />
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
+
             <!-- settings screen -->
-            <Fluent:RibbonTabItem Header="Settings" ActiveTabBackground="DarkViolet" IsSelected="{Binding SettingsScreenSelected, Mode=OneWayToSource}">
+            <Fluent:RibbonTabItem Header="Settings" ActiveTabBackground="{StaticResource AccentBaseColorBrush40}" IsSelected="{Binding SettingsScreenSelected, Mode=OneWayToSource}">
                 <Fluent:RibbonGroupBox DataContext="{Binding CurrentScreen}">
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>

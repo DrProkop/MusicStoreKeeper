@@ -123,6 +123,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Start.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -152,13 +153,41 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AppConfiguration\AppConfiguration.csproj">
-      <Project>{eb28f6ac-77b8-4056-b600-dde9632936ec}</Project>
-      <Name>AppConfiguration</Name>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{c30ddd5f-51a2-46e8-b146-9635a82eff54}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataModel\MusicStoreKeeper.DataModel.csproj">
+      <Project>{845c7161-8e1f-4118-ba19-9d18f0b08402}</Project>
+      <Name>MusicStoreKeeper.DataModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Discogs\Discogs.csproj">
+      <Project>{793820cf-90e6-475a-bde4-495f3b79208a}</Project>
+      <Name>Discogs</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FileAnalyzer\FileAnalyzer.csproj">
+      <Project>{a9ceb6cb-425c-43f4-bcdc-9aeb463afaea}</Project>
+      <Name>FileAnalyzer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FileManager\FileManager.csproj">
+      <Project>{5093c2e8-99fa-451c-9779-3e9fee29884d}</Project>
+      <Name>FileManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Model\MusicStoreKeeper.Model.csproj">
+      <Project>{5e330b60-bb17-440c-acaa-182483a0418e}</Project>
+      <Name>MusicStoreKeeper.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MusicStoreKeeper.CollectionManager\MusicStoreKeeper.CollectionManager.csproj">
+      <Project>{0adbc15e-3cba-411c-804c-e8fe44e50811}</Project>
+      <Name>MusicStoreKeeper.CollectionManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\ResourceLibrary\ResourceLibrary.csproj">
       <Project>{c1524334-3a27-4015-b74f-ad3c54d45fee}</Project>
       <Name>ResourceLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vmv\MusicStoreKeeper.Vmv.csproj">
+      <Project>{e3c1e8b7-a27c-484d-a3ab-79a873153855}</Project>
+      <Name>MusicStoreKeeper.Vmv</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

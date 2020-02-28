@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using Common;
-using MusicStoreKeeper.DataModel;
+﻿using Common;
 using MusicStoreKeeper.Model;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -12,19 +11,19 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 {
     public class MusicCollectionScreenVm : BaseScreenVm
     {
-        public MusicCollectionScreenVm(IRepository repository, PreviewFactory previewFactory, ILoggerManager manager) : base(manager)
+        public MusicCollectionScreenVm(ICollectionManager collectionManager, PreviewFactory previewFactory, ILoggerManager manager) : base(manager)
         {
-            _repo = repository;
+            _collectionManager = collectionManager;
             _previewFactory = previewFactory;
+
             LoadArtistsInCollection();
             ShowAlbumsNotInCollection = false;
-            //  SetupTestArtistData();
-            
+            IsSelectionEnabled = false;
         }
 
         #region [  fields  ]
 
-        private readonly IRepository _repo;
+        private readonly ICollectionManager _collectionManager;
         private readonly PreviewFactory _previewFactory;
 
         #endregion [  fields  ]
@@ -44,7 +43,11 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         public Artist SelectedArtist
         {
             get => _selectedArtist;
-            set { _selectedArtist = value; OnPropertyChanged(); }
+            set
+            {
+                _selectedArtist = value;
+                OnPropertyChanged();
+            }
         }
 
         private Album _selectedAlbum;
@@ -52,8 +55,14 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         public Album SelectedAlbum
         {
             get => _selectedAlbum;
-            set { _selectedAlbum = value; OnPropertyChanged(); }
+            set
+            {
+                _selectedAlbum = value;
+                OnPropertyChanged();
+            }
         }
+
+        public object SelectedItemWrap { get; set; }
 
         private IPreviewVm _collectionItemPreview;
 
@@ -67,7 +76,19 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             }
         }
 
-        private  bool _showAlbumsNotInCollection;
+        private bool _isSelectionEnabled;
+
+        public bool IsSelectionEnabled
+        {
+            get => _isSelectionEnabled;
+            set
+            {
+                _isSelectionEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _showAlbumsNotInCollection;
 
         public bool ShowAlbumsNotInCollection
         {
@@ -95,24 +116,59 @@ namespace MusicStoreKeeper.Vmv.ViewModel
                                                               ChangeSelectedItem(arg);
                                                           }));
 
+        private ICommand _refreshCollectionCommand;
+
+        public ICommand RefreshCollectionCommand => _refreshCollectionCommand ?? (_refreshCollectionCommand = new RelayCommand<object>(arg =>
+                                                        {
+                                                            RefreshCollection();
+                                                        }));
+
+        private ICommand _enableSelectionCommand;
+
+        public ICommand EnableSelectionCommand => _enableSelectionCommand ?? (_enableSelectionCommand = new RelayCommand<object>(arg =>
+                                                      {
+                                                          EnableSelection();
+                                                      }));
+
+        private ICommand _showMissingAlbumsCommand;
+
+        public ICommand ShowMissingAlbumsCommand => _showMissingAlbumsCommand ?? (_showMissingAlbumsCommand = new RelayCommand<object>(arg =>
+       {
+           ShowMissingAlbums();
+       }));
+
+        private ICommand _deleteFromCollectionCommand;
+
+        public ICommand DeleteFromCollectionCommand =>
+            _deleteFromCollectionCommand ?? (_deleteFromCollectionCommand = new RelayCommand<object>(
+                (arg) => { DeleteFromCollection(); }, (arg) => SelectedItemWrap != null));
+
         #endregion [  commands  ]
 
         #region [  private methods  ]
 
         private void ChangeSelectedItem(object arg)
         {
-
+            SelectedItemWrap = arg;
             switch (arg)
             {
                 case AlbumWrap albumWrap when albumWrap.Value.InCollection:
-                    albumWrap.Value = _repo.GetAlbumWithTracks(albumWrap.Value.Id);
+                    albumWrap.Value = _collectionManager.GetAlbum(albumWrap.Value.Id);
                     CollectionItemPreview = _previewFactory.CreateAlbumPreviewVm(albumWrap.Value);
+                    SelectedAlbum = albumWrap.Value;
+                    SelectedArtist = null;
                     return;
+
                 case AlbumWrap albumWrap:
                     CollectionItemPreview = _previewFactory.CreateAlbumPreviewVm(albumWrap.Value);
+                    SelectedAlbum = albumWrap.Value;
+                    SelectedArtist = null;
                     break;
+
                 case ArtistWrap artistWrap:
                     CollectionItemPreview = _previewFactory.CreateArtistPreviewVm(artistWrap.Value);
+                    SelectedArtist = artistWrap.Value;
+                    SelectedAlbum = null;
                     break;
             }
         }
@@ -126,31 +182,116 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             }
         }
 
+        private void ShowMissingAlbums()
+        {
+            ShowAlbumsNotInCollection = !ShowAlbumsNotInCollection;
+        }
+
+        private void EnableSelection()
+        {
+            IsSelectionEnabled = !IsSelectionEnabled;
+        }
+
+        #region [  loading  ]
+
         private void LoadArtistAlbums(ArtistWrap artWrap)
         {
             artWrap.Children.Clear();
-            var albums= _repo.GetAllArtistAlbums(artWrap.Value.Id).ToList();
+            var parent = artWrap;
+            var albums = _collectionManager.GetAllArtistAlbums(artWrap.Value.Id);
             foreach (var album in albums)
             {
-                artWrap.Children.Add(new AlbumWrap(album));
+                artWrap.Children.Add(new AlbumWrap(album, parent));
             }
         }
 
         private void LoadArtistsInCollection()
         {
-            var dbArtists = _repo.GetAllArtists().ToList();
+            var dbArtists = _collectionManager.GetAllArtists();
             var dbArtistWrap = new List<ArtistWrap>();
             foreach (var dbArtist in dbArtists)
             {
-                var artWrap=new ArtistWrap(dbArtist);
-                artWrap.Children.Add(new AlbumWrap(new Album()));
+                //переделать
+                var artWrap = new ArtistWrap(dbArtist);
+                artWrap.Children.Add(new AlbumWrap(new Album(), artWrap));
                 dbArtistWrap.Add(artWrap);
-                
             }
             ArtistsCollection = new ObservableCollection<ArtistWrap>(dbArtistWrap);
         }
 
-        #endregion [  private methods  ]
+        #endregion [  loading  ]
 
+        #region [  updating  ]
+
+        private void RefreshCollection()
+        {
+            var newArtists = _collectionManager.GetRecentArtists();
+            foreach (var newArtist in newArtists)
+            {
+                var artWrap = new ArtistWrap(newArtist);
+                artWrap.Children.Add(new AlbumWrap(new Album(), artWrap));
+                ArtistsCollection.Add(artWrap);
+            }
+        }
+
+        #endregion [  updating  ]
+
+        #region [  deleting  ]
+
+        private void DeleteFromCollection()
+        {
+            if (SelectedItemWrap == null) return;
+
+            if (SelectedItemWrap is ArtistWrap artWrap)
+            {
+                var result = MessageBox.Show($"Do you want to delete artist [ {artWrap.Value.Name} ] from your music collection?", "Artist delete", MessageBoxButton.YesNo);
+                switch (result)
+                {
+                    case MessageBoxResult.No:
+                        return;
+
+                    case MessageBoxResult.Yes:
+                        DeleteSelectedArtistFromCollection(artWrap);
+                        return;
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            if (SelectedItemWrap is AlbumWrap albWrap)
+            {
+                var result = MessageBox.Show($"Do you want to delete album  [ {albWrap.Value.Title} ] by [ {albWrap.Parent.Value.Name} ] from your music collection?", "Album delete", MessageBoxButton.YesNo);
+                switch (result)
+                {
+                    case MessageBoxResult.No:
+                        return;
+
+                    case MessageBoxResult.Yes:
+                        DeleteSelectedAlbumFromCollection(albWrap);
+                        return;
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        private void DeleteSelectedArtistFromCollection(ArtistWrap artistWrap)
+        {
+            _collectionManager.DeleteArtistFromCollection(artistWrap.Value);
+            ArtistsCollection.Remove(artistWrap);
+        }
+
+        private void DeleteSelectedAlbumFromCollection(AlbumWrap albumWrap)
+        {
+            _collectionManager.DeleteAlbumFromCollection(albumWrap.Value);
+            var artWrap = albumWrap.Parent;
+            artWrap.Children.Remove(albumWrap);
+        }
+
+        #endregion [  deleting  ]
+
+        #endregion [  private methods  ]
     }
 }

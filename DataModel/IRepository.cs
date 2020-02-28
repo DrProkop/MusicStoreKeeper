@@ -4,7 +4,7 @@ using MusicStoreKeeper.Model;
 namespace MusicStoreKeeper.DataModel
 {
     /// <summary>
-    /// Stores collection info in db.
+    /// Stores  music collection info in db.
     /// </summary>
     public interface IRepository
     {
@@ -21,6 +21,8 @@ namespace MusicStoreKeeper.DataModel
         Artist FindArtistByNameAndDiscogsId(string artistName, int discogsId);
         IEnumerable<Artist> GetAllArtists();
         Artist GetArtistWithAlbums(int id);
+
+        IEnumerable<int> GetRecentlyAddedArtists();
         //album
         int AddNewAlbum(int artistId, Album album);
         int AddOrUpdateAlbum(int artistId, Album album);

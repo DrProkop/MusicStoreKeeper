@@ -30,27 +30,38 @@
             <converters:MultiValueConverterAdapter x:Key="WrappedBoolToVisibilityConverter">
                 <converters:TreeViewAlbumVisibilityConverter />
             </converters:MultiValueConverterAdapter>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
             <!-- templates for treeview-->
             <!-- template for album-->
             <HierarchicalDataTemplate x:Key="AlbumsTemplate" DataType="{x:Type viewModel:AlbumWrap}">
                 <StackPanel Style="{StaticResource StackPanelTreeViewItemStyle}">
-                    <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" VerticalAlignment="Center" />
-                    <CheckBox IsChecked="{Binding IsChecked}" Style="{StaticResource CheckBoxTreeViewStyle}" />
-                    <Border Style="{StaticResource BorderTreeViewItemStyle}">
-                        <StackPanel Style="{StaticResource StackPanelTreeViewItemStyle}">
-                            <TextBlock Text="{Binding Value.ReleaseDate}" Style="{StaticResource TextBlockTreeViewItemStyle}" />
-                            <TextBlock Text=" - " Style="{StaticResource TextBlockTreeViewItemStyle}" />
-                            <TextBlock Text="{Binding Value.Title}"  Style="{StaticResource TextBlockTreeViewItemStyle}" />
+                    <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" VerticalAlignment="Center" Margin="0 0 2 0" />
+                    <CheckBox IsChecked="{Binding IsChecked}" Style="{StaticResource CheckBoxTreeViewStyle}"
+                              Visibility="{Binding ElementName=MusicCollectionTreeView , Path=DataContext.IsSelectionEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <Border Name="AlbumBorder" Style="{StaticResource BorderTreeViewItemStyle}">
+                        <StackPanel Name="AlbumStackPanel" Style="{StaticResource StackPanelTreeViewItemStyle}">
+                            <TextBlock Name="AlbumYearTextBlock" Text="{Binding Value.ReleaseDate}" Style="{StaticResource TextBlockTreeViewItemStyle}" />
+                            <TextBlock Name="AlbumTitleTextBlock" Text="{Binding Value.Title, StringFormat= - {0}}"  Style="{StaticResource TextBlockTreeViewItemStyle}" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
+                <HierarchicalDataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding Value.InCollection}" Value="false">
+                        <Setter TargetName="AlbumBorder" Property="Background" Value="{StaticResource GrayBrush9}" />
+                        <Setter TargetName="AlbumTitleTextBlock"  Property="FontSize"  Value="10" />
+                        <Setter TargetName="AlbumYearTextBlock"  Property="FontSize"  Value="10" />
+                    </DataTrigger>
+                </HierarchicalDataTemplate.Triggers>
             </HierarchicalDataTemplate>
+
             <!-- template for artist-->
             <HierarchicalDataTemplate x:Key="ArtistsTemplate" DataType="{x:Type viewModel:ArtistWrap}"
                                       ItemsSource="{Binding Children}" ItemTemplate="{StaticResource AlbumsTemplate}">
                 <StackPanel Style="{StaticResource StackPanelTreeViewItemStyle}">
-                    <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" VerticalAlignment="Center" />
-                    <CheckBox IsChecked="{Binding IsChecked}" Style="{StaticResource CheckBoxTreeViewStyle}" />
+                    <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" VerticalAlignment="Center" Margin="0 0 2 0" />
+                    <CheckBox IsChecked="{Binding IsChecked}" Style="{StaticResource CheckBoxTreeViewStyle}"
+                              Visibility="{Binding ElementName=MusicCollectionTreeView , Path=DataContext.IsSelectionEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     <Border Style="{StaticResource BorderTreeViewItemStyle}">
                         <TextBlock Text="{Binding Value.Name}" FontSize="16" Style="{StaticResource TextBlockTreeViewItemStyle}" />
                     </Border>
@@ -74,7 +85,11 @@
                         </Style.Triggers>
                     </Style>
                 </HierarchicalDataTemplate.ItemContainerStyle>
+                <HierarchicalDataTemplate.Triggers>
+
+                </HierarchicalDataTemplate.Triggers>
             </HierarchicalDataTemplate>
+
             <!-- templates for preview-->
             <DataTemplate DataType="{x:Type viewModel:ArtistPreviewVm}">
                 <view:ArtistPreviewView />

@@ -21,6 +21,7 @@
         </Grid.ColumnDefinitions>
         <Grid.Resources>
             <converters:TreeViewIconConverter x:Key="TreeViewIconConverter" />
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"></BooleanToVisibilityConverter>
         </Grid.Resources>
 
         <!-- file treeview -->
@@ -31,7 +32,8 @@
                         <!--<Image Height="16" Width="16" Source="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type StackPanel}},
                             Path=DataContext, Converter={StaticResource TreeViewIconConverter}}" />-->
                         <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" Margin="2 0" />
-                        <CheckBox IsChecked="{Binding IsChecked}" Style="{StaticResource CheckBoxTreeViewStyle}" />
+                        <CheckBox IsChecked="{Binding IsChecked}" Style="{StaticResource CheckBoxTreeViewStyle}" 
+                                  Visibility="{Binding ElementName=MyTreeView , Path=DataContext.IsSelectionEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         <Border Style="{StaticResource BorderTreeViewItemStyle}" Padding="2 0">
                             <TextBlock Margin="4" Text="{Binding Value.Name}"
                                        Style="{StaticResource TextBlockTreeViewItemStyle}" />

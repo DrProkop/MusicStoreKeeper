@@ -108,8 +108,17 @@
     <Resource Include="Images\TreeViewIcons\artist_icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Images\Buttons\delete_cross_icon.png" />
-    <Content Include="Images\Buttons\delete_file_icon.png" />
+    <Resource Include="Images\Buttons\delete_cross_icon.png" />
+    <Resource Include="Images\Buttons\delete_file_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Buttons\refresh_collection_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Buttons\allow_selection_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Buttons\show_hidden_icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

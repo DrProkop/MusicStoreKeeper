@@ -9,7 +9,7 @@ using System.Linq;
 namespace MusicStoreKeeper.DataModel
 {
     /// <summary>
-    /// Stores collection info in db.
+    /// Stores  music collection info in db.
     /// </summary>
     public class Repository : IRepository
     {
@@ -17,12 +17,15 @@ namespace MusicStoreKeeper.DataModel
         public Repository(ILoggerManager manager)
         {
             _log = manager.GetLogger(this);
+            _addedArtists=new HashSet<int>();
         }
 
         #region [  fields  ]
 
         private readonly ILogger _log;
         private readonly MusicStoreContext _musicStoreContext = new MusicStoreContext();
+        private readonly HashSet<int> _addedArtists;
+
 
         #endregion [  fields  ]
 
@@ -35,6 +38,7 @@ namespace MusicStoreKeeper.DataModel
             _musicStoreContext.Artists.Add(artist);
             Save();
             _log.Information("Added artist {ArtistName} to music collection", artist.Name);
+            _addedArtists.Add(artist.Id);
             return artist.Id;
         }
 
@@ -79,6 +83,7 @@ namespace MusicStoreKeeper.DataModel
                 }
             }
             Save();
+            
             return existingArtist.Id;
         }
 
@@ -144,6 +149,11 @@ namespace MusicStoreKeeper.DataModel
         public Artist GetArtistWithAlbums(int id)
         {
             return _musicStoreContext.Artists.Include(art => art.Albums).FirstOrDefault(art => art.Id == id);
+        }
+
+        public IEnumerable<int> GetRecentlyAddedArtists()
+        {
+            return _addedArtists.ToList();
         }
 
         #endregion [  artist  ]

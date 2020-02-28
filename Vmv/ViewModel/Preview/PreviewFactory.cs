@@ -18,6 +18,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         #region [  fields  ]
 
+        //get rid of this field
         private readonly IMusicFileAnalyzer _musicFileAnalyzer;
 
         #endregion [  fields  ]
@@ -59,7 +60,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         public ArtistPreviewVm CreateArtistPreviewVm(Artist artist)
         {
             var artistPreviewVm = new ArtistPreviewVm(artist);
-            var imgDirPath = Path.Combine(artist.StoragePath, "photos");
+            var imgDirPath = Path.Combine(artist.StoragePath, "artist photos");
             if (string.IsNullOrEmpty(artist.StoragePath)) return artistPreviewVm;
             var images = LoadImages(imgDirPath);
             if (!images.Any()) return artistPreviewVm;
@@ -107,7 +108,6 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         //TODO: Rework LoadImages
         private List<ImageSource> LoadImages(string imgDirPath)
         {
-            
             var di = new DirectoryInfo(imgDirPath);
             if (!di.Exists) return new List<ImageSource>();
             var imgFileInfos = di.GetFiles("*.jpg");

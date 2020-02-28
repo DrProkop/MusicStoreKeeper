@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.29424.173
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicStoreKeeper", "MusicStoreKeeper\MusicStoreKeeper.csproj", "{F56C6F41-0EEC-4B4B-97C2-CAE078B62810}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppConfiguration", "AppConfiguration\AppConfiguration.csproj", "{EB28F6AC-77B8-4056-B600-DDE9632936EC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicStoreKeeper.Model", "Model\MusicStoreKeeper.Model.csproj", "{5E330B60-BB17-440C-ACAA-182483A0418E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicStoreKeeper.Vmv", "Vmv\MusicStoreKeeper.Vmv.csproj", "{E3C1E8B7-A27C-484D-A3AB-79A873153855}"
@@ -31,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileAnalyzer.Tests", "FileA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicStoreKeeper.CollectionManager", "MusicStoreKeeper.CollectionManager\MusicStoreKeeper.CollectionManager.csproj", "{0ADBC15E-3CBA-411C-804C-E8FE44E50811}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MusicStoreKeeper.Tests", "MusicStoreKeeper.Tests", "{2B2E2D92-5C44-45BE-9A18-C210E0730BA8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,14 +47,6 @@ Global
 		{F56C6F41-0EEC-4B4B-97C2-CAE078B62810}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F56C6F41-0EEC-4B4B-97C2-CAE078B62810}.Release|x86.ActiveCfg = Release|Any CPU
 		{F56C6F41-0EEC-4B4B-97C2-CAE078B62810}.Release|x86.Build.0 = Release|Any CPU
-		{EB28F6AC-77B8-4056-B600-DDE9632936EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EB28F6AC-77B8-4056-B600-DDE9632936EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EB28F6AC-77B8-4056-B600-DDE9632936EC}.Debug|x86.ActiveCfg = Debug|x86
-		{EB28F6AC-77B8-4056-B600-DDE9632936EC}.Debug|x86.Build.0 = Debug|x86
-		{EB28F6AC-77B8-4056-B600-DDE9632936EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EB28F6AC-77B8-4056-B600-DDE9632936EC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EB28F6AC-77B8-4056-B600-DDE9632936EC}.Release|x86.ActiveCfg = Release|Any CPU
-		{EB28F6AC-77B8-4056-B600-DDE9632936EC}.Release|x86.Build.0 = Release|Any CPU
 		{5E330B60-BB17-440C-ACAA-182483A0418E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5E330B60-BB17-440C-ACAA-182483A0418E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E330B60-BB17-440C-ACAA-182483A0418E}.Debug|x86.ActiveCfg = Debug|x86
@@ -154,6 +146,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1FF3CE77-CFDA-46B5-BE73-714CC1FA95B9} = {2B2E2D92-5C44-45BE-9A18-C210E0730BA8}
+		{8DCC673E-0941-477B-8E94-C9E0CD2C7694} = {2B2E2D92-5C44-45BE-9A18-C210E0730BA8}
+		{C69E7ACA-A886-4558-93E1-84F508DF8A4B} = {2B2E2D92-5C44-45BE-9A18-C210E0730BA8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {43B9EE37-70B0-4AC0-AC12-3877E1A9CCB2}

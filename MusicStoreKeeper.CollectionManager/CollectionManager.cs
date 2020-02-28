@@ -4,6 +4,7 @@ using Discogs.Entity;
 using MusicStoreKeeper.DataModel;
 using MusicStoreKeeper.Model;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -83,8 +84,8 @@ namespace MusicStoreKeeper.CollectionManager
             var artPath = _fileManager.CreateArtistStorageDirectory(MusicCollectionDirectory, artist.Name);
             //добавляю путь к папке исполнителя в базу
             _repo.AddArtistToStorage(artistId, artPath);
-            //TODO:добавляю фотографии
-            var imagePath = Path.Combine(artPath, "photos");
+            //TODO: Get default photos directory name from constant or settings
+            var imagePath = Path.Combine(artPath, "artist photos");
             DownloadArtistImages(dArtist, imagePath);
 
             return artist;
@@ -102,7 +103,7 @@ namespace MusicStoreKeeper.CollectionManager
                 arg.title.Equals(artistTrackInfo.AlbumTitle, StringComparison.InvariantCultureIgnoreCase));
             if (selectedArtistRelease == null)
             {
-                //TODO: Try searching by album and track names
+                //TODO: Try searching by album and track names. Manage EPs and singles
                 return null;
             }
             //получение discogsId для заданного альбома. Пока пропускаю master release
@@ -130,7 +131,7 @@ namespace MusicStoreKeeper.CollectionManager
             var albumStoragePath = _fileManager.CreateAlbumStorageDirectory(artist.StoragePath, albumStorageName);
             //Сохраняю физическую копию альбома в хранилище.
             _fileManager.MoveMusicDirectory(mDirInfo, albumStoragePath);
-            //TODO: Сохраняю фотографии из дискогс
+            //TODO: Get default images directory name from constant or settings
             DownloadAlbumImages(dRelease, Path.Combine(albumStoragePath, "images"));
             //добавляю запись про место сохранения физической копии альбома
             _repo.AddAlbumToStorage(storedAlbum, albumStoragePath);
@@ -153,6 +154,39 @@ namespace MusicStoreKeeper.CollectionManager
             var destPath = Path.Combine(MusicCollectionDirectory, albumInfo.ArtistName, albumInfo.AlbumTitle);
 
             _fileManager.MoveMusicDirectory(dirInfo.FullName, destPath);
+        }
+
+        public IEnumerable<Artist> GetAllArtists()
+        {
+            return _repo.GetAllArtists();
+        }
+
+        public IEnumerable<Artist> GetRecentArtists()
+        {
+            var artistsIds = _repo.GetRecentlyAddedArtists();
+
+            return artistsIds.Select(artistId => _repo.FindArtistById(artistId)).ToList();
+        }
+
+        public IEnumerable<Album> GetAllArtistAlbums(int artistId)
+        {
+            return _repo.GetAllArtistAlbums(artistId);
+        }
+
+        public Album GetAlbum(int albumId)
+        {
+            return _repo.GetAlbumWithTracks(albumId);
+        }
+
+        public void DeleteAlbumFromCollection(Album album)
+        {
+            _repo.DeleteAlbum(album);
+           
+        }
+
+        public void DeleteArtistFromCollection(Artist artist)
+        {
+            _repo.DeleteArtist(artist);
         }
 
         #endregion [  public methods  ]

@@ -11,8 +11,5 @@
                 <ResourceDictionary  Source="pack://application:,,,/ResourceLibrary;component/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-       
-       
-
     </Application.Resources>
 </Application>

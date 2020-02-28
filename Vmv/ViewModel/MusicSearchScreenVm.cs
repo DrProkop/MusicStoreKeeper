@@ -66,6 +66,18 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             set { _filePreview = value; OnPropertyChanged(); }
         }
 
+        private bool _isSelectionEnabled;
+
+        public bool IsSelectionEnabled
+        {
+            get => _isSelectionEnabled;
+            set
+            {
+                _isSelectionEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string _musicSearchDirectory;
 
         public string MusicSearchDirectory
@@ -123,7 +135,17 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public ICommand MoveToCollectionManuallyCommand => _moveToCollectionManuallyCommand ?? (_moveToCollectionManuallyCommand = new RelayCommand<object>(AddAlbumToCollectionManually));
 
-        
+        private ICommand _enableSelectionCommand;
+
+        public ICommand EnableSelectionCommand => _enableSelectionCommand ?? (_enableSelectionCommand = new RelayCommand<object>(arg =>
+        {
+            EnableSelection();
+        }));
+
+        private void EnableSelection()
+        {
+            IsSelectionEnabled = !IsSelectionEnabled;
+        }
 
         #endregion [  commands  ]
 
