@@ -23,7 +23,7 @@ namespace MusicStoreKeeper.DataModel
         #region [  fields  ]
 
         private readonly ILogger _log;
-        private readonly MusicStoreContext _musicStoreContext = new MusicStoreContext();
+        private readonly MusicStoreContextLite _musicStoreContext = new MusicStoreContextLite();
         private readonly HashSet<int> _addedArtists;
 
 

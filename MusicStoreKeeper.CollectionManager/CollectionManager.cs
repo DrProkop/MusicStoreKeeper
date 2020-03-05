@@ -181,7 +181,6 @@ namespace MusicStoreKeeper.CollectionManager
         public void DeleteAlbumFromCollection(Album album)
         {
             _repo.DeleteAlbum(album);
-           
         }
 
         public void DeleteArtistFromCollection(Artist artist)
