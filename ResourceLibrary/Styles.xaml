@@ -32,12 +32,21 @@
     </Style>
     <!-- border panel -->
     <Style x:Key="BorderPanelStyle" TargetType="{x:Type Border}">
-        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource GrayBrush3}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Margin" Value="4" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <!-- border textbox -->
+    <Style x:Key="BorderTextBoxStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource BorderPanelStyle}">
+        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GrayBrush3}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Margin" Value="4" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
     </Style>
     <!-- end border -->
 
@@ -53,24 +62,62 @@
         <Setter Property="FontSize" Value="14" />
         <Setter Property="Margin" Value="2 0" />
     </Style>
+    <!-- showing info like folder path etc. -->
+    <Style x:Key="TextBlockInfoStyle" TargetType="TextBlock" BasedOn="{StaticResource TextBlockBasicStyle}">
+        <Setter Property="Foreground" Value="{StaticResource AccentBaseColorBrush}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Margin" Value="4 2" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Left" />
+    </Style>
+    <!-- label like style -->
+    <Style x:Key="TextBlockDescriptionStyle" TargetType="TextBlock" BasedOn="{StaticResource TextBlockBasicStyle}">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Margin" Value="2" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
     <!-- end textblock -->
 
     <!-- textbox -->
     <!-- basic textbox -->
     <Style x:Key="TextBoxBasicStyle" TargetType="TextBox">
-        <Setter Property="BorderBrush" Value="{StaticResource GrayBrush3}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource GrayBrush3}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}" />
         <Setter Property="Foreground" Value="{StaticResource MainForegroundBrush}" />
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="Padding" Value="4 2"/>
-        <Setter Property="Margin" Value="4 2"/>
-        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Padding" Value="4 2" />
+        <Setter Property="Margin" Value="4 2" />
+        <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
     </Style>
     <!-- end textbox -->
+
+    <!-- button -->
+    <!-- button basic -->
+    <Style x:Key="ButtonBasicStyle" TargetType="{x:Type Button}">
+        <Setter Property="MinWidth" Value="20" />
+        <Setter Property="MinHeight" Value="10" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="BorderBrush" Value="{StaticResource AccentBaseColorBrush40}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="{StaticResource MainForegroundBrush}" />
+        <Setter Property="Background" Value="{StaticResource GrayBrush8}" />
+        <Setter Property="Margin" Value="2" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="Black" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <!-- end button -->
 
     <!-- stackpanel -->
     <!-- stackpanel basic -->
@@ -108,9 +155,9 @@
     <Style x:Key="GridSplitterVerticalStyle" TargetType="{x:Type GridSplitter}">
         <Setter Property="Width" Value="2" />
         <Setter Property="VerticalAlignment" Value="Stretch" />
-        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="ShowsPreview" Value="True" />
-        <Setter Property="Margin" Value="1 0"/>
+        <Setter Property="Margin" Value="1 0" />
         <Setter Property="Background" Value="{StaticResource Border.LightBlueBorderBrush}" />
     </Style>
     <!-- end gridsplitter -->
@@ -163,12 +210,10 @@
         <Setter Property="Foreground" Value="{StaticResource MainForegroundBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource Border.LightBlueBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        
     </Style>
 
     <!-- treeview item -->
     <Style x:Key="TreeViewItemAlbumStyle" TargetType="{x:Type TreeViewItem}">
     </Style>
     <!-- end treeview -->
-
 </ResourceDictionary>

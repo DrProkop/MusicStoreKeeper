@@ -49,7 +49,7 @@
             <Fluent:RibbonTabItem Header="Add Music"  ActiveTabBackground="{StaticResource AccentBaseColorBrush40}" IsSelected="{Binding SearchMusicScreenSelected, Mode=OneWayToSource}">
                 <Fluent:RibbonGroupBox Header="Search" DataContext="{Binding CurrentScreen}">
                     <Fluent:Button Header="Scan folder"  LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/search_icon.png" Command="{Binding ScanDirectoryCommand}" ToolTip="{Binding MusicSearchDirectory}" />
-                    <Fluent:Button Header="Add to collection" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/add_files_manually_icon.png"  Command="{Binding MoveToCollectionManuallyCommand}" />
+                    <!--<Fluent:Button Header="Add to collection" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/add_files_manually_icon.png"  Command="{Binding MoveToCollectionManuallyCommand}" />-->
                     <Fluent:Button Header="Discogs"  LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/vinyl_record_icon.png"  Command="{Binding GetArtistFromDiscogsCommand}" />
                 </Fluent:RibbonGroupBox>
                 <Fluent:RibbonGroupBox Header="FileManager" DataContext="{Binding CurrentScreen}">

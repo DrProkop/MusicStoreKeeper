@@ -15,17 +15,30 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="100" />
-            <RowDefinition Height="100" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="35" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="35" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="100"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="100" />
         </Grid.ColumnDefinitions>
 
-        <Button Grid.Row="0" Grid.Column="0" Content="Browse..." Command="{Binding SelectCollectionDirectoryCommand}" />
-        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding MusicCollectionDirectoryPath}" Style="{StaticResource TextBlockBasicStyle}"/>
-        <Button Grid.Row="1" Grid.Column="0" Content="Browse..." Command="{Binding SelectMusicSearchDirectoryCommand}" />
-        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding MusicSearchDirectoryPath}" Style="{StaticResource TextBlockBasicStyle}"/>
+        <!-- music collection directory setting -->
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Folder to store your music collection:" Margin="10 0" Style="{StaticResource TextBlockDescriptionStyle}" />
+        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource BorderTextBoxStyle}" Margin="10 2">
+            <TextBlock  Text="{Binding MusicCollectionDirectoryPath}"
+                       Style="{StaticResource TextBlockInfoStyle}" />
+        </Border>
+        <Button Grid.Row="1" Grid.Column="1"  Content="Browse..." Command="{Binding SelectCollectionDirectoryCommand}" Margin="2 2 6 2" Style="{StaticResource ButtonBasicStyle}" />
+
+        <!-- music search directory setting -->
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Folder to search for music:" Margin="10 0"  Style="{StaticResource TextBlockDescriptionStyle}" />
+        <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource BorderTextBoxStyle}" Margin="10 2">
+            <TextBlock  Text="{Binding MusicSearchDirectoryPath}"
+                       Style="{StaticResource TextBlockInfoStyle}" />
+        </Border>
+        <Button Grid.Row="3" Grid.Column="1" Content="Browse..." Command="{Binding SelectMusicSearchDirectoryCommand}" Margin="2 2 6 2" Style="{StaticResource ButtonBasicStyle}" />
     </Grid>
 </UserControl>
