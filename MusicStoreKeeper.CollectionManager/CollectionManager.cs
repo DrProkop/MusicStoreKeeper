@@ -65,6 +65,7 @@ namespace MusicStoreKeeper.CollectionManager
         /// <returns></returns>
         public async Task<Artist> SearchArtistAndAllAlbumsOnDiscogs(IMusicDirInfo mDirInfo)
         {
+            if (mDirInfo == null) throw new ArgumentNullException(nameof(mDirInfo));
             //получение имени артиста. переделать
             var artistTrackInfo = mDirInfo.TrackInfos.FirstOrDefault();
             if (artistTrackInfo == null) return null;
@@ -84,8 +85,7 @@ namespace MusicStoreKeeper.CollectionManager
             var artPath = _fileManager.CreateArtistStorageDirectory(MusicCollectionDirectory, artist.Name);
             //добавляю путь к папке исполнителя в базу
             _repo.AddArtistToStorage(artistId, artPath);
-            //TODO: Get default photos directory name from constant or settings
-            var imagePath = Path.Combine(artPath, "artist photos");
+            var imagePath = Path.Combine(artPath, _fileManager.DefaultArtistPhotosDirectory);
             DownloadArtistImages(dArtist, imagePath);
 
             return artist;
@@ -93,30 +93,50 @@ namespace MusicStoreKeeper.CollectionManager
 
         public async Task<Album> SearchFullAlbumOnDiscogs(Artist artist, IMusicDirInfo mDirInfo)
         {
+            if (artist == null) throw new ArgumentNullException(nameof(artist));
+            if (mDirInfo == null) throw new ArgumentNullException(nameof(mDirInfo));
             //получение имени артиста. переделать
+
             var artistTrackInfo = mDirInfo.TrackInfos.FirstOrDefault();
             if (artistTrackInfo == null) return null;
             //получение списка всех альбомов исполнителя
             var allDArtistReleases = await _discogsClient.GetArtistReleases(artist.DiscogsId);
             //поиск заданного альбома в списке всех альбомов исполнителя
-            var selectedArtistRelease = allDArtistReleases.FirstOrDefault(arg =>
-                arg.title.Equals(artistTrackInfo.AlbumTitle, StringComparison.InvariantCultureIgnoreCase));
-            if (selectedArtistRelease == null)
+
+            var matchingDArtistReleases = allDArtistReleases.Where(arg =>
+                arg.title.Contains(artistTrackInfo.AlbumTitle) && arg.year == artistTrackInfo.Year).ToList();
+            if (!matchingDArtistReleases.Any())
             {
                 //TODO: Try searching by album and track names. Manage EPs and singles
                 return null;
             }
+
+            DiscogsArtistRelease selectedDArtistRelease;
+            if (matchingDArtistReleases.Count() > 1)
+            {
+                //TODO: Add some album comparison
+                throw new NotImplementedException();
+
+                foreach (var dArtistRelease in matchingDArtistReleases)
+                {
+                }
+            }
+            else
+            {
+                selectedDArtistRelease = matchingDArtistReleases.First();
+            }
+
             //получение discogsId для заданного альбома. Пока пропускаю master release
             var releaseId = 0;
-            if (selectedArtistRelease.type == "master")
+            if (selectedDArtistRelease.type == "master")
             {
                 //Always searches for main release
-                var dMasterRelease = await _discogsClient.GetMatserReleaseById(selectedArtistRelease.id);
+                var dMasterRelease = await _discogsClient.GetMatserReleaseById(selectedDArtistRelease.id);
                 releaseId = dMasterRelease.main_release;
             }
             else
             {
-                releaseId = selectedArtistRelease.id;
+                releaseId = selectedDArtistRelease.id;
             }
             //получение информации об альбоме с дискогс
             var dRelease = await _discogsClient.GetReleaseById(releaseId);
@@ -132,7 +152,7 @@ namespace MusicStoreKeeper.CollectionManager
             //Сохраняю физическую копию альбома в хранилище.
             _fileManager.MoveMusicDirectory(mDirInfo, albumStoragePath);
             //TODO: Get default images directory name from constant or settings
-            DownloadAlbumImages(dRelease, Path.Combine(albumStoragePath, "images"));
+            DownloadAlbumImages(dRelease, Path.Combine(albumStoragePath, _fileManager.DefaultAlbumImagesDirectory));
             //добавляю запись про место сохранения физической копии альбома
             _repo.AddAlbumToStorage(storedAlbum, albumStoragePath);
 

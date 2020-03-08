@@ -11,15 +11,17 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 {
     public class PreviewFactory
     {
-        public PreviewFactory(IMusicFileAnalyzer musicFileAnalyzer)
+        public PreviewFactory(IMusicFileAnalyzer musicFileAnalyzer, IFileManager fileManager)
         {
             _musicFileAnalyzer = musicFileAnalyzer;
+            _fileManager = fileManager;
         }
 
         #region [  fields  ]
 
         //get rid of this field
         private readonly IMusicFileAnalyzer _musicFileAnalyzer;
+        private readonly IFileManager _fileManager;
 
         #endregion [  fields  ]
 
@@ -30,7 +32,6 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             if (arg == null) return null;
             if (arg is ISimpleFileInfo file)
             {
-                //TODO: Add enum PreviewableFiles to ISimpleFileInfo
                 switch (file.Type)
                 {
                     case SfiType.AudioFile:
@@ -60,7 +61,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         public ArtistPreviewVm CreateArtistPreviewVm(Artist artist)
         {
             var artistPreviewVm = new ArtistPreviewVm(artist);
-            var imgDirPath = Path.Combine(artist.StoragePath, "artist photos");
+            var imgDirPath = Path.Combine(artist.StoragePath, _fileManager.DefaultArtistPhotosDirectory);
             if (string.IsNullOrEmpty(artist.StoragePath)) return artistPreviewVm;
             var images = LoadImages(imgDirPath);
             if (!images.Any()) return artistPreviewVm;
@@ -74,7 +75,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             var albumPreviewVm = new AlbumPreviewVm(album);
             if (string.IsNullOrEmpty(album.StoragePath)) return albumPreviewVm;
 
-            var imgDirPath = Path.Combine(album.StoragePath, "images");
+            var imgDirPath = Path.Combine(album.StoragePath, _fileManager.DefaultAlbumImagesDirectory);
             //TODO: Add check if directory exists
             var images = LoadImages(imgDirPath);
             if (!images.Any()) return albumPreviewVm;

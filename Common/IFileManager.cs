@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq.Expressions;
 
 namespace Common
 {
@@ -21,5 +22,11 @@ namespace Common
         string CreateArtistStorageDirectory(string musicCollectionPath, string artistName);
 
         string CreateAlbumStorageDirectory(string artistDirectoryPath, string albumDirectoryName);
+
+        //default directory names
+        string DefaultArtistPhotosDirectory { get; }
+        string DefaultAlbumImagesDirectory { get; }
+        string DefaultAlbumDocsDirectory { get; }
+        string DefaultAlbumUnknownFilesDirectory { get; }
     }
 }

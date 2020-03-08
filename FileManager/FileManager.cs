@@ -11,21 +11,20 @@ namespace FileManager
     public class FileManager : IFileManager
     {
         private ILogger _logger;
-        public string DefaultMusicDirectory { get; }
-
+        
         public FileManager(ILoggerManager loggerManager)
         {
             _logger = loggerManager.GetLogger(this);
-            DefaultMusicDirectory = ConfigurationManager.AppSettings.Get("MusicStorage");
+            
         }
 
         #region [constants]
 
         private const long MaxFileSize = 500000000;
-        private const string DefaultArtistPhotosDirectory = "artist photos";
-        private const string DefaultAlbumImagesDirectory = "images";
-        private const string DefaultAlbumDocsDirectory = "doc";
-        private const string DefaultAlbumUnknownFilesDirectory = "other";
+        public  string DefaultArtistPhotosDirectory => "artist photos";
+        public string DefaultAlbumImagesDirectory => "images";
+        public  string DefaultAlbumDocsDirectory => "doc";
+        public  string DefaultAlbumUnknownFilesDirectory => "other";
 
         #endregion [constants]
 
