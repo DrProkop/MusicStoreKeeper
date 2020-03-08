@@ -17,7 +17,7 @@ namespace MusicStoreKeeper.DataModel
         public Repository(ILoggerManager manager)
         {
             _log = manager.GetLogger(this);
-            _addedArtists=new HashSet<int>();
+            _addedArtists = new HashSet<int>();
         }
 
         #region [  fields  ]
@@ -25,7 +25,6 @@ namespace MusicStoreKeeper.DataModel
         private readonly ILogger _log;
         private readonly MusicStoreContextLite _musicStoreContext = new MusicStoreContextLite();
         private readonly HashSet<int> _addedArtists;
-
 
         #endregion [  fields  ]
 
@@ -40,6 +39,34 @@ namespace MusicStoreKeeper.DataModel
             _log.Information("Added artist {ArtistName} to music collection", artist.Name);
             _addedArtists.Add(artist.Id);
             return artist.Id;
+        }
+
+        public void UpdateArtist(int artistCollectionId, Artist artist)
+        {
+            var existingArtist = GetArtistWithAlbums(artistCollectionId);
+            existingArtist.Merge(artist);
+            foreach (var album in artist.Albums)
+            {
+                Album existingAlbum;
+                if (album.DiscogsId == 0)
+                {
+                    existingAlbum = existingArtist.Albums.SingleOrDefault(alb => alb.Title.Equals(album.Title, StringComparison.InvariantCultureIgnoreCase) && alb.ReleaseDate==album.ReleaseDate);
+                }
+                else
+                {
+                    existingAlbum = existingArtist.Albums.SingleOrDefault(alb => alb.DiscogsId == album.DiscogsId);
+                }
+
+                if (existingAlbum != null)
+                {
+                    existingAlbum.Merge(album);
+                }
+                else
+                {
+                    existingArtist.Albums.Add(album);
+                }
+            }
+            Save();
         }
 
         public int AddOrUpdateArtistFull(Artist artist)
@@ -83,7 +110,7 @@ namespace MusicStoreKeeper.DataModel
                 }
             }
             Save();
-            
+
             return existingArtist.Id;
         }
 
@@ -136,9 +163,9 @@ namespace MusicStoreKeeper.DataModel
             return _musicStoreContext.Artists.FirstOrDefault(art => art.Name == artistName);
         }
 
-        public Artist FindArtistByNameAndDiscogsId(string artistName, int discogsId)
+        public Artist FindArtistByNameOrDiscogsId(string artistName, int discogsId)
         {
-            return _musicStoreContext.Artists.FirstOrDefault(art => art.Name == artistName && art.DiscogsId == discogsId);
+            return _musicStoreContext.Artists.FirstOrDefault(art => art.DiscogsId == discogsId) ?? _musicStoreContext.Artists.FirstOrDefault(art => art.Name == artistName);
         }
 
         public IEnumerable<Artist> GetAllArtists()
@@ -153,7 +180,9 @@ namespace MusicStoreKeeper.DataModel
 
         public IEnumerable<int> GetRecentlyAddedArtists()
         {
-            return _addedArtists.ToList();
+            var artists = _addedArtists.ToList();
+            _addedArtists.Clear();
+            return artists;
         }
 
         #endregion [  artist  ]
@@ -174,6 +203,30 @@ namespace MusicStoreKeeper.DataModel
             var updatedAlbum = artistAlbums.FirstOrDefault(alb => alb.Title.Equals(album.Title));
             if (updatedAlbum == null) return AddNewAlbum(artistId, album);
             //logic for updating album here
+            foreach (var track in album.Tracks)
+            {
+                var existingTrack = updatedAlbum.Tracks.FirstOrDefault(et =>
+                    et.Name.Equals(track.Name, StringComparison.InvariantCultureIgnoreCase));
+                if (existingTrack != null)
+                {
+                    existingTrack.Merge(track);
+                }
+                else
+                {
+                    updatedAlbum.Tracks.Add(track);
+                }
+            }
+            Save();
+            return updatedAlbum.Id;
+        }
+
+        public int UpdateAlbum(int artistId, Album album)
+        {
+            if (album == null) throw new ArgumentNullException(nameof(album));
+
+            var updatedAlbum = _musicStoreContext.Albums.FirstOrDefault(alb => alb.ArtistId==artistId && alb.Title.Equals(album.Title, StringComparison.InvariantCultureIgnoreCase) );
+            if (updatedAlbum == null) return 0;
+            updatedAlbum.Merge(album);
             foreach (var track in album.Tracks)
             {
                 var existingTrack = updatedAlbum.Tracks.FirstOrDefault(et =>
@@ -221,6 +274,11 @@ namespace MusicStoreKeeper.DataModel
         public Album FindAlbumById(int albumId)
         {
             return _musicStoreContext.Albums.Find(albumId);
+        }
+
+        public Album FindAlbumByTitleOrDiscogsId(string title, int discogsId)
+        {
+            return _musicStoreContext.Albums.FirstOrDefault(alb => alb.DiscogsId == discogsId) ?? _musicStoreContext.Albums.FirstOrDefault(alb => alb.Title == title);
         }
 
         public void DeleteAlbum(Album album)

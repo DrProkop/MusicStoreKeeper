@@ -232,6 +232,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
                 artWrap.Children.Add(new AlbumWrap(new Album(), artWrap));
                 ArtistsCollection.Add(artWrap);
             }
+            
         }
 
         #endregion [  updating  ]

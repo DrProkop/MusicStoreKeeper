@@ -55,6 +55,13 @@
       <Project>{c30ddd5f-51a2-46e8-b146-9635a82eff54}</Project>
       <Name>Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Discogs\Discogs.csproj">
+      <Project>{793820cf-90e6-475a-bde4-495f3b79208a}</Project>
+      <Name>Discogs</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

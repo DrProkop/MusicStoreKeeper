@@ -155,14 +155,14 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         {
             if (dirSfi == null) throw new ArgumentNullException(nameof(dirSfi));
 
-            if (dirSfi.Type != SfiType.Directory) return;// если передали муз файл, добавить поиск каталога, в котором находится музыкальный файл
+            if (dirSfi.Type != SfiType.Directory) return;//TODO: если передали муз файл, добавить поиск каталога, в котором находится музыкальный файл
 
             LoadDirectoryWithSubdirectories(dirSfi);
             //получение информации о выбранном каталоге с музыкой
             var mdi = _musicDirAnalyzer.AnalyzeMusicDirectory(dirSfi);
             //поиск информации на дискогс
-            var artist=await _collectionManager.SearchArtistAndAllAlbumsOnDiscogs(mdi);
-            await _collectionManager.SearchFullAlbumOnDiscogs(artist, mdi);
+            var artist=await _collectionManager.SearchArtistAndAllAlbumsOnDiscogs(mdi, true);
+            await _collectionManager.SearchFullAlbumOnDiscogs(artist, mdi, true);
         }
 
         private void AddAlbumToCollectionManually()

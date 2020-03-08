@@ -1,6 +1,8 @@
 ﻿using Common;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Discogs.Entity;
 
 namespace FileAnalyzer
 {
@@ -69,6 +71,30 @@ namespace FileAnalyzer
             }
 
             return mdi;
+        }
+
+        public bool CompareAlbums(IMusicDirInfo mDirInfo, DiscogsRelease dRelease)
+        {
+            if (mDirInfo.MusicFilesInDirectory != dRelease.tracklist.Length)
+            {
+                return false;
+            }
+
+            var mDirTrackNames = new List<string>();
+            var dAlbumTrackNames=new List<string>();
+
+            foreach (var trackInfo in mDirInfo.TrackInfos)
+            {
+                mDirTrackNames.Add(trackInfo.TrackName);
+            }
+
+            foreach (var discogsTrack in dRelease.tracklist)
+            {
+                dAlbumTrackNames.Add(discogsTrack.title);
+            }
+
+            return mDirTrackNames.OrderBy(t => t).SequenceEqual(dAlbumTrackNames.OrderBy(t => t));
+            
         }
 
         #endregion [  public methods  ]

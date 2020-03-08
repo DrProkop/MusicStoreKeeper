@@ -31,6 +31,8 @@ namespace MusicStoreKeeper.CollectionManager
             album.Title = dRelease.title;
             album.ReleaseDate = dRelease.year;
             album.DiscogsId = dRelease.id;
+            album.Styles = dRelease.styles.ToList();
+            album.Genres = dRelease.genres.ToList();
             foreach (var dTrack in dRelease.tracklist)
             {
                 var track = CreateTrack(dTrack);

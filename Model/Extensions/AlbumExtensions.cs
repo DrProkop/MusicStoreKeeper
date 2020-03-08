@@ -20,6 +20,18 @@
             {
                 albumA.ReleaseDate = albumB.ReleaseDate;
             }
+
+            if (!string.IsNullOrEmpty(albumB.GenresString))
+            {
+                albumA.GenresString = albumB.GenresString;
+            }
+
+            if (!string.IsNullOrEmpty(albumB.StylesString))
+            {
+                albumA.StylesString = albumB.StylesString;
+            }
+
+            albumA.Partial = albumB.Partial;
         }
     }
 }

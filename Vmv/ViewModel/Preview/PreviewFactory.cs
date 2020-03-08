@@ -60,9 +60,10 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public ArtistPreviewVm CreateArtistPreviewVm(Artist artist)
         {
+            if (artist == null) throw new ArgumentNullException(nameof(artist));
             var artistPreviewVm = new ArtistPreviewVm(artist);
-            var imgDirPath = Path.Combine(artist.StoragePath, _fileManager.DefaultArtistPhotosDirectory);
             if (string.IsNullOrEmpty(artist.StoragePath)) return artistPreviewVm;
+            var imgDirPath = Path.Combine(artist.StoragePath, _fileManager.DefaultArtistPhotosDirectory);
             var images = LoadImages(imgDirPath);
             if (!images.Any()) return artistPreviewVm;
             artistPreviewVm.ImageCollection = images;
@@ -72,11 +73,10 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public AlbumPreviewVm CreateAlbumPreviewVm(Album album)
         {
+            if (album == null) throw new ArgumentNullException(nameof(album));
             var albumPreviewVm = new AlbumPreviewVm(album);
             if (string.IsNullOrEmpty(album.StoragePath)) return albumPreviewVm;
-
             var imgDirPath = Path.Combine(album.StoragePath, _fileManager.DefaultAlbumImagesDirectory);
-            //TODO: Add check if directory exists
             var images = LoadImages(imgDirPath);
             if (!images.Any()) return albumPreviewVm;
             albumPreviewVm.ImageCollection = images;

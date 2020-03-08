@@ -13,11 +13,12 @@ namespace MusicStoreKeeper.CollectionManager
 {
     public class CollectionManager : ICollectionManager
     {
-        public CollectionManager(DiscogsClient client, IFileManager fileManager, IMusicFileAnalyzer musicFileAnalyzer, IRepository repository)
+        public CollectionManager(DiscogsClient client, IFileManager fileManager, IMusicFileAnalyzer musicFileAnalyzer, IMusicDirAnalyzer musicDirAnalyzer, IRepository repository)
         {
             _discogsClient = client;
             _fileManager = fileManager;
             _musicFileAnalyzer = musicFileAnalyzer;
+            _musicDirAnalyzer = musicDirAnalyzer;
             _repo = repository;
             _discogsConverter = new DiscogsConverter();
         }
@@ -27,6 +28,7 @@ namespace MusicStoreKeeper.CollectionManager
         private readonly DiscogsClient _discogsClient;
         private readonly IFileManager _fileManager;
         private readonly IMusicFileAnalyzer _musicFileAnalyzer;
+        private readonly IMusicDirAnalyzer _musicDirAnalyzer;
         private readonly IRepository _repo;
         private readonly DiscogsConverter _discogsConverter;
 
@@ -58,12 +60,7 @@ namespace MusicStoreKeeper.CollectionManager
 
         #region [  public methods  ]
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="mDirInfo"></param>
-        /// <returns></returns>
-        public async Task<Artist> SearchArtistAndAllAlbumsOnDiscogs(IMusicDirInfo mDirInfo)
+        public async Task<Artist> SearchArtistAndAllAlbumsOnDiscogs(IMusicDirInfo mDirInfo, bool updateExisting = true)
         {
             if (mDirInfo == null) throw new ArgumentNullException(nameof(mDirInfo));
             //получение имени артиста. переделать
@@ -71,6 +68,13 @@ namespace MusicStoreKeeper.CollectionManager
             if (artistTrackInfo == null) return null;
             //получение DiscogsArtist
             var dArtist = await _discogsClient.GetArtistByName(artistTrackInfo.ArtistName);
+            //поиск исполнителя в коллекции
+            var artistInCollection = _repo.FindArtistByNameOrDiscogsId(artistTrackInfo.ArtistName, dArtist.id);
+            //возврат, если обновление не требуется
+            if (!updateExisting && artistInCollection != null)
+            {
+                return artistInCollection;
+            }
             //получение DiscogsArtistReleases
             var allDArtistReleases = await _discogsClient.GetArtistReleases(dArtist.id);
             //создание исполнителя и списка его альбомов
@@ -79,46 +83,64 @@ namespace MusicStoreKeeper.CollectionManager
             //создаю коллекцию всех альбомов исполнителя
             var allArtistAlbums = _discogsConverter.CreateArtistAlbums(allDArtistReleases);
             artist.Albums = allArtistAlbums;
+            //обновление исполнителя
+            if (artistInCollection != null)
+            {
+                _repo.UpdateArtist(artistInCollection.Id, artist);
+                return artistInCollection;
+            }
+            //добавление исполнителя
             //сохраняю исполнителя в базе
-            var artistId = _repo.AddOrUpdateArtistFull(artist);
+            var artistId = _repo.AddNewArtist(artist);
             //создаю папку с исполнителем на диске
             var artPath = _fileManager.CreateArtistStorageDirectory(MusicCollectionDirectory, artist.Name);
-            //добавляю путь к папке исполнителя в базу
-            _repo.AddArtistToStorage(artistId, artPath);
             var imagePath = Path.Combine(artPath, _fileManager.DefaultArtistPhotosDirectory);
             DownloadArtistImages(dArtist, imagePath);
-
+            //добавляю путь к папке исполнителя в базу
+            _repo.AddArtistToStorage(artistId, artPath);
             return artist;
         }
 
-        public async Task<Album> SearchFullAlbumOnDiscogs(Artist artist, IMusicDirInfo mDirInfo)
+        public async Task<Album> SearchFullAlbumOnDiscogs(Artist artist, IMusicDirInfo mDirInfo, bool updateExisting = false)
         {
             if (artist == null) throw new ArgumentNullException(nameof(artist));
             if (mDirInfo == null) throw new ArgumentNullException(nameof(mDirInfo));
-            //получение имени артиста. переделать
 
+            //получение имени артиста. переделать
             var artistTrackInfo = mDirInfo.TrackInfos.FirstOrDefault();
             if (artistTrackInfo == null) return null;
+
             //получение списка всех альбомов исполнителя
             var allDArtistReleases = await _discogsClient.GetArtistReleases(artist.DiscogsId);
             //поиск заданного альбома в списке всех альбомов исполнителя
-
             var matchingDArtistReleases = allDArtistReleases.Where(arg =>
-                arg.title.Contains(artistTrackInfo.AlbumTitle) && arg.year == artistTrackInfo.Year).ToList();
+                arg.title.Equals(artistTrackInfo.AlbumTitle, StringComparison.InvariantCultureIgnoreCase) || arg.title.Contains(artistTrackInfo.AlbumTitle)).ToList();
             if (!matchingDArtistReleases.Any())
             {
                 //TODO: Try searching by album and track names. Manage EPs and singles
                 return null;
             }
 
-            DiscogsArtistRelease selectedDArtistRelease;
+            DiscogsArtistRelease selectedDArtistRelease = null;
+            var releaseId = 0;
             if (matchingDArtistReleases.Count() > 1)
             {
-                //TODO: Add some album comparison
-                throw new NotImplementedException();
-
-                foreach (var dArtistRelease in matchingDArtistReleases)
+                //поиск по мастер релизу
+                var masterRelease = matchingDArtistReleases.FirstOrDefault(rel => rel.type == "master");
+                if (masterRelease != null)
                 {
+                    selectedDArtistRelease = masterRelease;
+                }
+                //сравнение директории с мазыкой и информации о релизе на дискогс
+                else
+                {
+                    foreach (var dArtistRelease in matchingDArtistReleases)
+                    {
+                        var dReleaseToCompare = await _discogsClient.GetReleaseById(dArtistRelease.id);
+                        if (!_musicDirAnalyzer.CompareAlbums(mDirInfo, dReleaseToCompare)) continue;
+                        selectedDArtistRelease = dArtistRelease;
+                        break;
+                    }
                 }
             }
             else
@@ -126,8 +148,9 @@ namespace MusicStoreKeeper.CollectionManager
                 selectedDArtistRelease = matchingDArtistReleases.First();
             }
 
+            if (selectedDArtistRelease == null) return null;
+
             //получение discogsId для заданного альбома. Пока пропускаю master release
-            var releaseId = 0;
             if (selectedDArtistRelease.type == "master")
             {
                 //Always searches for main release
@@ -138,20 +161,35 @@ namespace MusicStoreKeeper.CollectionManager
             {
                 releaseId = selectedDArtistRelease.id;
             }
+
+            //поиск релиза в коллекции
+            var storedAlbum = _repo.FindAlbumByTitleOrDiscogsId(artistTrackInfo.AlbumTitle, releaseId);
+            var albumExistsInCollection = (storedAlbum != null && storedAlbum.InCollection);
+            //продумать удаление музыкальной папки
+            if (albumExistsInCollection && !updateExisting) return storedAlbum;
+
             //получение информации об альбоме с дискогс
             var dRelease = await _discogsClient.GetReleaseById(releaseId);
             //создаю альбом с полной информацией
             var albumToCollection = _discogsConverter.CreateAlbum(dRelease);
-            //сохраняю альбом в базе
-            var albumId = _repo.AddOrUpdateAlbum(artist.Id, albumToCollection);
-            //переделать эту жуть
-            var storedAlbum = _repo.FindAlbumById(albumId);
+            // сохраняю альбом в базе
+            var albumId = 0;
+            if (storedAlbum == null)
+            {
+                albumId = _repo.AddNewAlbum(artist.Id, albumToCollection);
+            }
+            else
+            {
+                albumId = _repo.UpdateAlbum(artist.Id, albumToCollection);
+            }
+
+            //TODO: переделать эту жуть
+            storedAlbum = _repo.FindAlbumById(albumId);
             //TODO:Получаю путь для сохранения альбома. Переделать
             var albumStorageName = CreateAlbumDirectoryName(storedAlbum);
             var albumStoragePath = _fileManager.CreateAlbumStorageDirectory(artist.StoragePath, albumStorageName);
             //Сохраняю физическую копию альбома в хранилище.
             _fileManager.MoveMusicDirectory(mDirInfo, albumStoragePath);
-            //TODO: Get default images directory name from constant or settings
             DownloadAlbumImages(dRelease, Path.Combine(albumStoragePath, _fileManager.DefaultAlbumImagesDirectory));
             //добавляю запись про место сохранения физической копии альбома
             _repo.AddAlbumToStorage(storedAlbum, albumStoragePath);
@@ -184,7 +222,6 @@ namespace MusicStoreKeeper.CollectionManager
         public IEnumerable<Artist> GetRecentArtists()
         {
             var artistsIds = _repo.GetRecentlyAddedArtists();
-
             return artistsIds.Select(artistId => _repo.FindArtistById(artistId)).ToList();
         }
 

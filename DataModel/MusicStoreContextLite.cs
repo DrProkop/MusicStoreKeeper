@@ -1,9 +1,11 @@
 ﻿using System.Data.Entity;
 using System.Data.Entity.Core.EntityClient;
+using System.Data.Entity.Migrations;
 using System.Data.SqlClient;
 using MusicStoreKeeper.Model;
 using System.Data.SQLite;
 using System.Data.SQLite.EF6;
+using System.Data.SQLite.EF6.Migrations;
 using SQLite.CodeFirst;
 
 namespace MusicStoreKeeper.DataModel
@@ -28,6 +30,16 @@ namespace MusicStoreKeeper.DataModel
         {
             var initializer = new SqliteCreateDatabaseIfNotExists<MusicStoreContextLite>(modelBuilder);
             Database.SetInitializer(initializer);
+        }
+    }
+
+    internal sealed class SQLiteContextMigrationConfiguration : DbMigrationsConfiguration<MusicStoreContextLite>
+    {
+        public SQLiteContextMigrationConfiguration()
+        {
+            AutomaticMigrationsEnabled = true;
+            AutomaticMigrationDataLossAllowed = true;
+            SetSqlGenerator("System.Data.SQLite", new SQLiteMigrationSqlGenerator());
         }
     }
 }

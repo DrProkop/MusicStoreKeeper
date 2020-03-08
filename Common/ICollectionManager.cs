@@ -9,9 +9,9 @@ namespace Common
         string MusicSearchDirectory { get; set; }
         string MusicCollectionDirectory { get; set; }
 
-        Task<Artist> SearchArtistAndAllAlbumsOnDiscogs(IMusicDirInfo mDirInfo);
+        Task<Artist> SearchArtistAndAllAlbumsOnDiscogs(IMusicDirInfo mDirInfo, bool updateExisting);
 
-        Task<Album> SearchFullAlbumOnDiscogs(Artist artist, IMusicDirInfo mDirInfo);
+        Task<Album> SearchFullAlbumOnDiscogs(Artist artist, IMusicDirInfo mDirInfo, bool updateExisting);
 
         void MoveToCollectionManually(ISimpleFileInfo sFi);
 
