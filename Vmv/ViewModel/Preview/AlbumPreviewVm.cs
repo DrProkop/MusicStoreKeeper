@@ -7,18 +7,20 @@ namespace MusicStoreKeeper.Vmv.ViewModel
     {
         public AlbumPreviewVm(Album album)
         {
-            _album = album;
+            Album = album;
             ItemName = album.Title;
             AlbumTracks = new ObservableCollection<Track>(album.Tracks);
         }
 
         #region [  fields  ]
 
-        private readonly Album _album;
+
 
         #endregion [  fields  ]
 
         #region [  properties  ]
+
+        public Album Album { get; }
 
         private ObservableCollection<Track> _albumTracks;
 

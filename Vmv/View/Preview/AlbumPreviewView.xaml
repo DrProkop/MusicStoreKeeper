@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:MusicStoreKeeper.Vmv.View"
              xmlns:model="clr-namespace:MusicStoreKeeper.Model;assembly=MusicStoreKeeper.Model"
+             xmlns:converters="clr-namespace:MusicStoreKeeper.Vmv.View.Converters"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
@@ -17,17 +18,43 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="200" />
         </Grid.RowDefinitions>
-        <!-- album title -->
-        <Border Grid.Row="0" Style="{StaticResource BorderBasicStyle}" Margin="4" Background="{StaticResource PanelBackgroundBrush}">
-            <StackPanel  Style="{StaticResource StackPanelBasicStyle}" HorizontalAlignment="Center">
-                <TextBlock Text="{Binding ItemName}" FontSize="18" Style="{StaticResource TextBlockBasicStyle}" />
-                <TextBlock Text="{Binding ReleaseDate, StringFormat=({0})}" FontSize="18" Style="{StaticResource TextBlockBasicStyle}" />
-            </StackPanel>
+        <!-- album info -->
+        <Border Grid.Row="0" Style="{StaticResource BorderBasicStyle}" Margin="4"
+                Background="{StaticResource PanelBackgroundBrush}">
+            <Grid Margin="4 0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="20" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.Resources>
+                    <converters:GenresAndStylesConverter x:Key="GenresAndStylesConverter" />
+                </Grid.Resources>
+                <!-- title -->
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding ItemName}" FontSize="18"
+                           HorizontalAlignment="Center" Style="{StaticResource TextBlockBasicStyle}" />
+                <!-- release date -->
+                <TextBlock Grid.Row="1" Grid.Column="0"
+                           Text="{Binding Album.ReleaseDate, StringFormat=Release date: {0}}" FontSize="14"
+                           Style="{StaticResource TextBlockBasicStyle}" />
+                <!-- genres -->
+                <TextBlock Grid.Row="2" Grid.Column="0"
+                           Text="{Binding Album.Genres, StringFormat=Genre: {0}, Converter={StaticResource GenresAndStylesConverter}}"
+                           FontSize="14" Style="{StaticResource TextBlockBasicStyle}" />
+                <!-- styles -->
+                <TextBlock Grid.Row="2" Grid.Column="1"
+                           Text="{Binding Album.Styles, StringFormat=Styles: {0}, Converter={StaticResource GenresAndStylesConverter}}"
+                           FontSize="14" Style="{StaticResource TextBlockBasicStyle}" />
+            </Grid>
         </Border>
 
         <!-- selected album image -->

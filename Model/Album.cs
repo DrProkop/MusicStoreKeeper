@@ -1,5 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,8 +9,6 @@ namespace MusicStoreKeeper.Model
         public Album()
         {
             Tracks = new List<Track>();
-            
-            
         }
 
         public int DiscogsId { get; set; }
@@ -25,12 +22,12 @@ namespace MusicStoreKeeper.Model
         public string StylesString { get; set; }
         public string GenresString { get; set; }
 
-        private List<string> _styles=new List<string>();
+        private List<string> _styles;
 
         [NotMapped]
         public List<string> Styles
         {
-            get => _styles ?? (_styles = JsonConvert.DeserializeObject<List<string>>(StylesString));
+            get => _styles ?? (_styles = new List<string>(JsonConvert.DeserializeObject<List<string>>(StylesString)));
             set
             {
                 StylesString = JsonConvert.SerializeObject(value);
@@ -38,12 +35,12 @@ namespace MusicStoreKeeper.Model
             }
         }
 
-        private List<string> _genres=new List<string>();
+        private List<string> _genres;
 
         [NotMapped]
         public List<string> Genres
         {
-            get => _genres ?? (_genres = JsonConvert.DeserializeObject<List<string>>(GenresString));
+            get => _genres ?? (_genres = new List<string>(JsonConvert.DeserializeObject<List<string>>(GenresString)));
             set
             {
                 GenresString = JsonConvert.SerializeObject(value);

@@ -177,7 +177,7 @@
         <Setter Property="ItemsPanel">
             <Setter.Value>
                 <ItemsPanelTemplate>
-                    <StackPanel IsItemsHost="True" Orientation="Horizontal" Height="130" CanHorizontallyScroll="True" Margin="0 4" />
+                    <StackPanel IsItemsHost="True" Orientation="Horizontal" Height="100" CanHorizontallyScroll="True" Margin="0 4" />
                 </ItemsPanelTemplate>
             </Setter.Value>
         </Setter>
