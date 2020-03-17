@@ -13,8 +13,6 @@ namespace MusicStoreKeeper.DataModel
 
         void UpdateArtist(int artistCollectionId, Artist artist);
 
-        int AddOrUpdateArtistFull(Artist artist);
-
         void AddArtistToStorage(Artist artist, string storagePath);
 
         void AddArtistToStorage(int artistId, string storagePath);
@@ -38,11 +36,11 @@ namespace MusicStoreKeeper.DataModel
         IEnumerable<int> GetRecentlyAddedArtists();
 
         //album
+        void UpdateArtistDiscography(int artistCollectionId, IEnumerable<Album> newAlbums);
+
         int AddNewAlbum(int artistId, Album album);
 
         int UpdateAlbum(int artistId, Album album);
-
-        int AddOrUpdateAlbum(int artistId, Album album);
 
         void AddAlbumToStorage(Album album, string storagePath);
 

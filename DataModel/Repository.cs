@@ -43,75 +43,13 @@ namespace MusicStoreKeeper.DataModel
 
         public void UpdateArtist(int artistCollectionId, Artist artist)
         {
+            if (artist == null) throw new ArgumentNullException(nameof(artist));
             var existingArtist = GetArtistWithAlbums(artistCollectionId);
+            if (existingArtist == null) return;
+
             existingArtist.Merge(artist);
-            foreach (var album in artist.Albums)
-            {
-                Album existingAlbum;
-                if (album.DiscogsId == 0)
-                {
-                    existingAlbum = existingArtist.Albums.SingleOrDefault(alb => alb.Title.Equals(album.Title, StringComparison.InvariantCultureIgnoreCase) && alb.ReleaseDate==album.ReleaseDate);
-                }
-                else
-                {
-                    existingAlbum = existingArtist.Albums.SingleOrDefault(alb => alb.DiscogsId == album.DiscogsId);
-                }
-
-                if (existingAlbum != null)
-                {
-                    existingAlbum.Merge(album);
-                }
-                else
-                {
-                    existingArtist.Albums.Add(album);
-                }
-            }
+            UpdateArtistDiscography(existingArtist, artist.Albums);
             Save();
-        }
-
-        public int AddOrUpdateArtistFull(Artist artist)
-        {
-            Artist existingArtist;
-            if (artist.DiscogsId == 0)
-            {
-                existingArtist = _musicStoreContext.Artists
-                    .Where(art => art.Name.Equals(artist.Name))
-                    .Include(art => art.Albums).SingleOrDefault();
-            }
-            else
-            {
-                existingArtist = _musicStoreContext.Artists
-                    .Where(art => art.DiscogsId == artist.DiscogsId)
-                    .Include(art => art.Albums).SingleOrDefault();
-            }
-
-            if (existingArtist == null) return AddNewArtist(artist);
-            //logic for updating artist here
-            existingArtist.Merge(artist);
-            foreach (var album in artist.Albums)
-            {
-                Album existingAlbum;
-                if (album.DiscogsId == 0)
-                {
-                    existingAlbum = existingArtist.Albums.SingleOrDefault(alb => alb.Title.Equals(album.Title));
-                }
-                else
-                {
-                    existingAlbum = existingArtist.Albums.SingleOrDefault(alb => alb.DiscogsId == album.DiscogsId);
-                }
-
-                if (existingAlbum != null)
-                {
-                    existingAlbum.Merge(album);
-                }
-                else
-                {
-                    existingArtist.Albums.Add(album);
-                }
-            }
-            Save();
-
-            return existingArtist.Id;
         }
 
         public void AddArtistToStorage(Artist artist, string storagePath)
@@ -189,6 +127,15 @@ namespace MusicStoreKeeper.DataModel
 
         #region [  album  ]
 
+        public void UpdateArtistDiscography(int artistCollectionId, IEnumerable<Album> newAlbums)
+        {
+            if (newAlbums == null) throw new ArgumentNullException(nameof(newAlbums));
+
+            var existingArtist = GetArtistWithAlbums(artistCollectionId);
+            if (existingArtist == null) return;
+            UpdateArtistDiscography(existingArtist, newAlbums);
+        }
+
         public int AddNewAlbum(int artistId, Album album)
         {
             album.ArtistId = artistId;
@@ -197,34 +144,11 @@ namespace MusicStoreKeeper.DataModel
             return album.Id;
         }
 
-        public int AddOrUpdateAlbum(int artistId, Album album)
-        {
-            var artistAlbums = _musicStoreContext.Albums.Where(a => a.ArtistId == artistId).ToList();
-            var updatedAlbum = artistAlbums.FirstOrDefault(alb => alb.Title.Equals(album.Title));
-            if (updatedAlbum == null) return AddNewAlbum(artistId, album);
-            //logic for updating album here
-            foreach (var track in album.Tracks)
-            {
-                var existingTrack = updatedAlbum.Tracks.FirstOrDefault(et =>
-                    et.Name.Equals(track.Name, StringComparison.InvariantCultureIgnoreCase));
-                if (existingTrack != null)
-                {
-                    existingTrack.Merge(track);
-                }
-                else
-                {
-                    updatedAlbum.Tracks.Add(track);
-                }
-            }
-            Save();
-            return updatedAlbum.Id;
-        }
-
         public int UpdateAlbum(int artistId, Album album)
         {
             if (album == null) throw new ArgumentNullException(nameof(album));
 
-            var updatedAlbum = _musicStoreContext.Albums.FirstOrDefault(alb => alb.ArtistId==artistId && alb.Title.Equals(album.Title, StringComparison.InvariantCultureIgnoreCase) );
+            var updatedAlbum = _musicStoreContext.Albums.FirstOrDefault(alb => alb.ArtistId == artistId && alb.Title.Equals(album.Title, StringComparison.InvariantCultureIgnoreCase));
             if (updatedAlbum == null) return 0;
             updatedAlbum.Merge(album);
             foreach (var track in album.Tracks)
@@ -306,5 +230,35 @@ namespace MusicStoreKeeper.DataModel
         }
 
         #endregion [  public methods  ]
+
+        #region [  private methods  ]
+
+        private void UpdateArtistDiscography(Artist artist, IEnumerable<Album> newAlbums)
+        {
+            foreach (var newAlbum in newAlbums)
+            {
+                Album existingAlbum;
+                if (newAlbum.DiscogsId == 0)
+                {
+                    existingAlbum = artist.Albums.SingleOrDefault(alb => alb.Title.Equals(newAlbum.Title, StringComparison.InvariantCultureIgnoreCase) && alb.ReleaseDate == newAlbum.ReleaseDate);
+                }
+                else
+                {
+                    existingAlbum = artist.Albums.SingleOrDefault(alb => alb.DiscogsId == newAlbum.DiscogsId);
+                }
+
+                if (existingAlbum != null)
+                {
+                    existingAlbum.Merge(newAlbum);
+                }
+                else
+                {
+                    artist.Albums.Add(newAlbum);
+                }
+            }
+            Save();
+        }
+
+        #endregion [  private methods  ]
     }
 }
