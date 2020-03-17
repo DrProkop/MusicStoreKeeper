@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Album.cs" />
+    <Compile Include="ArtistAndAlbumBase.cs" />
     <Compile Include="Extensions\AlbumExtensions.cs" />
     <Compile Include="Artist.cs" />
     <Compile Include="Extensions\ArtistExtensions.cs" />

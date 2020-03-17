@@ -6,6 +6,7 @@
         xmlns:Fluent="urn:fluent-ribbon"
         xmlns:viewModel="clr-namespace:MusicStoreKeeper.Vmv.ViewModel"
         xmlns:view="clr-namespace:MusicStoreKeeper.Vmv.View"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         mc:Ignorable="d"
         Title="Music Storekeeper" Height="768" Width="1024"  BorderThickness="2" WindowStartupLocation="CenterScreen" TitleBackground="{StaticResource DarkBackgroundBrush}">
     <Window.Resources>
@@ -23,7 +24,7 @@
             <RowDefinition Height="20" />
         </Grid.RowDefinitions>
 
-        <Fluent:Ribbon Grid.Row="0" >
+        <Fluent:Ribbon Grid.Row="0">
             <Fluent:Ribbon.Resources>
                 <Style TargetType="{x:Type Fluent:RibbonTabItem}">
                     <Style.Triggers>
@@ -32,28 +33,109 @@
                         </Trigger>
                     </Style.Triggers>
                 </Style>
+
+                <Style x:Key="ButtonMenuItem" TargetType="{x:Type Fluent:MenuItem}">
+                    <Setter Property="IsCheckable" Value="False" />
+                    <Setter Property="Margin" Value="0 1"></Setter>
+                    <Setter Property="CanAddToQuickAccessToolBar" Value="False" />
+                    <Setter Property="StaysOpenOnClick" Value="True" />
+                </Style>
             </Fluent:Ribbon.Resources>
 
             <!--Tabs-->
             <!-- music collection screen -->
-            <Fluent:RibbonTabItem Header="Collection" ActiveTabBackground="{StaticResource AccentBaseColorBrush40}" IsSelected="{Binding MusicCollectionScreenSelected, Mode=OneWayToSource}" Loaded="FrameworkElement_OnLoaded">
+            <Fluent:RibbonTabItem Header="Collection" ActiveTabBackground="{StaticResource AccentBaseColorBrush40}"
+                                  IsSelected="{Binding MusicCollectionScreenSelected, Mode=OneWayToSource}"
+                                  Loaded="FrameworkElement_OnLoaded">
+
+                <!-- collection management -->
                 <Fluent:RibbonGroupBox Header="Collection Management" MinWidth="250" DataContext="{Binding CurrentScreen}">
-                    <Fluent:Button Header="Refresh" Command="{Binding RefreshCollectionCommand}" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/refresh_collection_icon.png" />
-                    <Fluent:Button Header="Delete from collection" Command="{Binding DeleteFromCollectionCommand}" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/delete_file_icon.png" />
-                    <Fluent:ToggleButton Header="Enable selection" Command="{Binding EnableSelectionCommand}" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/allow_selection_icon.png" />
-                    <Fluent:ToggleButton Header="Show missing albums" Command="{Binding ShowMissingAlbumsCommand}" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/show_hidden_icon.png" />
+                    <!-- refresh button -->
+                    <Fluent:Button Header="Refresh" Command="{Binding RefreshCollectionCommand}"
+                                   LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/refresh_collection_icon.png" />
+                    <!-- delete button -->
+                    <Fluent:Button Header="Delete from collection" Command="{Binding DeleteFromCollectionCommand}"
+                                   LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/delete_file_icon.png" />
+                    <!-- enable selection button -->
+                    <Fluent:ToggleButton Header="Enable selection" Command="{Binding EnableSelectionCommand}"
+                                         LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/allow_selection_icon.png" />
+                    <!-- show full discography button -->
+                    <Fluent:ToggleButton Header="Show discography" Command="{Binding ShowMissingAlbumsCommand}"
+                                         LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/show_hidden_icon.png" />
+                </Fluent:RibbonGroupBox>
+
+                <!-- collection sorting -->
+                <Fluent:RibbonGroupBox Header="Sorting" DataContext="{Binding CurrentScreen}">
+
+                    <!-- style select button -->
+                    <Fluent:DropDownButton Header="Select styles" ItemsSource="{Binding MusicStyles}"
+                                           ClosePopupOnMouseDown="False"
+                                           ItemContainerStyle="{StaticResource ButtonMenuItem}"
+                                           LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/music_styles_icon.png">
+                        <Fluent:DropDownButton.ItemTemplate>
+                            <DataTemplate>
+                                <ToggleButton Content="{Binding}"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Fluent:DropDownButton}}, Path=DataContext.SelectStylesCommand}"
+                                              CommandParameter="{Binding}"
+                                              IsChecked="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Fluent:MenuItem}, Path=IsChecked, Mode=OneWayToSource}"
+                                              Style="{DynamicResource ToggleButtonBasicStyle}"
+                                              HorizontalContentAlignment="Left" />
+                            </DataTemplate>
+                        </Fluent:DropDownButton.ItemTemplate>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="DropDownClosed">
+                                <i:InvokeCommandAction Command="{Binding SortBySelectedStylesCommand}" />
+                                <i:InvokeCommandAction />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Fluent:DropDownButton>
+
+                    <!-- genre select button -->
+                    <Fluent:DropDownButton Header="Select genres" ItemsSource="{Binding MusicStyles}"
+                                           ClosePopupOnMouseDown="False"
+                                           ItemContainerStyle="{StaticResource ButtonMenuItem}"
+                                           LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/music_genres_icon.png">
+                        <Fluent:DropDownButton.ItemTemplate>
+                            <DataTemplate>
+                                <ToggleButton Content="{Binding}"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Fluent:DropDownButton}}, Path=DataContext.SelectStylesCommand}"
+                                              CommandParameter="{Binding}"
+                                              IsChecked="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Fluent:MenuItem}, Path=IsChecked, Mode=OneWayToSource}"
+                                              Style="{DynamicResource ToggleButtonBasicStyle}"
+                                              HorizontalContentAlignment="Left" />
+                            </DataTemplate>
+                        </Fluent:DropDownButton.ItemTemplate>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="DropDownClosed">
+                                <i:InvokeCommandAction Command="{Binding SortBySelectedStylesCommand}" />
+                                <i:InvokeCommandAction />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Fluent:DropDownButton>
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
 
             <!-- music search screen -->
-            <Fluent:RibbonTabItem Header="Add Music"  ActiveTabBackground="{StaticResource AccentBaseColorBrush40}" IsSelected="{Binding SearchMusicScreenSelected, Mode=OneWayToSource}">
+            <Fluent:RibbonTabItem Header="Add Music" ActiveTabBackground="{StaticResource AccentBaseColorBrush40}"
+                                  IsSelected="{Binding SearchMusicScreenSelected, Mode=OneWayToSource}">
+                <!-- file search management -->
                 <Fluent:RibbonGroupBox Header="Search" DataContext="{Binding CurrentScreen}">
-                    <Fluent:Button Header="Scan folder"  LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/search_icon.png" Command="{Binding ScanDirectoryCommand}" ToolTip="{Binding MusicSearchDirectory}" />
+                    <!-- scan directory button -->
+                    <Fluent:Button Header="Scan folder"
+                                   LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/search_icon.png"
+                                   Command="{Binding ScanDirectoryCommand}" ToolTip="{Binding MusicSearchDirectory}" />
                     <!--<Fluent:Button Header="Add to collection" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/add_files_manually_icon.png"  Command="{Binding MoveToCollectionManuallyCommand}" />-->
-                    <Fluent:Button Header="Discogs"  LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/vinyl_record_icon.png"  Command="{Binding GetArtistFromDiscogsCommand}" />
+                    <!-- discogs button -->
+                    <Fluent:Button Header="Discogs"
+                                   LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/vinyl_record_icon.png"
+                                   Command="{Binding GetArtistFromDiscogsCommand}" />
                 </Fluent:RibbonGroupBox>
+
+                <!-- found files management -->
                 <Fluent:RibbonGroupBox Header="FileManager" DataContext="{Binding CurrentScreen}">
+                    <!-- delete button -->
                     <Fluent:Button Header="Delete" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/delete_trashcan_icon.png" />
+                    <!-- enable selection button -->
                     <Fluent:ToggleButton Header="Enable selection" Command="{Binding EnableSelectionCommand}"
                                          LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/allow_selection_icon.png" />
                 </Fluent:RibbonGroupBox>
@@ -65,6 +147,7 @@
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
         </Fluent:Ribbon>
+
         <!-- screen display area -->
         <Grid Grid.Row="1">
             <Grid.Resources>

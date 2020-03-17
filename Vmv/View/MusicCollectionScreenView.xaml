@@ -104,7 +104,7 @@
         </Grid.Resources>
 
         <!-- artists with albums list -->
-        <TreeView Grid.Column="0" Name="MusicCollectionTreeView" ItemsSource="{Binding ArtistsCollection}"
+        <TreeView Grid.Column="0" Name="MusicCollectionTreeView" ItemsSource="{Binding ArtistsCollectionToShow}"
                   ItemTemplate="{StaticResource ArtistsTemplate}" Style="{StaticResource TreeViewStyle}"
                   Width="Auto" Margin="0">
             <TreeView.ItemContainerStyle>

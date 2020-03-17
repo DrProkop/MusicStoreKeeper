@@ -29,8 +29,8 @@ namespace MusicStoreKeeper.CollectionManager
 
         #region [  properties  ]
 
-        public HashSet<String> GenresSet { get; } = new HashSet<string>();
-        public HashSet<String> StylesSet { get; } = new HashSet<string>();
+        private  HashSet<String> GenresSet { get; } = new HashSet<string>();
+        private HashSet<String> StylesSet { get; } = new HashSet<string>();
 
         #endregion [  properties  ]
 

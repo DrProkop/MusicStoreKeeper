@@ -41,6 +41,8 @@
     <SolidColorBrush x:Key="AccentBaseColorBrush60" Color="{StaticResource Fluent.Ribbon.Colors.AccentColor60}" presentationOptions:Freeze="True" />
     <SolidColorBrush x:Key="AccentBaseColorBrush40" Color="{StaticResource Fluent.Ribbon.Colors.AccentColor40}" presentationOptions:Freeze="True" />
     <SolidColorBrush x:Key="AccentBaseColorBrush20" Color="{StaticResource Fluent.Ribbon.Colors.AccentColor20}" presentationOptions:Freeze="True" />
+    <SolidColorBrush x:Key="HighlightBrush" Color="{StaticResource Fluent.Ribbon.Colors.HighlightColor}" presentationOptions:Freeze="True" />
+
 
     <!-- Gray brushes -->
     <SolidColorBrush x:Key="GrayBrush1" Color="{StaticResource Gray1}" presentationOptions:Freeze="True" />

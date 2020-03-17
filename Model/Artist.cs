@@ -2,18 +2,18 @@
 
 namespace MusicStoreKeeper.Model
 {
-    public class Artist:BaseEntity
+    public class Artist : ArtistAndAlbumBase
     {
         public Artist()
         {
-            Albums = new List<Album>();
         }
 
-        public int DiscogsId { get; set; }
         public string Name { get; set; }
+
         public string RealName { get; set; }
+
         public string Profile { get; set; }
-        public List<Album> Albums { get; set; }
-        public string StoragePath { get; set; }
+
+        public List<Album> Albums { get; set; } = new List<Album>();
     }
 }

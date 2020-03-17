@@ -120,5 +120,9 @@
   <ItemGroup>
     <Resource Include="Images\Buttons\show_hidden_icon.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Buttons\music_genres_icon.png" />
+    <Resource Include="Images\Buttons\music_styles_icon.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

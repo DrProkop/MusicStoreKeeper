@@ -3,6 +3,7 @@ using MusicStoreKeeper.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,26 +17,39 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             _collectionManager = collectionManager;
             _previewFactory = previewFactory;
 
-            LoadArtistsInCollection();
+            _allArtists = _collectionManager.GetAllArtists().ToList();
+            LoadAllArtistsInCollection();
             ShowAlbumsNotInCollection = false;
             IsSelectionEnabled = false;
+            MusicStyles = _collectionManager.GetMusicStylesList();
+            MusicGenres = _collectionManager.GetMusicGenresList();
         }
 
         #region [  fields  ]
 
         private readonly ICollectionManager _collectionManager;
         private readonly PreviewFactory _previewFactory;
+        private readonly List<Artist> _allArtists;
+        private readonly List<string> _selectedStyles = new List<string>();
 
         #endregion [  fields  ]
 
         #region [  properties  ]
 
-        private ObservableCollection<ArtistWrap> _artistsCollection;
+        private ObservableCollection<ArtistWrap> _fullArtistsCollection;
 
-        public ObservableCollection<ArtistWrap> ArtistsCollection
+        public ObservableCollection<ArtistWrap> FullArtistsCollection
         {
-            get => _artistsCollection;
-            set { _artistsCollection = value; OnPropertyChanged(); }
+            get => _fullArtistsCollection;
+            set { _fullArtistsCollection = value; OnPropertyChanged(); }
+        }
+
+        private ObservableCollection<ArtistWrap> _artistsCollectionToShow;
+
+        public ObservableCollection<ArtistWrap> ArtistsCollectionToShow
+        {
+            get => _artistsCollectionToShow;
+            set { _artistsCollectionToShow = value; OnPropertyChanged(); }
         }
 
         private Artist _selectedArtist;
@@ -100,6 +114,10 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             }
         }
 
+        public List<string> MusicStyles { get; set; }
+
+        public List<string> MusicGenres { get; set; }
+
         #endregion [  properties  ]
 
         #region [  commands  ]
@@ -142,6 +160,16 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         public ICommand DeleteFromCollectionCommand =>
             _deleteFromCollectionCommand ?? (_deleteFromCollectionCommand = new RelayCommand<object>(
                 (arg) => { DeleteFromCollection(); }, (arg) => SelectedItemWrap != null));
+
+        private ICommand _selectStylesCommand;
+
+        public ICommand SelectStylesCommand => _selectStylesCommand ?? (_selectStylesCommand = new RelayCommand<string>(
+                                                  (arg) => UpdateSelectedStylesList(arg)));
+
+        private ICommand _sortBySelectedStylesCommand;
+
+        public ICommand SortBySelectedStylesCommand => _sortBySelectedStylesCommand ?? (_sortBySelectedStylesCommand = new RelayCommand<object>(
+                                                   (arg) => SortBySelectedStyles()));
 
         #endregion [  commands  ]
 
@@ -205,21 +233,69 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             }
         }
 
-        private void LoadArtistsInCollection()
+        private void LoadAllArtistsInCollection()
         {
-            var dbArtists = _collectionManager.GetAllArtists();
-            var dbArtistWrap = new List<ArtistWrap>();
-            foreach (var dbArtist in dbArtists)
+            var artistWrapCollection = new List<ArtistWrap>();
+            foreach (var dbArtist in _allArtists)
             {
                 //переделать
-                var artWrap = new ArtistWrap(dbArtist);
-                artWrap.Children.Add(new AlbumWrap(new Album(), artWrap));
-                dbArtistWrap.Add(artWrap);
+                var artWrap = CreateArtistWrap(dbArtist);
+                artistWrapCollection.Add(artWrap);
             }
-            ArtistsCollection = new ObservableCollection<ArtistWrap>(dbArtistWrap);
+
+            FullArtistsCollection = new ObservableCollection<ArtistWrap>(artistWrapCollection);
+            ArtistsCollectionToShow = FullArtistsCollection;
+        }
+
+        private ArtistWrap CreateArtistWrap(Artist artist)
+        {
+            var artWrap = new ArtistWrap(artist);
+            artWrap.Children.Add(CreateAlbumWrap(new Album(), artWrap));
+            return artWrap;
+        }
+
+        private AlbumWrap CreateAlbumWrap(Album album, ArtistWrap artistWrap)
+        {
+            return new AlbumWrap(album, artistWrap);
         }
 
         #endregion [  loading  ]
+
+        #region [  selecting  ]
+
+        private void SortBySelectedStyles()
+        {
+            if (!_selectedStyles.Any())
+            {
+                ArtistsCollectionToShow = FullArtistsCollection;
+                return;
+            }
+
+            var selectedArtistsCollection = new List<ArtistWrap>();
+
+            foreach (var artist in _allArtists)
+            {
+                if (artist.Styles.Intersect(_selectedStyles).Any())
+                {
+                    selectedArtistsCollection.Add(CreateArtistWrap(artist));
+                }
+            }
+            ArtistsCollectionToShow = new ObservableCollection<ArtistWrap>(selectedArtistsCollection);
+        }
+
+        private void UpdateSelectedStylesList(string style)
+        {
+            if (string.IsNullOrEmpty(style)) throw new ArgumentNullException(nameof(style));
+
+            if (_selectedStyles.Contains(style))
+            {
+                _selectedStyles.Remove(style);
+                return;
+            }
+            _selectedStyles.Add(style);
+        }
+
+        #endregion [  selecting  ]
 
         #region [  updating  ]
 
@@ -230,9 +306,8 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             {
                 var artWrap = new ArtistWrap(newArtist);
                 artWrap.Children.Add(new AlbumWrap(new Album(), artWrap));
-                ArtistsCollection.Add(artWrap);
+                ArtistsCollectionToShow.Add(artWrap);
             }
-            
         }
 
         #endregion [  updating  ]
@@ -281,7 +356,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         private void DeleteSelectedArtistFromCollection(ArtistWrap artistWrap)
         {
             _collectionManager.DeleteArtistFromCollection(artistWrap.Value);
-            ArtistsCollection.Remove(artistWrap);
+            ArtistsCollectionToShow.Remove(artistWrap);
         }
 
         private void DeleteSelectedAlbumFromCollection(AlbumWrap albumWrap)

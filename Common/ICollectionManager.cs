@@ -22,5 +22,8 @@ namespace Common
 
         void DeleteAlbumFromCollection(Album album);
         void DeleteArtistFromCollection(Artist artist);
+
+        List<string> GetMusicStylesList();
+        List<string> GetMusicGenresList();
     }
 }

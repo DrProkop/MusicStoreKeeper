@@ -119,6 +119,49 @@
     </Style>
     <!-- end button -->
 
+    <!-- togglebutton -->
+    <!-- togglebutton basic -->
+    <Style x:Key="ToggleButtonBasicStyle" TargetType="{x:Type ToggleButton}">
+        <Setter Property="Background" Value="{StaticResource GrayBrush8}" />
+        <Setter Property="Foreground" Value="{StaticResource MainForegroundBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}">
+                    <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
+                        <ContentPresenter x:Name="contentPresenter" Focusable="False"
+                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                          Margin="{TemplateBinding Padding}" RecognizesAccessKey="True"
+                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource AccentBaseColorBrush60}" />
+                            <Setter Property="BorderBrush"  TargetName="border"   Value="{StaticResource AccentBaseColorBrush40}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" TargetName="border"  Value="{StaticResource AccentBaseColorBrush20}" />
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource HighlightBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Background"  TargetName="border"  Value="{StaticResource AccentBaseColorBrush20}" />
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource HighlightBrush}" />
+                            <Setter Property="TextElement.FontWeight"  TargetName="contentPresenter"  Value="DemiBold" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!-- end togglebutton -->
+
     <!-- stackpanel -->
     <!-- stackpanel basic -->
     <Style x:Key="StackPanelBasicStyle" TargetType="{x:Type StackPanel}">

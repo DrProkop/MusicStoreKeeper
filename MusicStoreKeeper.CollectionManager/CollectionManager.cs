@@ -175,6 +175,9 @@ namespace MusicStoreKeeper.CollectionManager
             var dRelease = await _discogsClient.GetReleaseById(releaseId);
             //создаю альбом с полной информацией
             var albumToCollection = _discogsConverter.CreateAlbum(dRelease);
+            //добавляю стили исполнителю
+            artist.AddStyles(albumToCollection.Styles);
+            artist.AddGenres(albumToCollection.Genres);
             // сохраняю альбом в базе
             var albumId = 0;
             if (storedAlbum == null)
@@ -248,6 +251,15 @@ namespace MusicStoreKeeper.CollectionManager
             _repo.DeleteArtist(artist);
         }
 
+        public List<string> GetMusicStylesList()
+        {
+            return _genreAndStyleProvider.GetStyles().ToList();
+        }
+
+        public List<string> GetMusicGenresList()
+        {
+            return _genreAndStyleProvider.GetStyles().ToList();
+        }
         #endregion [  public methods  ]
 
         #region [  private methods  ]
