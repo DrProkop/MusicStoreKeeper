@@ -20,7 +20,9 @@ namespace MusicStoreKeeper.CollectionManager
             _musicFileAnalyzer = musicFileAnalyzer;
             _musicDirAnalyzer = musicDirAnalyzer;
             _repo = repository;
-            _discogsConverter = new DiscogsConverter();
+            _genreAndStyleProvider = new GenreAndStyleProvider();
+            _discogsConverter = new DiscogsConverter(_genreAndStyleProvider);
+            
         }
 
         #region [  fields  ]
@@ -31,6 +33,7 @@ namespace MusicStoreKeeper.CollectionManager
         private readonly IMusicDirAnalyzer _musicDirAnalyzer;
         private readonly IRepository _repo;
         private readonly DiscogsConverter _discogsConverter;
+        private readonly GenreAndStyleProvider _genreAndStyleProvider;
 
         #endregion [  fields  ]
 

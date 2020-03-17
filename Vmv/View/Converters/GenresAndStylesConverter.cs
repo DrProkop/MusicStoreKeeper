@@ -18,6 +18,13 @@ namespace MusicStoreKeeper.Vmv.View.Converters
         /// <returns>A converted value. If the method returns null, the valid null value is used.</returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (parameter is bool inCollection)
+            {
+                if (!inCollection)
+                {
+                    return DependencyProperty.UnsetValue;
+                }
+            }
             if (value is List<string> stylesList)
             {
                 if (!stylesList.Any()) return DependencyProperty.UnsetValue;

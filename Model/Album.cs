@@ -27,7 +27,7 @@ namespace MusicStoreKeeper.Model
         [NotMapped]
         public List<string> Styles
         {
-            get => _styles ?? (_styles = new List<string>(JsonConvert.DeserializeObject<List<string>>(StylesString)));
+            get => _styles ?? (string.IsNullOrEmpty(StylesString) ? _styles = new List<string>() : _styles = new List<string>(JsonConvert.DeserializeObject<List<string>>(StylesString)));
             set
             {
                 StylesString = JsonConvert.SerializeObject(value);
@@ -40,7 +40,7 @@ namespace MusicStoreKeeper.Model
         [NotMapped]
         public List<string> Genres
         {
-            get => _genres ?? (_genres = new List<string>(JsonConvert.DeserializeObject<List<string>>(GenresString)));
+            get => _genres ?? (string.IsNullOrEmpty(GenresString) ? _genres = new List<string>() : _genres = new List<string>(JsonConvert.DeserializeObject<List<string>>(GenresString)));
             set
             {
                 GenresString = JsonConvert.SerializeObject(value);

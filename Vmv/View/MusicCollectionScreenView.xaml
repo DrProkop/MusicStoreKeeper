@@ -45,7 +45,7 @@
                             <TextBlock Name="AlbumYearTextBlock" Text="{Binding Value.ReleaseDate}" Style="{StaticResource TextBlockTreeViewItemStyle}" />
                             <TextBlock Name="AlbumTitleTextBlock" Text="{Binding Value.Title, StringFormat= - {0}}"  Style="{StaticResource TextBlockTreeViewItemStyle}" />
                             <TextBlock Name="AlbumStylesTextBlock"
-                                       Text="{Binding Value.Styles, Converter={StaticResource GenresAndStylesConverter}}"
+                                       Text="{Binding Value.Styles, Converter={StaticResource GenresAndStylesConverter}, ConverterParameter=Value.InCollection}"
                                        MaxWidth="200" Foreground="{StaticResource AccentBaseColorBrush80}" FontSize="10" TextTrimming="CharacterEllipsis"
                                        Style="{StaticResource TextBlockTreeViewItemStyle}"  />
                         </StackPanel>

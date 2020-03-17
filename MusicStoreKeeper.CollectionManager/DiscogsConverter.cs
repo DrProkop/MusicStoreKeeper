@@ -8,9 +8,16 @@ namespace MusicStoreKeeper.CollectionManager
     //TODO: Rename DiscogsConverter class and its methods
     public class DiscogsConverter
     {
-        public DiscogsConverter()
+        public DiscogsConverter(GenreAndStyleProvider genreAndStyleProvider)
         {
+            _genreAndStyleProvider = genreAndStyleProvider;
         }
+
+        #region [  fields  ]
+
+        private GenreAndStyleProvider _genreAndStyleProvider;
+
+        #endregion
 
         #region [  public methods  ]
 
@@ -33,6 +40,9 @@ namespace MusicStoreKeeper.CollectionManager
             album.DiscogsId = dRelease.id;
             album.Styles = dRelease.styles.ToList();
             album.Genres = dRelease.genres.ToList();
+            _genreAndStyleProvider.AddGenres(album.Genres);
+            _genreAndStyleProvider.AddStyles(album.Styles);
+            _genreAndStyleProvider.SaveAll();
             foreach (var dTrack in dRelease.tracklist)
             {
                 var track = CreateTrack(dTrack);
