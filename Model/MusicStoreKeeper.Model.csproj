@@ -69,6 +69,7 @@
     <Compile Include="ArtistAndAlbumBase.cs" />
     <Compile Include="Extensions\AlbumExtensions.cs" />
     <Compile Include="Artist.cs" />
+    <Compile Include="Extensions\ArtistAndAlbumExtensions.cs" />
     <Compile Include="Extensions\ArtistExtensions.cs" />
     <Compile Include="BaseEntity.cs" />
     <Compile Include="Extensions\TrackExtensions.cs" />
