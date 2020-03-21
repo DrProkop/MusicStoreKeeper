@@ -50,6 +50,14 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             set { _musicDirectories = value; OnPropertyChanged(); }
         }
 
+        private ObservableCollection<SimpleFileInfoWrap> _directoriesForManualMovement = new ObservableCollection<SimpleFileInfoWrap>();
+
+        public ObservableCollection<SimpleFileInfoWrap> DirectoriesForManualMovement
+        {
+            get => _directoriesForManualMovement;
+            set { _directoriesForManualMovement = value; OnPropertyChanged(); }
+        }
+
         private SimpleFileInfoWrap _selectedItem;
 
         public SimpleFileInfoWrap SelectedItem

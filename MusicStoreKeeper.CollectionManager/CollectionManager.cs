@@ -258,7 +258,7 @@ namespace MusicStoreKeeper.CollectionManager
 
         public List<string> GetMusicGenresList()
         {
-            return _genreAndStyleProvider.GetStyles().ToList();
+            return _genreAndStyleProvider.GetGenres().ToList();
         }
         #endregion [  public methods  ]
 

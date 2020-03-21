@@ -84,21 +84,21 @@
                         </Fluent:DropDownButton.ItemTemplate>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="DropDownClosed">
-                                <i:InvokeCommandAction Command="{Binding SortBySelectedStylesCommand}" />
+                                <i:InvokeCommandAction Command="{Binding SortBySelectedStylesAndGenresCommand}" />
                                 <i:InvokeCommandAction />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Fluent:DropDownButton>
 
                     <!-- genre select button -->
-                    <Fluent:DropDownButton Header="Select genres" ItemsSource="{Binding MusicStyles}"
+                    <Fluent:DropDownButton Header="Select genres" ItemsSource="{Binding MusicGenres}"
                                            ClosePopupOnMouseDown="False"
                                            ItemContainerStyle="{StaticResource ButtonMenuItem}"
                                            LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/music_genres_icon.png">
                         <Fluent:DropDownButton.ItemTemplate>
                             <DataTemplate>
                                 <ToggleButton Content="{Binding}"
-                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Fluent:DropDownButton}}, Path=DataContext.SelectStylesCommand}"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Fluent:DropDownButton}}, Path=DataContext.SelectGenresCommand}"
                                               CommandParameter="{Binding}"
                                               IsChecked="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Fluent:MenuItem}, Path=IsChecked, Mode=OneWayToSource}"
                                               Style="{DynamicResource ToggleButtonBasicStyle}"
@@ -107,7 +107,7 @@
                         </Fluent:DropDownButton.ItemTemplate>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="DropDownClosed">
-                                <i:InvokeCommandAction Command="{Binding SortBySelectedStylesCommand}" />
+                                <i:InvokeCommandAction Command="{Binding SortBySelectedStylesAndGenresCommand}" />
                                 <i:InvokeCommandAction />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
@@ -118,13 +118,14 @@
             <!-- music search screen -->
             <Fluent:RibbonTabItem Header="Add Music" ActiveTabBackground="{StaticResource AccentBaseColorBrush40}"
                                   IsSelected="{Binding SearchMusicScreenSelected, Mode=OneWayToSource}">
+
                 <!-- file search management -->
                 <Fluent:RibbonGroupBox Header="Search" DataContext="{Binding CurrentScreen}">
                     <!-- scan directory button -->
                     <Fluent:Button Header="Scan folder"
                                    LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/search_icon.png"
                                    Command="{Binding ScanDirectoryCommand}" ToolTip="{Binding MusicSearchDirectory}" />
-                    <!--<Fluent:Button Header="Add to collection" LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/add_files_manually_icon.png"  Command="{Binding MoveToCollectionManuallyCommand}" />-->
+
                     <!-- discogs button -->
                     <Fluent:Button Header="Discogs"
                                    LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/vinyl_record_icon.png"
@@ -138,6 +139,14 @@
                     <!-- enable selection button -->
                     <Fluent:ToggleButton Header="Enable selection" Command="{Binding EnableSelectionCommand}"
                                          LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/allow_selection_icon.png" />
+                </Fluent:RibbonGroupBox>
+
+                <!-- manual adding -->
+                <Fluent:RibbonGroupBox Header="Manual mode" DataContext="{Binding CurrentScreen}">
+                    <!-- add manually button -->
+                    <Fluent:Button Header="Add to collection manually"
+                                   LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/add_files_manually_icon.png"
+                                   Command="{Binding MoveToCollectionManuallyCommand}" />
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
 

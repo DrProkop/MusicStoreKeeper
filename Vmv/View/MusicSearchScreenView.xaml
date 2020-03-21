@@ -20,16 +20,16 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.Resources>
-           <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"></BooleanToVisibilityConverter>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"></BooleanToVisibilityConverter>
         </Grid.Resources>
 
-        <!-- file treeview -->
-        <TreeView Name="FileTreeView" Grid.Column="0" ItemsSource="{Binding MusicDirectories}" Style="{StaticResource TreeViewStyle}">
-            <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type viewModel:SimpleFileInfoWrap}" ItemsSource="{Binding Children}">
+        <TabControl Grid.Column="0" BorderThickness="1" BorderBrush="Transparent" Background="Transparent" Margin="0 3 0 0" Padding="0">
+            <TabControl.Resources>
+                <!-- treeview HierarchicalDataTemplate -->
+                <HierarchicalDataTemplate x:Key="TreeViewHierarchicalDataTemplate" DataType="{x:Type viewModel:SimpleFileInfoWrap}" ItemsSource="{Binding Children}">
                     <StackPanel Style="{StaticResource StackPanelTreeViewItemStyle}">
-                        <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" Margin="2 0" />
-                        <CheckBox IsChecked="{Binding IsChecked}" Style="{StaticResource CheckBoxTreeViewStyle}" 
+                        <Image Height="16" Width="16" Source="{Binding Icon, Mode=OneWay}" Margin="0 0" />
+                        <CheckBox IsChecked="{Binding IsChecked}" Style="{StaticResource CheckBoxTreeViewStyle}"
                                   Visibility="{Binding ElementName=FileTreeView , Path=DataContext.IsSelectionEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         <Border Style="{StaticResource BorderTreeViewItemStyle}" Padding="2 0">
                             <TextBlock Margin="4" Text="{Binding Value.Name}"
@@ -37,27 +37,50 @@
                         </Border>
                     </StackPanel>
                 </HierarchicalDataTemplate>
-            </TreeView.ItemTemplate>
-
-            <TreeView.ItemContainerStyle>
-                <Style TargetType="{x:Type TreeViewItem}">
+                <!-- treeview item container style  -->
+                <Style x:Key="TreeViewItemStyle" TargetType="{x:Type TreeViewItem}">
                     <Setter Property="view:AttachedProps.ExpandingProperty" Value="{Binding ElementName=FileTreeView, Path=DataContext.ItemExpandedCommand}" />
-                    <Style.Triggers>
-                    </Style.Triggers>
                 </Style>
-            </TreeView.ItemContainerStyle>
+            </TabControl.Resources>
 
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="TreeViewItem.Expanded">
-                    <i:InvokeCommandAction Command="{Binding ItemExpandedCommand}" />
-                    <i:InvokeCommandAction />
-                </i:EventTrigger>
-                <i:EventTrigger EventName="SelectedItemChanged">
-                    <i:InvokeCommandAction Command="{Binding SelectedItemChangedCommand}" CommandParameter="{Binding ElementName=FileTreeView, Path=SelectedItem}" />
-                    <i:InvokeCommandAction />
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-        </TreeView>
+            <!-- scan result tabitem -->
+            <TabItem Header="Scan results" Style="{StaticResource TabItemBasicStyle}">
+                <!-- scan result treeview -->
+                <TreeView Name="FileTreeView" ItemsSource="{Binding MusicDirectories}"
+                          Style="{StaticResource TreeViewStyle}"
+                          ItemTemplate="{StaticResource TreeViewHierarchicalDataTemplate}"
+                          ItemContainerStyle="{StaticResource TreeViewItemStyle}">
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="TreeViewItem.Expanded">
+                            <i:InvokeCommandAction Command="{Binding ItemExpandedCommand}" />
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="SelectedItemChanged">
+                            <i:InvokeCommandAction Command="{Binding SelectedItemChangedCommand}" CommandParameter="{Binding ElementName=FileTreeView, Path=SelectedItem}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </TreeView>
+            </TabItem>
+
+            <!-- manual movement tabitem -->
+            <TabItem Header="For manual adding" Style="{StaticResource TabItemBasicStyle}">
+                <!-- manual movement treeview -->
+                <TreeView Name="ManualMovementTreeView" ItemsSource="{Binding DirectoriesForManualMovement}"
+                          Style="{StaticResource TreeViewStyle}"
+                          ItemTemplate="{StaticResource TreeViewHierarchicalDataTemplate}"
+                          ItemContainerStyle="{StaticResource TreeViewItemStyle}">
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="TreeViewItem.Expanded">
+                            <i:InvokeCommandAction Command="{Binding ItemExpandedCommand}" />
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="SelectedItemChanged">
+                            <i:InvokeCommandAction Command="{Binding SelectedItemChangedCommand}" CommandParameter="{Binding ElementName=FileTreeView, Path=SelectedItem}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </TreeView>
+            </TabItem>
+        </TabControl>
 
         <!-- gridsplitter-->
         <GridSplitter Grid.Column="1" Style="{StaticResource GridSplitterVerticalStyle}" />

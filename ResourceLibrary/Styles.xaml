@@ -205,6 +205,30 @@
     </Style>
     <!-- end gridsplitter -->
 
+    <!-- tabitem -->
+    <Style x:Key="TabItemBasicStyle" TargetType="{x:Type TabItem}">
+        <Setter Property="Background" Value="{StaticResource GrayBrush8}" />
+        <Setter Property="Foreground" Value="{StaticResource MainForegroundBrush}" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background"  Value="{StaticResource AccentBaseColorBrush60}" />
+                <Setter Property="BorderBrush" Value="{StaticResource AccentBaseColorBrush40}" />
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background"  Value="Chartreuse" />
+                <Setter Property="TextElement.Foreground"  Value="Chartreuse" />
+               
+                <Setter Property="TextElement.FontWeight"    Value="DemiBold" />
+            </Trigger>
+            <!--<Trigger Property="IsChecked" Value="True">
+                <Setter Property="Background"  TargetName="border"  Value="{StaticResource AccentBaseColorBrush20}" />
+                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource HighlightBrush}" />
+                <Setter Property="TextElement.FontWeight"  TargetName="contentPresenter"  Value="DemiBold" />
+            </Trigger>-->
+        </Style.Triggers>
+    </Style>
+    <!-- end tabitem -->
+
     <!-- listbox -->
     <Style x:Key="ListboxBasicStyle" TargetType="{x:Type ListBox}">
         <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}" />

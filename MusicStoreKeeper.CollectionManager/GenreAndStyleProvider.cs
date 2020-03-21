@@ -29,7 +29,7 @@ namespace MusicStoreKeeper.CollectionManager
 
         #region [  properties  ]
 
-        private  HashSet<String> GenresSet { get; } = new HashSet<string>();
+        private HashSet<String> GenresSet { get; } = new HashSet<string>();
         private HashSet<String> StylesSet { get; } = new HashSet<string>();
 
         #endregion [  properties  ]
@@ -96,7 +96,7 @@ namespace MusicStoreKeeper.CollectionManager
             SaveStyles();
         }
 
-    #endregion [  public methods  ]
+        #endregion [  public methods  ]
 
         #region [  private methods  ]
 
@@ -120,8 +120,7 @@ namespace MusicStoreKeeper.CollectionManager
                 using (var jsonReader = new JsonTextReader(file))
                 {
                     var serializer = new JsonSerializer();
-                    var dataList = new List<string>();
-                    return dataList = serializer.Deserialize<List<string>>(jsonReader);
+                    return serializer.Deserialize<List<string>>(jsonReader);
                 }
             }
         }
@@ -131,7 +130,7 @@ namespace MusicStoreKeeper.CollectionManager
             using (var file = File.CreateText(path))
             using (var jsonWriter = new JsonTextWriter(file))
             {
-                jsonWriter.Formatting = Newtonsoft.Json.Formatting.Indented;
+                jsonWriter.Formatting = Formatting.Indented;
                 //jsonWriter.WriteStartObject();
                 //jsonWriter.WriteEndObject();
                 var serializer = new JsonSerializer();

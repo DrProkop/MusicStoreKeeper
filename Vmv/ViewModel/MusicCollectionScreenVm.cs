@@ -31,6 +31,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         private readonly PreviewFactory _previewFactory;
         private readonly List<Artist> _allArtists;
         private readonly List<string> _selectedStyles = new List<string>();
+        private readonly List<string> _selectedGenres = new List<string>();
 
         #endregion [  fields  ]
 
@@ -120,6 +121,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         #endregion [  properties  ]
 
+
         #region [  commands  ]
 
         private ICommand _artistExpandedCommand;
@@ -164,12 +166,17 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         private ICommand _selectStylesCommand;
 
         public ICommand SelectStylesCommand => _selectStylesCommand ?? (_selectStylesCommand = new RelayCommand<string>(
-                                                  (arg) => UpdateSelectedStylesList(arg)));
+                                                  (arg) => UpdateSearchParametersList(_selectedStyles, arg)));
 
-        private ICommand _sortBySelectedStylesCommand;
+        private ICommand _selectGenresCommand;
 
-        public ICommand SortBySelectedStylesCommand => _sortBySelectedStylesCommand ?? (_sortBySelectedStylesCommand = new RelayCommand<object>(
-                                                   (arg) => SortBySelectedStyles()));
+        public ICommand SelectGenresCommand => _selectGenresCommand ?? (_selectGenresCommand = new RelayCommand<string>(
+                                                   (arg) => UpdateSearchParametersList(_selectedGenres, arg)));
+
+        private ICommand _sortBySelectedStylesAndGenresCommand;
+
+        public ICommand SortBySelectedStylesAndGenresCommand => _sortBySelectedStylesAndGenresCommand ?? (_sortBySelectedStylesAndGenresCommand = new RelayCommand<object>(
+                                                   (arg) => SortBySelectedStylesAndGenres()));
 
         #endregion [  commands  ]
 
@@ -263,36 +270,58 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         #region [  selecting  ]
 
-        private void SortBySelectedStyles()
+        private void SortBySelectedStylesAndGenres()
         {
-            if (!_selectedStyles.Any())
+            if (!_selectedStyles.Any() && !_selectedGenres.Any())
             {
                 ArtistsCollectionToShow = FullArtistsCollection;
                 return;
             }
 
-            var selectedArtistsCollection = new List<ArtistWrap>();
+            var selectedArtistsList = new List<ArtistWrap>();
 
             foreach (var artist in _allArtists)
             {
-                if (artist.Styles.Intersect(_selectedStyles).Any())
+                //styles are selected
+                if (_selectedStyles.Any() && !_selectedGenres.Any())
                 {
-                    selectedArtistsCollection.Add(CreateArtistWrap(artist));
+                    if (artist.Styles.Intersect(_selectedStyles).Any())
+                    {
+                        selectedArtistsList.Add(CreateArtistWrap(artist));
+                    }
                 }
+
+                //genres are selected
+                else if (_selectedGenres.Any() && !_selectedStyles.Any())
+                {
+                    if (artist.Genres.Intersect(_selectedGenres).Any())
+                    {
+                        selectedArtistsList.Add(CreateArtistWrap(artist));
+                    }
+                }
+
+                //genres and styles are selected
+                else if (artist.Styles.Intersect(_selectedStyles).Any() && artist.Styles.Intersect(_selectedGenres).Any())
+                {
+                    selectedArtistsList.Add(CreateArtistWrap(artist));
+                }
+                
             }
-            ArtistsCollectionToShow = new ObservableCollection<ArtistWrap>(selectedArtistsCollection);
+
+            ArtistsCollectionToShow = new ObservableCollection<ArtistWrap>(selectedArtistsList);
         }
 
-        private void UpdateSelectedStylesList(string style)
+        private void UpdateSearchParametersList(List<string> parametersList, string newParameter)
         {
-            if (string.IsNullOrEmpty(style)) throw new ArgumentNullException(nameof(style));
+            if (parametersList == null) throw new ArgumentNullException(nameof(parametersList));
+            if (string.IsNullOrEmpty(newParameter)) throw new ArgumentNullException(nameof(newParameter));
 
-            if (_selectedStyles.Contains(style))
+            if (parametersList.Contains(newParameter))
             {
-                _selectedStyles.Remove(style);
+                parametersList.Remove(newParameter);
                 return;
             }
-            _selectedStyles.Add(style);
+            parametersList.Add(newParameter);
         }
 
         #endregion [  selecting  ]
