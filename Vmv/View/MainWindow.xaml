@@ -23,7 +23,9 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="20" />
         </Grid.RowDefinitions>
-
+<Grid.Resources>
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+</Grid.Resources>
         <Fluent:Ribbon Grid.Row="0">
             <Fluent:Ribbon.Resources>
                 <Style TargetType="{x:Type Fluent:RibbonTabItem}">
@@ -129,7 +131,12 @@
                     <!-- discogs button -->
                     <Fluent:Button Header="Discogs"
                                    LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/vinyl_record_icon.png"
-                                   Command="{Binding GetArtistFromDiscogsCommand}" />
+                                   Command="{Binding GetArtistFromDiscogsCommand}" CommandParameter="{Binding SelectedItem.Value}" />
+                    <!-- cancel button -->
+                    <Fluent:Button Header="Cancel"
+                                   LargeIcon="pack://application:,,,/ResourceLibrary;component/Images/Buttons/cancel_icon.png"
+                                   Command="{Binding CancelOperationCommand}" />
+
                 </Fluent:RibbonGroupBox>
 
                 <!-- found files management -->
@@ -170,7 +177,13 @@
                     <view:SettingsScreenView />
                 </DataTemplate>
             </Grid.Resources>
+            <!-- views  -->
             <ContentControl Grid.Row="0" Content="{Binding CurrentScreen}" />
+            <!-- blocking screen -->
+            <Grid ZIndex="10000" Visibility="{Binding LongOperationService.IsBlockingBusy, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                <view:BlockingScreen Message="{Binding LongOperationService.BlockingMessage}" />
+            </Grid>
+
         </Grid>
         <!-- status bar -->
         <Fluent:StatusBar Grid.Row="2">

@@ -101,6 +101,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ViewModel\BaseScreenVm.cs" />
+    <Compile Include="ViewModel\Command\AsyncCommand.cs" />
+    <Compile Include="ViewModel\Command\IAsyncCommand.cs" />
+    <Compile Include="ViewModel\LongOperationService.cs" />
     <Compile Include="ViewModel\Preview\AlbumPreviewVm.cs" />
     <Compile Include="ViewModel\Preview\ArtistPreviewVm.cs" />
     <Compile Include="ViewModel\Preview\AudioFilePreviewVm.cs" />
@@ -116,6 +119,9 @@
     <Compile Include="ViewModel\Wrappers\ArtistWrap.cs" />
     <Compile Include="ViewModel\Wrappers\SimpleFileInfoWrap.cs" />
     <Compile Include="ViewModel\Wrappers\TreeViewItemWrap.cs" />
+    <Compile Include="View\BlockingScreen.xaml.cs">
+      <DependentUpon>BlockingScreen.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Converters\GenresAndStylesConverter.cs" />
     <Compile Include="View\Converters\MultiValueConverterAdapter.cs" />
     <Compile Include="View\Converters\TreeViewAlbumVisibilityConverter.cs" />
@@ -128,7 +134,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModel\IScreenVm.cs" />
     <Compile Include="ViewModel\MainWindowVm.cs" />
-    <Compile Include="ViewModel\RelayCommand.cs" />
+    <Compile Include="ViewModel\Command\RelayCommand.cs" />
     <Compile Include="ViewModel\MusicCollectionScreenVm.cs" />
     <Compile Include="ViewModel\MusicSearchScreenVm.cs" />
     <Compile Include="View\Attached\AttachedProps.cs" />
@@ -156,6 +162,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="View\BlockingScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\Preview\AlbumPreviewView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

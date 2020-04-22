@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using MusicStoreKeeper.Model;
 using System.Threading.Tasks;
 
@@ -9,9 +10,9 @@ namespace Common
         string MusicSearchDirectory { get; set; }
         string MusicCollectionDirectory { get; set; }
 
-        Task<Artist> SearchArtistAndAllAlbumsOnDiscogs(IMusicDirInfo mDirInfo, bool updateExisting);
+        Task<Artist> SearchArtistAndAllAlbumsOnDiscogs(IMusicDirInfo mDirInfo, bool updateExisting, CancellationToken token);
 
-        Task<Album> SearchFullAlbumOnDiscogs(Artist artist, IMusicDirInfo mDirInfo, bool updateExisting);
+        Task<Album> SearchFullAlbumOnDiscogs(Artist artist, IMusicDirInfo mDirInfo, bool updateExisting, CancellationToken token);
 
         void MoveToCollectionManually(ISimpleFileInfo sFi);
 

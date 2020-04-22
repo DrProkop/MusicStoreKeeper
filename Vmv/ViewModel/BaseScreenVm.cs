@@ -5,8 +5,11 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 {
     public abstract class BaseScreenVm:NotifyPropertyChangedBase, IScreenVm
     {
-        protected BaseScreenVm(ILoggerManager manager)
+        
+
+        protected BaseScreenVm(ILongOperationService longOperationService, ILoggerManager manager)
         {
+            LongOperationService = longOperationService;
             log = manager.GetLogger(this);
         }
 
@@ -17,6 +20,8 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         #endregion
 
         #region [  properties  ]
+
+        public ILongOperationService LongOperationService { get; private set; }
 
         private string _message;
 

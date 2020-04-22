@@ -10,7 +10,8 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         public MainWindowVm(MusicCollectionScreenVm musicCollectionScreen,
             MusicSearchScreenVm musicSearchScreen,
             SettingsScreenVm settingsScreen,
-            ILoggerManager manager):base(manager)
+            ILongOperationService longOperationService,
+            ILoggerManager manager):base(longOperationService, manager)
         {
             MusicCollectionScreen = musicCollectionScreen;
             MusicSearchScreen = musicSearchScreen;

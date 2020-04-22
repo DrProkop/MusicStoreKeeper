@@ -12,7 +12,11 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 {
     public class MusicCollectionScreenVm : BaseScreenVm
     {
-        public MusicCollectionScreenVm(ICollectionManager collectionManager, PreviewFactory previewFactory, ILoggerManager manager) : base(manager)
+        public MusicCollectionScreenVm(
+            ICollectionManager collectionManager,
+            PreviewFactory previewFactory,
+            ILongOperationService longOperationService,
+            ILoggerManager manager) : base(longOperationService, manager)
         {
             _collectionManager = collectionManager;
             _previewFactory = previewFactory;

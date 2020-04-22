@@ -24,6 +24,7 @@ namespace MusicStoreKeeper
             builder.RegisterType<DiscogsClient>();
             builder.RegisterType<Repository>().As<IRepository>().SingleInstance();
             builder.RegisterType<PreviewFactory>();
+            builder.RegisterType<LongOperationService>().As<ILongOperationService>().SingleInstance();
             // screens
             builder.RegisterType<MainWindowVm>().SingleInstance();
             builder.RegisterType<MusicCollectionScreenVm>();

@@ -7,7 +7,10 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 {
     public class SettingsScreenVm : BaseScreenVm
     {
-        public SettingsScreenVm(ICollectionManager collectionManager, ILoggerManager manager) : base(manager)
+        public SettingsScreenVm(
+            ICollectionManager collectionManager,
+            ILongOperationService longOperationService,
+            ILoggerManager manager) : base(longOperationService, manager)
         {
             _collectionManager = collectionManager;
         }

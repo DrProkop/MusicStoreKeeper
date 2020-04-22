@@ -5,6 +5,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,7 +16,15 @@ namespace MusicStoreKeeper.Vmv.ViewModel
     //TODO: Create base class for vms, add logging to it.
     public class MusicSearchScreenVm : BaseScreenVm
     {
-        public MusicSearchScreenVm(DiscogsClient client, ICollectionManager collectionManager, IRepository repository, IMusicFileAnalyzer musicFileAnalyzer, IMusicDirAnalyzer musicDirAnalyzer, IFileManager fileManager, PreviewFactory previewFactory, ILoggerManager manager) : base(manager)
+        public MusicSearchScreenVm(
+            DiscogsClient client,
+            ICollectionManager collectionManager,
+            IRepository repository, IMusicFileAnalyzer musicFileAnalyzer,
+            IMusicDirAnalyzer musicDirAnalyzer,
+            IFileManager fileManager,
+            PreviewFactory previewFactory,
+            ILongOperationService longOperationService,
+            ILoggerManager manager) : base(longOperationService, manager)
         {
             _discogsClient = client;
             _collectionManager = collectionManager;
@@ -24,8 +33,6 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             _musicDirAnalyzer = musicDirAnalyzer;
             _fileManager = fileManager;
             _previewFactory = previewFactory;
-
-            
         }
 
         #region [  fields  ]
@@ -37,6 +44,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         private readonly IMusicDirAnalyzer _musicDirAnalyzer;
         private readonly IFileManager _fileManager;
         private readonly PreviewFactory _previewFactory;
+        private CancellationTokenSource _cts;
 
         #endregion [  fields  ]
 
@@ -110,6 +118,12 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             }
         }
 
+        private CancellationTokenSource _cancellationTokenSource;
+
+        public CancellationTokenSource CancellationTokenSource =>
+            _cancellationTokenSource ?? (_cancellationTokenSource = new CancellationTokenSource());
+        
+
         #endregion [  properties  ]
 
         #region [  commands  ]
@@ -132,12 +146,11 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             ScanDirectory();
         }));
 
-        private ICommand _getArtistFromDiscogsCommand;
+        private IAsyncCommand<ISimpleFileInfo> _getArtistFromDiscogsCommand;
 
-        public ICommand GetArtistFromDiscogsCommand => _getArtistFromDiscogsCommand ?? (_getArtistFromDiscogsCommand = new RelayCommand<object>(async arg =>
-        {
-            await AddMusicDirectoryToCollection(SelectedItem.Value);
-        }));
+        public IAsyncCommand<ISimpleFileInfo> GetArtistFromDiscogsCommand =>
+            _getArtistFromDiscogsCommand ?? (_getArtistFromDiscogsCommand =
+                new AsyncCommand<ISimpleFileInfo>(AddMusicDirectoryToCollection,LongOperationService, CancelOperationCommand, (arg) => true));
 
         private ICommand _moveToCollectionManuallyCommand;
 
@@ -150,27 +163,52 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             EnableSelection();
         }));
 
-        private void EnableSelection()
-        {
-            IsSelectionEnabled = !IsSelectionEnabled;
-        }
+        private ICancelCommand _cancelOperationCommand;
+
+        public ICancelCommand CancelOperationCommand => _cancelOperationCommand ?? (_cancelOperationCommand = new CancelAsyncCommand());
+
+        //private void CancelOperation()
+        //{
+        //    using (_cancellationTokenSource)
+        //    {
+        //        _cancellationTokenSource.Cancel();
+        //    }
+        //    _cancellationTokenSource.Dispose();
+
+        //}
 
         #endregion [  commands  ]
 
         #region [  private methods  ]
 
-        private async Task AddMusicDirectoryToCollection(ISimpleFileInfo dirSfi)
+
+        private CancellationToken GetToken()
+        {
+            return CancellationTokenSource.Token;
+        }
+
+        private async Task AddMusicDirectoryToCollection(ISimpleFileInfo dirSfi, CancellationToken ct)
         {
             if (dirSfi == null) throw new ArgumentNullException(nameof(dirSfi));
-
             if (dirSfi.Type != SfiType.Directory) return;//TODO: если передали муз файл, добавить поиск каталога, в котором находится музыкальный файл
-
+            ct.ThrowIfCancellationRequested();
+            LongOperationService.StartLongBlockingOperation("Searching for directory info.");
+            await Task.Delay(20000, ct);
             LoadDirectoryWithSubdirectories(dirSfi);
             //получение информации о выбранном каталоге с музыкой
             var mdi = _musicDirAnalyzer.AnalyzeMusicDirectory(dirSfi);
+
             //поиск информации на дискогс
-            var artist=await _collectionManager.SearchArtistAndAllAlbumsOnDiscogs(mdi, true);
-            await _collectionManager.SearchFullAlbumOnDiscogs(artist, mdi, true);
+
+            var artist = await _collectionManager.SearchArtistAndAllAlbumsOnDiscogs(mdi, true, ct);
+            await _collectionManager.SearchFullAlbumOnDiscogs(artist, mdi, true, ct);
+            //using (var cts=new CancellationTokenSource())
+            //{
+            //    _cts = cts;
+            //    var artist = await LongOperationService.StartLongOperation(_collectionManager.SearchArtistAndAllAlbumsOnDiscogs, mdi, true, "Searching for artist...", cts.Token);
+            //    await _collectionManager.SearchFullAlbumOnDiscogs(artist, mdi, true, cts.Token);
+            //}
+            LongOperationService.FinishLongBlockingOperation();
         }
 
         private void AddAlbumToCollectionManually()
@@ -271,13 +309,16 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             }
         }
 
-
-
         private void ChangeSelectedItem(SimpleFileInfoWrap arg)
         {
             if (arg == null) return;
             SelectedItem = arg;
             FilePreview = _previewFactory.CreatePreviewVm(arg.Value);
+        }
+
+        private void EnableSelection()
+        {
+            IsSelectionEnabled = !IsSelectionEnabled;
         }
 
         #endregion [  private methods  ]

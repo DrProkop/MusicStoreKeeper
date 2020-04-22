@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Discogs
@@ -16,7 +17,7 @@ namespace Discogs
     {
         private static readonly string userAgent = "MusicStoreKeeper/0.1";
         private static readonly RestClient client= new RestClient("https://api.discogs.com/") { UserAgent = userAgent };
-        private static readonly string token = "SXxVxPpSgbTxskTqVrwFzqrbcLvMNtnAKDyIbuub";
+        private static readonly string dToken = "SXxVxPpSgbTxskTqVrwFzqrbcLvMNtnAKDyIbuub";
 
         //TODO: Use some OAuth1.0(a) library for proper authentication
 
@@ -44,55 +45,55 @@ namespace Discogs
 
         #region [ artist ]
 
-        public async Task<DiscogsArtist> GetArtistById(int artistId)
+        public async Task<DiscogsArtist> GetArtistById(int artistId, CancellationToken token)
         {
             var request = new RestRequest(ArtistPath).AddUrlSegment(nameof(artistId), artistId.ToString());
-            return await client.GetAsync<DiscogsArtist>(request);
+            return await ExecuteRequest<DiscogsArtist>(request, token);
         }
 
-        public async Task<DiscogsArtist> GetArtistByName(string artistName)
+        public async Task<DiscogsArtist> GetArtistByName(string artistName, CancellationToken token)
         {
             var searchParameters = new DiscogsSearchParameters() { query = artistName, type = DiscogsSearchObjectType.artist };
-            var results = await DiscogsSearch(searchParameters);
+            var results = await DiscogsSearch(searchParameters, token);
             var firstResult = results.FirstOrDefault();
             if (firstResult == null) return null;
-            return await GetArtistById(firstResult.id);
+            return await GetArtistById(firstResult.id, token);
         }
 
         #endregion [ artist ]
 
         #region [ release ]
 
-        public async Task<IEnumerable<DiscogsArtistRelease>> GetArtistReleases(int artistId)
+        public async Task<IEnumerable<DiscogsArtistRelease>> GetArtistReleases(int artistId, CancellationToken token)
         {
             var request = new RestRequest(ArtistReleasesPath).AddUrlSegment(nameof(artistId), artistId.ToString());
-            var response = await client.GetAsync<DiscogsArtistReleases>(request);
-            return response.GetData();
+            var responseData= await ExecuteRequest<DiscogsArtistReleases>(request, token);
+            return responseData.GetData();
         }
 
-        public async Task<DiscogsRelease> GetReleaseById(int releaseId)
+        public async Task<DiscogsRelease> GetReleaseById(int releaseId, CancellationToken token)
         {
             var request = new RestRequest(ReleasePath).AddUrlSegment(nameof(releaseId), releaseId.ToString());
-            return await client.GetAsync<DiscogsRelease>(request);
+            return await ExecuteRequest<DiscogsRelease>(request, token);
         }
 
-        public async Task<DiscogsMasterRelease> GetMatserReleaseById(int masterId)
+        public async Task<DiscogsMasterRelease> GetMatserReleaseById(int masterId, CancellationToken token)
         {
             var request = new RestRequest(MasterReleasePath).AddUrlSegment(nameof(masterId), masterId.ToString());
-            return await client.GetAsync<DiscogsMasterRelease>(request);
+            return await ExecuteRequest<DiscogsMasterRelease>(request, token);
         }
 
-        public async Task<DiscogsRelease> GetReleaseByTitle(string releaseTitle, string trackName)
+        public async Task<DiscogsRelease> GetReleaseByTitle(string releaseTitle, string trackName, CancellationToken token)
         {
             var releaseId = 0;
             DiscogsRelease release = null;
             var searchParameters = new DiscogsSearchParameters() { query = releaseTitle, type = DiscogsSearchObjectType.release };
-            var discogsSearchResults = await DiscogsSearch(searchParameters);
+            var discogsSearchResults = await DiscogsSearch(searchParameters, token);
             var results = discogsSearchResults.ToList();
             foreach (var result in results)
             {
                 //TODO: Add check for master releases
-                release = GetReleaseById(result.id).Result;
+                release = GetReleaseById(result.id, token).Result;
                 var tracks = release.tracklist;
                 if (tracks.Any(arg => arg.title.Equals(trackName, StringComparison.InvariantCultureIgnoreCase)))
                 {
@@ -117,11 +118,11 @@ namespace Discogs
 
         #endregion
 
-        public async Task<IEnumerable<DiscogsSearchResult>> DiscogsSearch(DiscogsSearchParameters arg)
+        public async Task<IEnumerable<DiscogsSearchResult>> DiscogsSearch(DiscogsSearchParameters arg, CancellationToken token)
         {
             var prm = arg.GetSearchString();
             var request = new RestRequest(prm);
-            var response = await client.GetAsync<DiscogsSearchResults>(request);
+            var response = await ExecuteRequest<DiscogsSearchResults>(request, token);
             return response.GetData();
         }
 
@@ -133,5 +134,15 @@ namespace Discogs
         }
 
         #endregion [methods]
+
+        #region [  private methods  ]
+
+        private async Task<T> ExecuteRequest<T>(IRestRequest request, CancellationToken token)
+        {
+            var response = await client.ExecuteGetAsync<T>(request, token);
+            return response.Data;
+        }
+
+        #endregion
     }
 }
