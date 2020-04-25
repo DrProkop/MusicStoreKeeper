@@ -1,18 +1,21 @@
 ﻿using Common;
+using Serilog;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace MusicStoreKeeper.Vmv.ViewModel
 {
     public class LongOperationService : NotifyPropertyChangedBase, ILongOperationService
     {
-        public LongOperationService()
+        public LongOperationService(ILoggerManager manager)
         {
-            _scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+            log = manager.GetLogger(this);
         }
 
-        private TaskScheduler _scheduler;
+        #region [  fields  ]
+
+        private readonly ILogger log;
+
+        #endregion [  fields  ]
 
         #region [  properties  ]
 
@@ -21,7 +24,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         public bool IsBusy
         {
             get => _isBusy;
-            set
+            private set
             {
                 _isBusy = value;
                 OnPropertyChanged();
@@ -33,19 +36,33 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         public bool IsBlockingBusy
         {
             get => _isBlockingBusy;
-            private set { _isBlockingBusy = value;OnPropertyChanged(); }
+            private set
+            {
+                _isBlockingBusy = value;
+                OnPropertyChanged();
+            }
         }
-
-        
 
         private string _blockingMessage;
 
         public string BlockingMessage
         {
             get => _blockingMessage;
-            set
+            private set
             {
                 _blockingMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _generalMessage;
+
+        public string GeneralMessage
+        {
+            get => _generalMessage;
+            private set
+            {
+                _generalMessage = value;
                 OnPropertyChanged();
             }
         }
@@ -65,68 +82,20 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             IsBlockingBusy = false;
         }
 
-
-        public void HandleException(Exception ex)
+        public void StartLongOperation(string message)
         {
-            Console.WriteLine($"иксэпшон {ex.Message}.");
-        }
-        public async Task<TResult> StartLongOperation<T1, T2, TResult>(Func<T1, T2, CancellationToken, Task<TResult>> operation, T1 arg1, T2 arg2, string message, CancellationToken cancellationToken)
-        {
-            var tcs = new TaskCompletionSource<TResult>();
-
-            try
-            {
-                ShowWaitControl(message);
-                await operation.Invoke(arg1, arg2, cancellationToken).ContinueWith(t =>
-                {
-                    if (TaskHasExceptions(tcs, t))
-                    {
-                       
-                    }
-                    else
-                    {
-                        tcs.SetResult(t.Result);
-                    }
-                    HideWaitControl();
-
-                });
-                return tcs.Task.Result;
-            }
-            catch (Exception e)
-            {
-                BlockingMessage = e.Message;
-                tcs.SetException(e);
-                HideWaitControl();
-                return tcs.Task.Result;
-            }
+            IsBusy = true;
+            GeneralMessage = message;
         }
 
-        public async Task<T> StartLongOperation<T>(Func<Task<T>> operation)
+        public void FinishLongOperation(string message)
         {
-            try
-            {
-                IsBusy = true;
-                var yolo = await operation.Invoke();
-                IsBusy = false;
-                return yolo;
-            }
-            catch (Exception e)
-            {
-                BlockingMessage = e.Message;
-                var ololo = new TaskCompletionSource<T>();
-                ololo.SetException(e);
-                return ololo.Task.Result;
-            }
+            IsBusy = false;
         }
 
-        public void ShowBlockingScreen()
+        public void HandleException(Exception ex, string errorMessage = default)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public void HideBlockingScreen()
-        {
-            throw new System.NotImplementedException();
+            log.Error(ex, errorMessage);
         }
 
         public void ShowMessage(string message)
@@ -135,42 +104,5 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         }
 
         #endregion [  public methods  ]
-
-        #region [  private methods  ]
-
-        private bool TaskHasExceptions<T>(TaskCompletionSource<T> tcs, Task<T> task)
-        {
-            if (!task.IsFaulted || task.Exception==null) return false;
-            tcs.SetException(task.Exception.InnerExceptions);
-            return true;
-        }
-
-        private void ShowWaitControl(string message)
-        {
-            BlockingMessage = message;
-            IsBusy = true;
-           // var ololo= RunInUiContext(() =>
-           // {
-           //     BlockingMessage = message;
-           //     IsBusy = true;
-           // });
-           //var azaza = ololo.IsCompleted;
-        }
-
-        private void HideWaitControl()
-        {
-            RunInUiContext(() =>
-            {
-                BlockingMessage = "";
-                IsBusy = false;
-            });
-        }
-
-        private Task RunInUiContext(Action action)
-        {
-            return Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, _scheduler);
-        }
-
-        #endregion
     }
 }

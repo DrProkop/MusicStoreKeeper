@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Common
 {
@@ -12,17 +7,21 @@ namespace Common
     /// </summary>
     public interface ILongOperationService
     {
-        void ShowBlockingScreen();
-        void HideBlockingScreen();
-        void ShowMessage(string message);
-        Task<T> StartLongOperation<T>(Func<Task<T>> operation);
-        void StartLongBlockingOperation(string message);
-        void FinishLongBlockingOperation();
-        Task<TResult> StartLongOperation<T1, T2, TResult>(Func<T1, T2, CancellationToken, Task<TResult>> operation,
-            T1 arg1, T2 arg2, string message, CancellationToken cancellationToken);
-        string BlockingMessage { get; set; }
-        bool IsBusy { get; set; }
+        string BlockingMessage { get; }
+        string GeneralMessage { get; }
+        bool IsBusy { get; }
         bool IsBlockingBusy { get; }
-        void HandleException(Exception ex);
+
+        void ShowMessage(string message);
+
+        void StartLongBlockingOperation(string message);
+
+        void FinishLongBlockingOperation();
+
+        void StartLongOperation(string message);
+
+        void FinishLongOperation(string message);
+
+        void HandleException(Exception ex, string errorMessage=default);
     }
 }

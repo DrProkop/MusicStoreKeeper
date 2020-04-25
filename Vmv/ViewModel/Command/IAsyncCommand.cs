@@ -16,7 +16,4 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         Task ExecuteAsync(T parameter);
         void RaiseCanExecuteChanged();
     }
-
-   
-   
 }

@@ -102,7 +102,9 @@
   <ItemGroup>
     <Compile Include="ViewModel\BaseScreenVm.cs" />
     <Compile Include="ViewModel\Command\AsyncCommand.cs" />
+    <Compile Include="ViewModel\Command\CancelAsyncCommand.cs" />
     <Compile Include="ViewModel\Command\IAsyncCommand.cs" />
+    <Compile Include="ViewModel\Command\ICancelCommand.cs" />
     <Compile Include="ViewModel\LongOperationService.cs" />
     <Compile Include="ViewModel\Preview\AlbumPreviewVm.cs" />
     <Compile Include="ViewModel\Preview\ArtistPreviewVm.cs" />
