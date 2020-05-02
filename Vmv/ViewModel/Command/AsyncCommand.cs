@@ -8,16 +8,19 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 {
     public class AsyncCommand : IAsyncCommand
     {
-        /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
-        public AsyncCommand(Func<Task> execute, Func<bool> canExecute = null)
+        public AsyncCommand(Func<CancellationToken, Task> execute, ILongOperationService longOperationService, ICancelCommand cancelCommand, Func<bool> canExecute = null)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _longOperationService = longOperationService;
+            _cancelCommand = cancelCommand;
             _canExecute = canExecute;
         }
 
         #region [  fields  ]
 
-        private readonly Func<Task> _execute;
+        private readonly Func<CancellationToken, Task> _execute;
+        private readonly ILongOperationService _longOperationService;
+        private readonly ICancelCommand _cancelCommand;
         private readonly Func<bool> _canExecute;
         private bool _isExecuting;
 
@@ -31,12 +34,22 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             {
                 try
                 {
+                    _cancelCommand.GetCancellationToken().ThrowIfCancellationRequested();
                     _isExecuting = true;
-                    await _execute();
+                    await _execute(_cancelCommand.GetCancellationToken());
+                }
+                catch (OperationCanceledException opEx)
+                {
+                    _longOperationService.HandleException(opEx, "Operation cancelled by user.");
+                }
+                catch (Exception ex)
+                {
+                    _longOperationService.HandleException(ex);
                 }
                 finally
                 {
                     _isExecuting = false;
+                    _longOperationService.FinishLongBlockingOperation();
                 }
             }
         }
@@ -54,7 +67,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public bool CanExecute(object parameter) => CanExecute();
 
-        public bool CanExecute()
+        private bool CanExecute()
         {
             return !_isExecuting && (_canExecute?.Invoke() ?? true);
         }
@@ -136,7 +149,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         /// <summary>Defines the method that determines whether the command can execute in its current state.</summary>
         /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
         /// <returns>true if this command can be executed; otherwise, false.</returns>
-        public bool CanExecute(T parameter)
+        private bool CanExecute(T parameter)
         {
             return !_isExecuting && (_canExecute?.Invoke(parameter) ?? true);
         }

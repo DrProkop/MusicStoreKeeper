@@ -122,7 +122,6 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public CancellationTokenSource CancellationTokenSource =>
             _cancellationTokenSource ?? (_cancellationTokenSource = new CancellationTokenSource());
-        
 
         #endregion [  properties  ]
 
@@ -150,7 +149,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public IAsyncCommand<ISimpleFileInfo> GetArtistFromDiscogsCommand =>
             _getArtistFromDiscogsCommand ?? (_getArtistFromDiscogsCommand =
-                new AsyncCommand<ISimpleFileInfo>(AddMusicDirectoryToCollection,LongOperationService, CancelOperationCommand, (arg) => true));
+                new AsyncCommand<ISimpleFileInfo>(AddMusicDirectoryToCollection, LongOperationService, CancelOperationCommand, (arg) => true));
 
         private ICommand _moveToCollectionManuallyCommand;
 
@@ -167,32 +166,16 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public ICancelCommand CancelOperationCommand => _cancelOperationCommand ?? (_cancelOperationCommand = new CancelAsyncCommand());
 
-        //private void CancelOperation()
-        //{
-        //    using (_cancellationTokenSource)
-        //    {
-        //        _cancellationTokenSource.Cancel();
-        //    }
-        //    _cancellationTokenSource.Dispose();
-
-        //}
-
         #endregion [  commands  ]
 
         #region [  private methods  ]
-
-
-        private CancellationToken GetToken()
-        {
-            return CancellationTokenSource.Token;
-        }
 
         private async Task AddMusicDirectoryToCollection(ISimpleFileInfo dirSfi, CancellationToken ct)
         {
             if (dirSfi == null) throw new ArgumentNullException(nameof(dirSfi));
             if (dirSfi.Type != SfiType.Directory) return;//TODO: если передали муз файл, добавить поиск каталога, в котором находится музыкальный файл
             ct.ThrowIfCancellationRequested();
-            LongOperationService.StartLongBlockingOperation("Searching for directory info.");
+            LongOperationService.StartLongBlockingOperation("Searching for directory info on Discogs.");
             await Task.Delay(20000, ct);
             LoadDirectoryWithSubdirectories(dirSfi);
             //получение информации о выбранном каталоге с музыкой
@@ -202,12 +185,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
             var artist = await _collectionManager.SearchArtistAndAllAlbumsOnDiscogs(mdi, true, ct);
             await _collectionManager.SearchFullAlbumOnDiscogs(artist, mdi, true, ct);
-            //using (var cts=new CancellationTokenSource())
-            //{
-            //    _cts = cts;
-            //    var artist = await LongOperationService.StartLongOperation(_collectionManager.SearchArtistAndAllAlbumsOnDiscogs, mdi, true, "Searching for artist...", cts.Token);
-            //    await _collectionManager.SearchFullAlbumOnDiscogs(artist, mdi, true, cts.Token);
-            //}
+
             LongOperationService.FinishLongBlockingOperation();
         }
 

@@ -34,14 +34,21 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
         public void Execute(object parameter)
         {
-            _isExecuting = true;
-
-            _cts.Cancel();
-            _cts.Dispose();
-            _cts = new CancellationTokenSource();
-
-            _isExecuting = false;
-            RaiseCanExecuteChanged();
+            if (CanExecute(parameter))
+            {
+                try
+                {
+                    _isExecuting = true;
+                    _cts.Cancel();
+                    _cts.Dispose();
+                    _cts = new CancellationTokenSource();
+                }
+                finally
+                {
+                    _isExecuting = false;
+                    RaiseCanExecuteChanged();
+                }
+            }
         }
 
         /// <summary>Occurs when changes occur that affect whether or not the command should execute.</summary>

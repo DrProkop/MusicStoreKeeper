@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Threading;
 using Fluent;
 
 namespace MusicStoreKeeper
@@ -19,6 +20,12 @@ namespace MusicStoreKeeper
             base.OnStartup(e);;
             Start.Configure();
             Start.Run();
+        }
+
+        private void MusicStoreKeeper_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            MessageBox.Show($"An unhandled exception just occurred: {e.Exception.Message} ", "Something is really wrong", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //e.Handled = true;
         }
     }
 }

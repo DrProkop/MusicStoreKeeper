@@ -2,7 +2,6 @@
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 
@@ -10,21 +9,20 @@ namespace FileManager
 {
     public class FileManager : IFileManager
     {
-        private ILogger _logger;
-        
+        private readonly ILogger _logger;
+
         public FileManager(ILoggerManager loggerManager)
         {
             _logger = loggerManager.GetLogger(this);
-            
         }
 
         #region [constants]
 
         private const long MaxFileSize = 500000000;
-        public  string DefaultArtistPhotosDirectory => "artist photos";
+        public string DefaultArtistPhotosDirectory => "artist photos";
         public string DefaultAlbumImagesDirectory => "images";
-        public  string DefaultAlbumDocsDirectory => "doc";
-        public  string DefaultAlbumUnknownFilesDirectory => "other";
+        public string DefaultAlbumDocsDirectory => "doc";
+        public string DefaultAlbumUnknownFilesDirectory => "other";
 
         #endregion [constants]
 
@@ -38,17 +36,102 @@ namespace FileManager
             _logger.Information("Created directory {DirectoryName:l} at {DirectoryPath:l}.", dI.Name, dI.FullName);
         }
 
-        public void MoveDirectory(string sourcePath, string destPath)
+        public void CopyDirectory(string sourcePath, string destPath, bool copySubDirs = true)
+        {
+            var sourceDi = new DirectoryInfo(sourcePath);
+            if (!sourceDi.Exists)
+            {
+                throw new DirectoryNotFoundException($"Source directory doesn't exist: {sourcePath}. ");
+            }
+
+            if (!Directory.Exists(destPath))
+            {
+                Directory.CreateDirectory(destPath);
+            }
+            //files
+            var files = sourceDi.GetFiles();
+            foreach (var file in files)
+            {
+                var destFilePath = Path.Combine(destPath, file.Name);
+                file.CopyTo(destFilePath, false);
+            }
+           
+            if (!copySubDirs)
+            {
+                _logger.Information("Copied files from {DirectoryCopySource:l} to {DirectoryCopyDestination:l}.", sourcePath, destPath);
+                return;
+            }
+            //directories
+            var subDirs = sourceDi.GetDirectories();
+            foreach (var subDir in subDirs)
+            {
+                var destDirPath = Path.Combine(destPath, subDir.Name);
+                CopyDirectory(subDir.FullName, destDirPath);
+            }
+            _logger.Information("Copied files and subdirectories from {DirectoryCopySource:l} to {DirectoryCopyDestination:l}.", sourcePath, destPath);
+        }
+
+        public void MoveDirectory(string sourcePath, string destPath , bool moveSubDirs=true)
+        {
+            //move with subdirectories
+            if (moveSubDirs)
+            {
+                MoveDirectoryWithSubdirectories(sourcePath, destPath);
+            }
+
+            //move files only
+            DirectoryInfo sourceDi = new DirectoryInfo(sourcePath);
+            if (!sourceDi.Exists)
+            {
+                throw new DirectoryNotFoundException($"Directory to move doesn't exist: {sourceDi}. ");
+            }
+            if (!Directory.Exists(destPath))
+            {
+                Directory.CreateDirectory(destPath);
+            }
+            var files = sourceDi.GetFiles();
+            foreach (var file in files)
+            {
+                var destFilePath = Path.Combine(destPath, file.Name);
+                file.MoveTo(destFilePath);
+            }
+            _logger.Information("Moved files from {DirectoryMoveSource:l} to {DirectoryMoveDestination:l}.", sourcePath, destPath);
+
+        }
+
+        private void MoveDirectoryWithSubdirectories(string sourcePath, string destPath)
         {
             Directory.Move(sourcePath, destPath);
-            _logger.Information("Moved directory from {DirectorySource:l} to {DirectoryDestination:l}.", sourcePath, destPath);
+            _logger.Information("Moved directory from {DirectoryMoveSource:l} to {DirectoryMoveDestination:l}.", sourcePath, destPath);
+        }
+
+        public void ClearDirectory(string path)
+        {
+            DirectoryInfo di = new DirectoryInfo(path);
+
+            if (!di.Exists)
+            {
+                throw new DirectoryNotFoundException($"Directory to clear doesn't exist: {path}. ");
+            }
+
+            foreach (var file in di.GetFiles())
+            {
+                file.Delete();
+            }
+            foreach (var dir in di.GetDirectories())
+            {
+                dir.Delete(true);
+            }
+            _logger.Information("Cleared directory {DirectoryClearName:l}.", path);
         }
 
         public void DeleteDirectory(string path)
         {
             Directory.Delete(path, true);
-            _logger.Information("Deleted directory {DirectoryName:l} at {DirectoryParent:l}.", Path.GetFileName(path), Path.GetDirectoryName(path));
+            _logger.Information("Deleted directory {DirectoryDeleteName:l}.", path);
         }
+
+
 
         #endregion [  common methods  ]
 
@@ -96,7 +179,7 @@ namespace FileManager
         {
             if (mDirInfo == null) throw new ArgumentNullException(nameof(mDirInfo));
             if (string.IsNullOrEmpty(albumStorageDir)) throw new ArgumentNullException(nameof(albumStorageDir));
-            
+
             //перемещаю аудио файлы
             foreach (var trackInfo in mDirInfo.TrackList)
             {
@@ -148,14 +231,14 @@ namespace FileManager
         }
 
         /// <summary>
-        /// Deletes source music directory 
+        /// Deletes source music directory
         /// </summary>
         /// <param name="path"></param>
         public void DeleteSourceMusicDirectoryIfEmpty(string path)
         {
-            var dirInfo=new DirectoryInfo(path);
+            var dirInfo = new DirectoryInfo(path);
             var fi = dirInfo.GetFileSystemInfos();
-            if (fi.Length==0)
+            if (fi.Length == 0)
             {
                 DeleteDirectory(path);
             }
@@ -214,7 +297,7 @@ namespace FileManager
             }
         }
 
-        //TODO: Acdd  check of file quantity and directory name
+        //TODO: Add  check of file quantity and directory name
         private bool IsImageDirectory(DirectoryInfo dirInfo)
         {
             var imageFiles = dirInfo.GetFiles("*.jpg");

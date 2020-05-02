@@ -8,7 +8,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
     {
         Task ExecuteAsync();
         void RaiseCanExecuteChanged();
-        bool CanExecute();
+       
     }
 
     public interface IAsyncCommand<T> : ICommand
