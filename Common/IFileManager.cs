@@ -8,18 +8,19 @@ namespace Common
         //general methods
         void CreateDirectory(string path);
 
-        void CopyDirectory(string sourcePath, string destPath, bool copySubDirs=true);
+        void CopyDirectory(string sourcePath, string destPath, bool copySubDirs = true);
 
-        void MoveDirectory(string sourcePath, string destPath, bool moveSubDirs=true);
+        void MoveDirectory(string sourcePath, string destPath, bool moveSubDirs = true);
 
         void DeleteDirectory(string path);
 
+        bool TryDeleteDirectory(string path);
+
         void ClearDirectory(string path);
 
-        List<DirectoryInfo> ScanDirectory(string path, string fileExtension);
+        bool TryClearDirectory(string path);
 
-        //methods for music directories
-        void MoveMusicDirectory(string sourcePath, string destPath);
+        List<DirectoryInfo> ScanDirectory(string path, string fileExtension);
 
         void MoveMusicDirectory(IMusicDirInfo mDirInfo, string albumStorageDir);
 
@@ -27,9 +28,10 @@ namespace Common
 
         string CreateAlbumStorageDirectory(string artistDirectoryPath, string albumDirectoryName);
 
+        bool DeleteSourceMusicDirectory(string path);
+
         //default directory names
         string DefaultArtistPhotosDirectory { get; }
-
         string DefaultAlbumImagesDirectory { get; }
         string DefaultAlbumDocsDirectory { get; }
         string DefaultAlbumUnknownFilesDirectory { get; }

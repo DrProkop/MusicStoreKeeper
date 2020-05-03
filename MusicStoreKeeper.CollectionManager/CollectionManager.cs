@@ -208,18 +208,18 @@ namespace MusicStoreKeeper.CollectionManager
         //TODO:Rework MoveToCollectionManually
         public void MoveToCollectionManually(ISimpleFileInfo sFi)
         {
-            if (sFi == null) throw new ArgumentNullException(nameof(sFi));
-            if (sFi.Type != SfiType.Directory) return;
+            //if (sFi == null) throw new ArgumentNullException(nameof(sFi));
+            //if (sFi.Type != SfiType.Directory) return;
 
-            var dirInfo = new DirectoryInfo(sFi.Path);
-            var musicFiles = dirInfo.GetFiles("*.mp3");
-            if (musicFiles.Length == 0) return;
-            //get album information
-            var albumInfo = _musicFileAnalyzer.GetBasicAlbumInfoFromDirectory(dirInfo);
-            //create destination path
-            var destPath = Path.Combine(MusicCollectionDirectory, albumInfo.ArtistName, albumInfo.AlbumTitle);
+            //var dirInfo = new DirectoryInfo(sFi.Path);
+            //var musicFiles = dirInfo.GetFiles("*.mp3");
+            //if (musicFiles.Length == 0) return;
+            ////get album information
+            //var albumInfo = _musicFileAnalyzer.GetBasicAlbumInfoFromDirectory(dirInfo);
+            ////create destination path
+            //var destPath = Path.Combine(MusicCollectionDirectory, albumInfo.ArtistName, albumInfo.AlbumTitle);
 
-            _fileManager.MoveMusicDirectory(dirInfo.FullName, destPath);
+            //_fileManager.MoveMusicDirectory(dirInfo.FullName, destPath);
         }
 
         public IEnumerable<Artist> GetAllArtists()

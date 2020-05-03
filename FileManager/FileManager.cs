@@ -4,10 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security;
+using System.Threading;
 
 namespace FileManager
 {
-    public class FileManager : IFileManager
+    public sealed class FileManager : IFileManager
     {
         private readonly ILogger _logger;
 
@@ -55,7 +57,7 @@ namespace FileManager
                 var destFilePath = Path.Combine(destPath, file.Name);
                 file.CopyTo(destFilePath, false);
             }
-           
+
             if (!copySubDirs)
             {
                 _logger.Information("Copied files from {DirectoryCopySource:l} to {DirectoryCopyDestination:l}.", sourcePath, destPath);
@@ -71,12 +73,13 @@ namespace FileManager
             _logger.Information("Copied files and subdirectories from {DirectoryCopySource:l} to {DirectoryCopyDestination:l}.", sourcePath, destPath);
         }
 
-        public void MoveDirectory(string sourcePath, string destPath , bool moveSubDirs=true)
+        public void MoveDirectory(string sourcePath, string destPath, bool moveSubDirs = true)
         {
             //move with subdirectories
             if (moveSubDirs)
             {
                 MoveDirectoryWithSubdirectories(sourcePath, destPath);
+                return;
             }
 
             //move files only
@@ -96,13 +99,6 @@ namespace FileManager
                 file.MoveTo(destFilePath);
             }
             _logger.Information("Moved files from {DirectoryMoveSource:l} to {DirectoryMoveDestination:l}.", sourcePath, destPath);
-
-        }
-
-        private void MoveDirectoryWithSubdirectories(string sourcePath, string destPath)
-        {
-            Directory.Move(sourcePath, destPath);
-            _logger.Information("Moved directory from {DirectoryMoveSource:l} to {DirectoryMoveDestination:l}.", sourcePath, destPath);
         }
 
         public void ClearDirectory(string path)
@@ -114,29 +110,166 @@ namespace FileManager
                 throw new DirectoryNotFoundException($"Directory to clear doesn't exist: {path}. ");
             }
 
-            foreach (var file in di.GetFiles())
+            var deleteAttempts = 0;
+            var files = di.GetFiles();
+            var directories = di.GetDirectories();
+            try
             {
-                file.Delete();
+                foreach (var file in files)
+                {
+                    file.Delete();
+                }
+
+                foreach (var dir in directories)
+                {
+                    DeleteDirectory(dir.FullName);
+                }
             }
-            foreach (var dir in di.GetDirectories())
+            catch (UnauthorizedAccessException e)
             {
-                dir.Delete(true);
+                ++deleteAttempts;
+                if (deleteAttempts >= 5)
+                {
+                    throw;
+                }
+                ClearDirectory(path);
+            }
+            catch (IOException e)
+            {
+                ++deleteAttempts;
+                if (deleteAttempts >= 5)
+                {
+                    throw;
+                }
+                ClearDirectory(path);
             }
             _logger.Information("Cleared directory {DirectoryClearName:l}.", path);
         }
 
+        public bool TryClearDirectory(string path)
+        {
+            var result = false;
+            try
+            {
+                ClearDirectory(path);
+                return result = true;
+            }
+            catch (DirectoryNotFoundException e)
+            {
+                _logger.Information("Couldn't delete file or directory {DirectoryDeleteName:l}. Error: {DeletionError}", path, e);
+                return result;
+            }
+            catch (ArgumentNullException e)
+            {
+                _logger.Information("Couldn't delete file or directory {DirectoryDeleteName:l}. Error: {DeletionError}", path, e);
+                return result;
+            }
+            catch (ArgumentException e)
+            {
+                _logger.Information("Couldn't delete file or directory {DirectoryDeleteName:l}. Error: {DeletionError}", path, e);
+                return result;
+            }
+            catch (SecurityException e)
+            {
+                _logger.Error("Couldn't delete file {DirectoryDeleteName:l}. Security exception. Error: {DeletionError}", path, e);
+                return result;
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                _logger.Error("Couldn't delete file or directory {DirectoryDeleteName:l}. It might be used by another program. Error: {DeletionError}", path, e);
+                return result;
+            }
+            catch (IOException e)
+            {
+                _logger.Error("Couldn't delete file or directory {DirectoryDeleteName:l}. It might be used by another program. Error: {DeletionError}", path, e);
+                return result;
+            }
+        }
+
         public void DeleteDirectory(string path)
         {
-            Directory.Delete(path, true);
+            foreach (var directory in Directory.GetDirectories(path))
+            {
+                DeleteDirectory(directory);
+            }
+
+            var deleteAttempts = 0;
+            try
+            {
+                Thread.Sleep(0);
+                Directory.Delete(path, true);
+            }
+            catch (IOException e)
+            {
+                ++deleteAttempts;
+                if (deleteAttempts >= 5)
+                {
+                    throw;
+                }
+                Directory.Delete(path, true);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                ++deleteAttempts;
+                if (deleteAttempts >= 5)
+                {
+                    throw;
+                }
+                Directory.Delete(path, true);
+            }
+
             _logger.Information("Deleted directory {DirectoryDeleteName:l}.", path);
         }
 
-
+        public bool TryDeleteDirectory(string path)
+        {
+            var result = false;
+            try
+            {
+                DeleteDirectory(path);
+                return result = true;
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                _logger.Information(
+                    "Couldn't delete directory {DirectoryDeleteName:l}. Unauthorized access. Error: {DeletionError}",
+                    path, e);
+                return result;
+            }
+            catch (PathTooLongException e)
+            {
+                _logger.Information("Couldn't delete directory {DirectoryDeleteName:l}. Error: {DeletionError}", path, e);
+                return result;
+            }
+            catch (DirectoryNotFoundException e)
+            {
+                _logger.Information("Couldn't delete directory {DirectoryDeleteName:l}. Error: {DeletionError}", path, e);
+                return result;
+            }
+            catch (ArgumentNullException e)
+            {
+                _logger.Information("Couldn't delete directory {DirectoryDeleteName:l}. Error: {DeletionError}", path, e);
+                return result;
+            }
+            catch (ArgumentException e)
+            {
+                _logger.Information("Couldn't delete directory {DirectoryDeleteName:l}. Error: {DeletionError}", path, e);
+                return result;
+            }
+            catch (IOException e)
+            {
+                _logger.Error(
+                    "Couldn't delete directory {DirectoryDeleteName:l}. It might be used by another program. Error: {DeletionError}",
+                    path, e);
+                return result;
+            }
+        }
 
         #endregion [  common methods  ]
 
         #region [  music directories methods  ]
 
+        //TODO: Refactor or delete
         /// <summary>
         /// Moves only music files and subdirectories, containing images or text files.
         /// </summary>
@@ -221,7 +354,7 @@ namespace FileManager
                 }
             }
             //удаляю исходную папку
-            DeleteSourceMusicDirectoryIfEmpty(mDirInfo.Path);
+            DeleteSourceMusicDirectory(mDirInfo.Path);
         }
 
         public void MoveFile(ISimpleFileInfo sFileInfo, string destDirectory)
@@ -231,26 +364,37 @@ namespace FileManager
         }
 
         /// <summary>
-        /// Deletes source music directory
+        /// Deletes source music directory if no files left in it. Otherwise deletes all empty subdirectories.
         /// </summary>
         /// <param name="path"></param>
-        public void DeleteSourceMusicDirectoryIfEmpty(string path)
+        public bool DeleteSourceMusicDirectory(string path)
         {
+            var musicFolderEmpty = true;
             var dirInfo = new DirectoryInfo(path);
-            var fi = dirInfo.GetFileSystemInfos();
-            if (fi.Length == 0)
+            var subDirs = dirInfo.GetDirectories();
+            foreach (var subDir in subDirs)
             {
-                DeleteDirectory(path);
+                var fi = subDir.GetFiles("*", SearchOption.AllDirectories);
+                if (fi.Any())
+                {
+                    musicFolderEmpty = false;
+                    continue;
+                }
+                subDir.Delete();
             }
-        }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sourcePath"></param>
-        public void DeleteMusicDirectory(string path)
-        {
-            throw new NotImplementedException();
+            if (musicFolderEmpty)
+            {
+                dirInfo.Delete();
+                _logger.Information("Deleted source music directory {DeleteMusicDirectory}.", path);
+            }
+            else
+            {
+                _logger.Information(
+                    "Couldn't delete source music directory {DeleteMusicDirectory}. Some unknown files left.", path);
+            }
+
+            return musicFolderEmpty;
         }
 
         public string CreateArtistStorageDirectory(string musicCollectionPath, string artistName)
@@ -297,6 +441,16 @@ namespace FileManager
             }
         }
 
+        #endregion [  public methods  ]
+
+        #region [  private methods  ]
+
+        private void MoveDirectoryWithSubdirectories(string sourcePath, string destPath)
+        {
+            Directory.Move(sourcePath, destPath);
+            _logger.Information("Moved directory with subdirectories from {DirectoryMoveSource:l} to {DirectoryMoveDestination:l}.", sourcePath, destPath);
+        }
+
         //TODO: Add  check of file quantity and directory name
         private bool IsImageDirectory(DirectoryInfo dirInfo)
         {
@@ -305,26 +459,21 @@ namespace FileManager
             return imageFiles.Length == totalFileQuantity;
         }
 
-        #endregion [  public methods  ]
-
-        #region [  private methods  ]
-
         //TODO: Write proper path validation.
         private void CheckPath(string path)
         {
             if (string.IsNullOrEmpty(path)) throw new ArgumentException("Value cannot be null or empty.", nameof(path));
         }
 
-        private void ScanSingleDirectory(DirectoryInfo dirInfo, List<DirectoryInfo> musicDirectories, string fileExtension = "*.mp3")
+        private void ScanSingleDirectory(DirectoryInfo dirInfo, in List<DirectoryInfo> musicDirectories, string fileExtension = "*.mp3")
         {
-            if (dirInfo == null) throw new ArgumentNullException(nameof(dirInfo));
             if (musicDirectories == null) throw new ArgumentNullException(nameof(musicDirectories));
             if (fileExtension == null) throw new ArgumentNullException(nameof(fileExtension));
             var files = dirInfo.GetFiles(fileExtension);
-            if (files.Length > 0)
+            if (files.Any())
             {
                 musicDirectories.Add(dirInfo);
-                _logger.Information("Found directory with {FileExtension} files: {PossibleDirectoryName:l}. ", fileExtension, dirInfo.FullName);
+                _logger.Information("Found music directory with {MusicFileExtension} files: {PossibleMusicDirectoryName:l}. ", fileExtension, dirInfo.FullName);
             }
 
             var dirs = dirInfo.GetDirectories();

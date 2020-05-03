@@ -79,6 +79,17 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <EmbeddedResource Include="Resources\DataFile.dat" />
+    <EmbeddedResource Include="Resources\RandomFile.bin" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\TestTrack1.mp3" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\TestDocument1.txt" />
+    <EmbeddedResource Include="Resources\TestImage1.jpg" />
+    <EmbeddedResource Include="Resources\TestImage2.jpg" />
+    <EmbeddedResource Include="Resources\TestImage3.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

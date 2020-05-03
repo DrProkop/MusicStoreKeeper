@@ -10,6 +10,11 @@ namespace Common
         private static readonly string[] TextExtensions = { ".TXT", ".LOG", ".MD", ".NFO" };
         private static readonly string[] AudioExtensions = { ".MP3", ".FLAC" };
 
+        public static ISimpleFileInfo Create(string path)
+        {
+            var fi=new FileInfo(path);
+            return Create(fi);
+        }
         public static ISimpleFileInfo Create(FileInfo fileInfo)
         {
             var type = GetFileType(fileInfo);
