@@ -261,7 +261,7 @@ namespace FileManager.Tests
         #region [  music directories methods  ]
 
         [Test]
-        public void DeleteSourceMusicDirectoryShouldDeleteGivenDirectoryAndSubdirectoriesIfNoFilesLeft()
+        public void TryDeleteSourceMusicDirectoryShouldDeleteGivenDirectoryAndSubdirectoriesIfNoFilesLeft()
         {
             _sut.ClearDirectory(_testDirPath);
             Directory.CreateDirectory(_testImageSubDirPath);
@@ -276,7 +276,7 @@ namespace FileManager.Tests
         }
 
         [Test]
-        public void DeleteSourceMusicDirectoryShouldNotDeleteGivenDirectoryAndSubdirectoriesIfAnyFilesLeft()
+        public void TryDeleteSourceMusicDirectoryShouldNotDeleteGivenDirectoryAndSubdirectoriesIfAnyFilesLeft()
         {
             //leave _randomFilePath
             File.Delete(_textFilePath);

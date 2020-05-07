@@ -3,13 +3,12 @@ using Serilog;
 
 namespace MusicStoreKeeper.Vmv.ViewModel
 {
-    public abstract class BaseScreenVm:NotifyPropertyChangedBase, IScreenVm
+    public abstract class BaseScreenVm : NotifyPropertyChangedBase, IScreenVm
     {
-        
-
-        protected BaseScreenVm(ILongOperationService longOperationService, ILoggerManager manager)
+        protected BaseScreenVm(ILongOperationService longOperationService, IUserNotificationService userNotificationService, ILoggerManager manager)
         {
             LongOperationService = longOperationService;
+            UserNotificationService = userNotificationService;
             log = manager.GetLogger(this);
         }
 
@@ -17,38 +16,13 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         protected readonly ILogger log;
 
-        #endregion
+        #endregion [  fields  ]
 
         #region [  properties  ]
 
-        public ILongOperationService LongOperationService { get; private set; }
+        public IUserNotificationService UserNotificationService { get; }
+        public ILongOperationService LongOperationService { get; }
 
-        private string _message;
-
-        public string StatusBarMessage
-        {
-            get => _message;
-            set
-            {
-                _message = value;
-                OnPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region [  commands  ]
-
-        #endregion
-
-        #region [  public methods  ]
-
-        #endregion
-
-        #region [  private methods  ]
-
-        #endregion
-
-
+        #endregion [  properties  ]
     }
 }

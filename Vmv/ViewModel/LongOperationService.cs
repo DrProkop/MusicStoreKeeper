@@ -6,14 +6,16 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 {
     public class LongOperationService : NotifyPropertyChangedBase, ILongOperationService
     {
-        public LongOperationService(ILoggerManager manager)
+        public LongOperationService(IUserNotificationService userNotificationService, ILoggerManager manager)
         {
+            _userNotificationService = userNotificationService;
             log = manager.GetLogger(this);
         }
 
         #region [  fields  ]
 
         private readonly ILogger log;
+        private readonly IUserNotificationService _userNotificationService;
 
         #endregion [  fields  ]
 
@@ -55,18 +57,6 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             }
         }
 
-        private string _generalMessage;
-
-        public string GeneralMessage
-        {
-            get => _generalMessage;
-            private set
-            {
-                _generalMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
         #endregion [  properties  ]
 
         #region [  public methods  ]
@@ -85,12 +75,18 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         public void StartLongOperation(string message)
         {
             IsBusy = true;
-            GeneralMessage = message;
+            _userNotificationService.StatusBarMessage = message;
         }
 
         public void FinishLongOperation(string message)
         {
             IsBusy = false;
+            _userNotificationService.StatusBarMessage = string.Empty;
+        }
+
+        public void HandleCancellation(Exception ex, string errorMessage = default)
+        {
+            log.Information(ex, errorMessage);
         }
 
         public void HandleException(Exception ex, string errorMessage = default)
@@ -100,7 +96,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public void ShowMessage(string message)
         {
-            throw new System.NotImplementedException();
+            _userNotificationService.ShowUserMessage(message);
         }
 
         #endregion [  public methods  ]

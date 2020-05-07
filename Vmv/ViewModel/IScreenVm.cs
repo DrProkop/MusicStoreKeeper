@@ -1,7 +1,10 @@
-﻿namespace MusicStoreKeeper.Vmv.ViewModel
+﻿using Common;
+
+namespace MusicStoreKeeper.Vmv.ViewModel
 {
     public interface IScreenVm
     {
-        string StatusBarMessage { get; set; }
+        IUserNotificationService UserNotificationService { get; }
+        ILongOperationService LongOperationService { get; }
     }
 }

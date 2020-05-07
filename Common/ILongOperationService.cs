@@ -8,7 +8,6 @@ namespace Common
     public interface ILongOperationService
     {
         string BlockingMessage { get; }
-        string GeneralMessage { get; }
         bool IsBusy { get; }
         bool IsBlockingBusy { get; }
 
@@ -22,6 +21,8 @@ namespace Common
 
         void FinishLongOperation(string message);
 
-        void HandleException(Exception ex, string errorMessage=default);
+        void HandleCancellation(Exception ex, string errorMessage = default);
+
+        void HandleException(Exception ex, string errorMessage = default);
     }
 }

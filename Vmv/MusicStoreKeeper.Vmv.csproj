@@ -117,6 +117,7 @@
     <Compile Include="ViewModel\Preview\PreviewFactory.cs" />
     <Compile Include="ViewModel\Preview\TextFilePreviewVm.cs" />
     <Compile Include="ViewModel\SettingsScreenVm.cs" />
+    <Compile Include="ViewModel\UserNotificationService.cs" />
     <Compile Include="ViewModel\Wrappers\AlbumWrap.cs" />
     <Compile Include="ViewModel\Wrappers\ArtistWrap.cs" />
     <Compile Include="ViewModel\Wrappers\SimpleFileInfoWrap.cs" />

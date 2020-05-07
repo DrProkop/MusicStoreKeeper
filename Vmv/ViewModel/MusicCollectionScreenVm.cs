@@ -16,11 +16,11 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             ICollectionManager collectionManager,
             PreviewFactory previewFactory,
             ILongOperationService longOperationService,
-            ILoggerManager manager) : base(longOperationService, manager)
+            IUserNotificationService userNotificationService,
+            ILoggerManager manager) : base(longOperationService, userNotificationService, manager)
         {
             _collectionManager = collectionManager;
             _previewFactory = previewFactory;
-
             _allArtists = _collectionManager.GetAllArtists().ToList();
             LoadAllArtistsInCollection();
             ShowAlbumsNotInCollection = false;
@@ -124,7 +124,6 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         public List<string> MusicGenres { get; set; }
 
         #endregion [  properties  ]
-
 
         #region [  commands  ]
 
@@ -309,7 +308,6 @@ namespace MusicStoreKeeper.Vmv.ViewModel
                 {
                     selectedArtistsList.Add(CreateArtistWrap(artist));
                 }
-                
             }
 
             ArtistsCollectionToShow = new ObservableCollection<ArtistWrap>(selectedArtistsList);

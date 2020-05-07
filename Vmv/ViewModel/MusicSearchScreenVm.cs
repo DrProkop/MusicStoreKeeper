@@ -24,7 +24,8 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             IFileManager fileManager,
             PreviewFactory previewFactory,
             ILongOperationService longOperationService,
-            ILoggerManager manager) : base(longOperationService, manager)
+            IUserNotificationService userNotificationService,
+            ILoggerManager manager) : base(longOperationService, userNotificationService, manager)
         {
             _discogsClient = client;
             _collectionManager = collectionManager;

@@ -40,7 +40,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
                 }
                 catch (OperationCanceledException opEx)
                 {
-                    _longOperationService.HandleException(opEx, "Operation cancelled by user.");
+                    _longOperationService.HandleCancellation(opEx, "Operation cancelled by user.");
                 }
                 catch (Exception ex)
                 {
@@ -121,7 +121,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
                 }
                 catch (OperationCanceledException opEx)
                 {
-                    _longOperationService.HandleException(opEx, "Operation cancelled by user.");
+                    _longOperationService.HandleCancellation(opEx, "Operation cancelled by user.");
                 }
                 catch (Exception ex)
                 {
