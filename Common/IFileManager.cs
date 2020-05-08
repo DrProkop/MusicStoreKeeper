@@ -20,6 +20,10 @@ namespace Common
 
         bool TryClearDirectory(string path);
 
+        string GenerateNameForDuplicateFile(string duplicateFileName);
+
+        //music directories methods
+
         List<DirectoryInfo> ScanDirectory(string path, string fileExtension);
 
         void MoveMusicDirectory(IMusicDirInfo mDirInfo, string albumStorageDir);

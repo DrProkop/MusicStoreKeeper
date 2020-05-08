@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Security;
 using System.Threading;
+using XnaFan.ImageComparison;
 
 namespace FileManager
 {
@@ -323,14 +324,14 @@ namespace FileManager
             CreateDirectory(imgDirPath);
             foreach (var imageFile in mDirInfo.ImageFiles)
             {
-                MoveFile(imageFile, imgDirPath);
+                MoveImage(imageFile, imgDirPath);
             }
             //перемещаю файлы из папок с изображениями
             foreach (var imageDirectory in mDirInfo.ImageDirectories)
             {
                 foreach (var imageFile in imageDirectory.Children)
                 {
-                    MoveFile(imageFile, imgDirPath);
+                    MoveImage(imageFile, imgDirPath);
                 }
             }
             //перемещаю текстовые файлы
@@ -359,8 +360,13 @@ namespace FileManager
 
         public void MoveFile(ISimpleFileInfo sFileInfo, string destDirectory)
         {
-            var destPath = Path.Combine(destDirectory, sFileInfo.Name);
-            File.Move(sFileInfo.Path, destPath);
+            MoveFile(sFileInfo.Path, destDirectory);
+        }
+
+        public void MoveFile(string filePath, string destDirectory)
+        {
+            var targetFileName = Path.Combine(destDirectory, Path.GetFileName(filePath));
+            File.Move(filePath, targetFileName);
         }
 
         /// <summary>
@@ -457,6 +463,71 @@ namespace FileManager
             var imageFiles = dirInfo.GetFiles("*.jpg");
             var totalFileQuantity = dirInfo.GetFiles().Length;
             return imageFiles.Length == totalFileQuantity;
+        }
+
+        private void MoveImage(ISimpleFileInfo simpleFi, string targetDirectoryPath, bool deleteDuplicates = false)
+        {
+            MoveImage(simpleFi.Path, targetDirectoryPath, deleteDuplicates);
+        }
+
+        private void MoveImage(string imagePath, string targetDirectoryPath, bool deleteDuplicates = false)
+        {
+            var targetDirectoryImagesFileInfos = Directory.GetFiles(targetDirectoryPath).ToList().Where(IsImage).Select(img => new FileInfo(img));
+            var matchingImage = false;
+            var oldIImageName = Path.GetFileNameWithoutExtension(imagePath);
+            var newIImageName = string.Empty;
+            foreach (var targetDirectoryImageFi in targetDirectoryImagesFileInfos)
+            {
+                if (oldIImageName.Equals(targetDirectoryImageFi.Name, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    newIImageName = GenerateNameForDuplicateFile(oldIImageName);
+                }
+                var difference = ImageTool.GetPercentageDifference(targetDirectoryImageFi.FullName, imagePath);
+                
+                if (difference >= 0.1)
+                {
+                    matchingImage = true;
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds "_1"  to the end of the string or increments number at the end by one.
+        /// </summary>
+        /// <param name="duplicateFileName">File name without extension.</param>
+        /// <returns></returns>
+        public string GenerateNameForDuplicateFile(string duplicateFileName)
+        {
+            var numberStart = -1;
+            for (var i = duplicateFileName.Length - 1; i >= 0; i--)
+            {
+                if (!char.IsNumber(duplicateFileName[i]))
+                {
+                    break;
+                }
+                numberStart = i;
+            }
+
+            if (numberStart > -1)
+            {
+                if (int.TryParse(duplicateFileName.Substring(numberStart), out var numberAtTheEnd))
+                {
+                    var fileNameNoNumber = duplicateFileName.Substring(0, numberStart);
+                    return $"{fileNameNoNumber}{++numberAtTheEnd}";
+                }
+            }
+
+            return $"{duplicateFileName}_{1}";
+        }
+
+        //TODO: Rewrite this and put in a separate common class
+        private bool IsImage(string path)
+        {
+            if (!File.Exists(path)) return false;
+
+            var extension = Path.GetExtension(path);
+            return !string.IsNullOrEmpty(extension) && extension.Equals("jpg", StringComparison.InvariantCultureIgnoreCase);
         }
 
         //TODO: Write proper path validation.

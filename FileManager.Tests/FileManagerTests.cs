@@ -256,6 +256,17 @@ namespace FileManager.Tests
             Assert.That(!Directory.Exists(_testDirPath));
         }
 
+        [Test]
+        [TestCase("fileName", "fileName_1")]
+        [TestCase("FileName33", "FileName34")]
+        [TestCase("FileName111_a", "FileName111_a_1")]
+        [TestCase("123", "124")]
+        public void GenerateNameForDuplicateFileShouldIncrementGivenNameByOneOrAddOneAtTheEnd(string duplicateFileName, string newFileName)
+        {
+            var result = _sut.GenerateNameForDuplicateFile(duplicateFileName);
+            Assert.That(result, Is.EqualTo(newFileName));
+        }
+
         #endregion [  common methods  ]
 
         #region [  music directories methods  ]
