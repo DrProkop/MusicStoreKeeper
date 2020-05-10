@@ -72,7 +72,9 @@
     <Compile Include="Extensions\ArtistAndAlbumExtensions.cs" />
     <Compile Include="Extensions\ArtistExtensions.cs" />
     <Compile Include="BaseEntity.cs" />
+    <Compile Include="Extensions\ImageDataConverter.cs" />
     <Compile Include="Extensions\TrackExtensions.cs" />
+    <Compile Include="ImageData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Track.cs" />
   </ItemGroup>

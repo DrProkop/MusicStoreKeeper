@@ -14,6 +14,8 @@ namespace MusicStoreKeeper.Model
 
         public List<Track> Tracks { get; set; } = new List<Track>();
 
+        public List<ImageData> ImageDataList { get; set; } = new List<ImageData>();
+
         public int ArtistId { get; set; }
 
         public bool InCollection { get; set; }

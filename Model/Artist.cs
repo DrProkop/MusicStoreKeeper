@@ -15,5 +15,7 @@ namespace MusicStoreKeeper.Model
         public string Profile { get; set; }
 
         public List<Album> Albums { get; set; } = new List<Album>();
+
+        public List<ImageData> ImageDataList { get; set; } = new List<ImageData>();
     }
 }

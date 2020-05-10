@@ -20,16 +20,19 @@ namespace MusicStoreKeeper.DataModel
         /// </summary>
         public MusicStoreContextLite():base("name = MusicStoreContextLiteConnection")
         {
+            
         }
 
         public DbSet<Artist> Artists { get; set; }
         public DbSet<Album> Albums { get; set; }
         public DbSet<Track> Tracks { get; set; }
+        public DbSet<ImageData> ImagesData { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             var initializer = new SqliteCreateDatabaseIfNotExists<MusicStoreContextLite>(modelBuilder);
             Database.SetInitializer(initializer);
+            modelBuilder.Entity<ImageData>().Property(i => i.GrayScaleDb).HasMaxLength(256);
         }
     }
 
