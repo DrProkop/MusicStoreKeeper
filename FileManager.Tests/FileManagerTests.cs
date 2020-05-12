@@ -261,10 +261,26 @@ namespace FileManager.Tests
         [TestCase("FileName33", "FileName34")]
         [TestCase("FileName111_a", "FileName111_a_1")]
         [TestCase("123", "124")]
-        public void GenerateNameForDuplicateFileShouldIncrementGivenNameByOneOrAddOneAtTheEnd(string duplicateFileName, string newFileName)
+        public void IncrementFileNameShouldIncrementGivenNameByOneOrAddOneAtTheEnd(string duplicateFileName, string newFileName)
         {
-            var result = _sut.GenerateNameForDuplicateFile(duplicateFileName);
+            var result = _sut.IncrementFileName(duplicateFileName);
             Assert.That(result, Is.EqualTo(newFileName));
+        }
+
+        [Test]
+        public void GenerateNewNameIfDuplicateShouldReturnStringEmptyIfNoMatchesWereFound()
+        {
+            var resultName=_sut.GenerateUniqueName(new List<string>() {"fileName_1", "fileName_2"}, "fileName_3");
+
+            Assert.That(resultName, Is.EqualTo(string.Empty));
+        }
+
+        [Test]
+        public void GenerateNewNameIfDuplicateShouldReturnValidNewNameIfMatchesWereFound()
+        {
+            var resultName = _sut.GenerateUniqueName(new List<string>() { "fileName_1", "fileName_2" }, "fileName_1");
+
+            Assert.That(resultName, Is.EqualTo("fileName_3"));
         }
 
         #endregion [  common methods  ]

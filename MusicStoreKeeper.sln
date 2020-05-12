@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicStoreKeeper.Collection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MusicStoreKeeper.Tests", "MusicStoreKeeper.Tests", "{2B2E2D92-5C44-45BE-9A18-C210E0730BA8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageAnalyzer", "ImageAnalyzer\ImageAnalyzer.csproj", "{0C5CDDB4-0D7A-4921-AE6B-C7072555CBD7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -143,6 +145,14 @@ Global
 		{0ADBC15E-3CBA-411C-804C-E8FE44E50811}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0ADBC15E-3CBA-411C-804C-E8FE44E50811}.Release|x86.ActiveCfg = Release|Any CPU
 		{0ADBC15E-3CBA-411C-804C-E8FE44E50811}.Release|x86.Build.0 = Release|Any CPU
+		{0C5CDDB4-0D7A-4921-AE6B-C7072555CBD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C5CDDB4-0D7A-4921-AE6B-C7072555CBD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C5CDDB4-0D7A-4921-AE6B-C7072555CBD7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0C5CDDB4-0D7A-4921-AE6B-C7072555CBD7}.Debug|x86.Build.0 = Debug|Any CPU
+		{0C5CDDB4-0D7A-4921-AE6B-C7072555CBD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C5CDDB4-0D7A-4921-AE6B-C7072555CBD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C5CDDB4-0D7A-4921-AE6B-C7072555CBD7}.Release|x86.ActiveCfg = Release|Any CPU
+		{0C5CDDB4-0D7A-4921-AE6B-C7072555CBD7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

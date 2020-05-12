@@ -20,13 +20,35 @@ namespace Common
 
         bool TryClearDirectory(string path);
 
-        string GenerateNameForDuplicateFile(string duplicateFileName);
+        
+
+        //general file methods
+
+         void MoveFile(string sourceFilePath, string targetDirectory, string newFileName = default);
+
+        void MoveFile(ISimpleFileInfo sFileInfo, string targetDirectory, string newFileName = default);
+
+        void MoveFileWithAutomaticRenaming(string sourceFilePath, string targetDirectory);
+
+        string IncrementFileName(string fileName);
+
+        string GenerateUniqueName(ICollection<string> fileNames, string fileNameToCheck);
+
+        //image directories methods
+
+        List<FileInfo> GetImagesFileInfosFromDirectory(string directoryPath);
+
+        List<string> GetImageNamesFromDirectory(string directoryPath);
+
+        //void MoveImage(ISimpleFileInfo simpleFi, string targetDirectoryPath, bool deleteDuplicates = false);
+
+        //void MoveImage(string imagePath, string targetDirectoryPath, bool deleteDuplicates = false);
 
         //music directories methods
 
         List<DirectoryInfo> ScanDirectory(string path, string fileExtension);
 
-        void MoveMusicDirectory(IMusicDirInfo mDirInfo, string albumStorageDir);
+        bool MoveMusicDirectory(IMusicDirInfo mDirInfo, string albumStorageDir);
 
         string CreateArtistStorageDirectory(string musicCollectionPath, string artistName);
 
@@ -36,6 +58,7 @@ namespace Common
 
         //default directory names
         string DefaultArtistPhotosDirectory { get; }
+
         string DefaultAlbumImagesDirectory { get; }
         string DefaultAlbumDocsDirectory { get; }
         string DefaultAlbumUnknownFilesDirectory { get; }

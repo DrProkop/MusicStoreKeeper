@@ -182,6 +182,10 @@
       <Project>{5093c2e8-99fa-451c-9779-3e9fee29884d}</Project>
       <Name>FileManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ImageAnalyzer\ImageAnalyzer.csproj">
+      <Project>{0c5cddb4-0d7a-4921-ae6b-c7072555cbd7}</Project>
+      <Name>ImageAnalyzer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Model\MusicStoreKeeper.Model.csproj">
       <Project>{5e330b60-bb17-440c-acaa-182483a0418e}</Project>
       <Name>MusicStoreKeeper.Model</Name>

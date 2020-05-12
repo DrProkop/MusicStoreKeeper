@@ -14,16 +14,22 @@ namespace MusicStoreKeeper.CollectionManager
 {
     public class CollectionManager : ICollectionManager
     {
-        public CollectionManager(DiscogsClient client, IFileManager fileManager, IMusicFileAnalyzer musicFileAnalyzer, IMusicDirAnalyzer musicDirAnalyzer, IRepository repository)
+        public CollectionManager(DiscogsClient client,
+            IFileManager fileManager,
+            IMusicFileAnalyzer musicFileAnalyzer,
+            IMusicDirAnalyzer musicDirAnalyzer,
+            IImageService imageService,
+            IRepository repository)
         {
             _discogsClient = client;
             _fileManager = fileManager;
             _musicFileAnalyzer = musicFileAnalyzer;
             _musicDirAnalyzer = musicDirAnalyzer;
+            _imageService = imageService;
             _repo = repository;
             _genreAndStyleProvider = new GenreAndStyleProvider();
             _discogsConverter = new DiscogsConverter(_genreAndStyleProvider);
-            
+            CreateTempImageDirectory();
         }
 
         #region [  fields  ]
@@ -32,9 +38,11 @@ namespace MusicStoreKeeper.CollectionManager
         private readonly IFileManager _fileManager;
         private readonly IMusicFileAnalyzer _musicFileAnalyzer;
         private readonly IMusicDirAnalyzer _musicDirAnalyzer;
+        private readonly IImageService _imageService;
         private readonly IRepository _repo;
         private readonly DiscogsConverter _discogsConverter;
         private readonly GenreAndStyleProvider _genreAndStyleProvider;
+        private string tempImageDirectoryPath;
 
         #endregion [  fields  ]
 
@@ -100,7 +108,7 @@ namespace MusicStoreKeeper.CollectionManager
             //создаю папку с исполнителем на диске
             var artPath = _fileManager.CreateArtistStorageDirectory(MusicCollectionDirectory, artist.Name);
             var imagePath = Path.Combine(artPath, _fileManager.DefaultArtistPhotosDirectory);
-            DownloadArtistImages(dArtist, imagePath);
+            DownloadArtistImages(dArtist.images, dArtist.name, artist.ImageDataList, imagePath);
             //добавляю путь к папке исполнителя в базу
             _repo.AddArtistToStorage(artistId, artPath);
             return artist;
@@ -198,7 +206,10 @@ namespace MusicStoreKeeper.CollectionManager
             var albumStoragePath = _fileManager.CreateAlbumStorageDirectory(artist.StoragePath, albumStorageName);
             //Сохраняю физическую копию альбома в хранилище.
             _fileManager.MoveMusicDirectory(mDirInfo, albumStoragePath);
+            //сохраняю картинки с discogs
             DownloadAlbumImages(dRelease, Path.Combine(albumStoragePath, _fileManager.DefaultAlbumImagesDirectory));
+            //сканирую папку для составления списка ImageData. Удаляю копии
+
             //добавляю запись про место сохранения физической копии альбома
             _repo.AddAlbumToStorage(storedAlbum, albumStoragePath);
 
@@ -262,24 +273,113 @@ namespace MusicStoreKeeper.CollectionManager
         {
             return _genreAndStyleProvider.GetGenres().ToList();
         }
+
         #endregion [  public methods  ]
 
         #region [  private methods  ]
 
-        private void DownloadArtistImages(DiscogsArtist dArtist, string dirPath)
+        private void DownloadArtistImages(DiscogsImage[] discogsImages, string imageNamePattern, List<ImageData> imageDataList, string targetDirPath)
         {
-            if (dArtist == null) throw new ArgumentNullException(nameof(dArtist));
-            if (string.IsNullOrEmpty(dirPath)) throw new ArgumentNullException(nameof(dirPath));
+            //check  target directory for manually added files
+            CheckImageDirectoryForDuplicates(imageDataList, targetDirPath);
 
             var number = 1;
-            foreach (var discogsImage in dArtist.images)
+
+            try
             {
-                var photoName = $"{dArtist.name}_photo_{number}.jpg";
-                _discogsClient.SaveImage(discogsImage, dirPath, photoName);
-                number += 1;
+                foreach (var discogsImage in discogsImages)
+                {
+                    //check imageDataList for exact image copies with the same not null source
+                    if (!string.IsNullOrEmpty(discogsImage.uri) &&
+                        imageDataList.Any(arg => arg.Source.Equals(discogsImage.uri)))
+                    {
+                        continue;
+                    }
+
+                    //list of image names in target directory
+                    var imageNamesInTargetDirectory = _fileManager.GetImageNamesFromDirectory(targetDirPath);
+                    //generate name for new image
+                    var newImageName = GenerateNameForDownloadedImage(imageNamesInTargetDirectory, imageNamePattern, ref number);
+                    //save image to temp directory
+                    _discogsClient.SaveImage(discogsImage, tempImageDirectoryPath, newImageName);
+                    //create new ImageData (important to add url to source property)
+                    var tempImagePath = Path.Combine(tempImageDirectoryPath, newImageName);
+                     
+                    var downloadedImageData = _imageService.CreateImageData(tempImagePath, newImageName, discogsImage.uri);
+                    //move image to target directory
+                    _fileManager.MoveFile(tempImagePath, targetDirPath);
+                    //add new imageData to imageDataList
+                    downloadedImageData.Status = ImageStatus.InCollection;
+                    imageDataList.Add(downloadedImageData);
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+
+            }
+            finally
+            {
+                _fileManager.ClearDirectory(tempImageDirectoryPath);
+            }
+            
         }
 
+        /// <summary>
+        /// Check target directory for files with no appropriate info in collection db
+        /// </summary>
+        /// <param name="imageDataList">List of image data from db</param>
+        /// <param name="targetDirPath">Directory to check</param>
+        /// <returns>True whether any new images were found</returns>
+        private bool CheckImageDirectoryForDuplicates(List<ImageData> imageDataList, string targetDirPath)
+        {
+            var newImagesWereFound = false;
+            var imagesInTargetDirectory = _fileManager.GetImagesFileInfosFromDirectory(targetDirPath);
+            var imagesInCollection = _imageService.NumberOfImagesInCollection(imageDataList);
+            //check number of images in collection and in target directory
+            if (imagesInTargetDirectory.Count != imagesInCollection)
+            {
+                newImagesWereFound = true;
+                //find new images
+                foreach (var imageInTargetDirectory in imagesInTargetDirectory)
+                {
+                    //get name of each image in target directory
+                    var imgName = Path.GetFileName(imageInTargetDirectory.FullName);
+                    //check for matches in imageDataList
+                    if (!imageDataList.Any(img => img.Name.Equals(imgName)))
+                    {
+                        //create new imageData
+                        var newImageData = _imageService.CreateImageData(imageInTargetDirectory.FullName, imgName);
+                        //TODO:check for exact  image copies and delete them?
+                        //add new images to collection
+                        newImageData.Status = ImageStatus.InCollection;
+                        imageDataList.Add(newImageData);
+                    }
+                }
+            }
+
+            return newImagesWereFound;
+        }
+
+        private string GenerateNameForDownloadedImage(List<string> imageNames, string imageNamePattern, ref int number)
+        {
+            var newImageName = $"{imageNamePattern}_photo_{number}.jpg";
+            for (var i = number; i < (number + imageNames.Count()); i++)
+            {
+                number = +1;
+                if (imageNames.Any(img => img.Equals(newImageName)))
+                {
+                    newImageName = $"{imageNamePattern}_photo_{i}.jpg";
+                }
+                else
+                {
+                    return newImageName;
+                }
+            }
+            return newImageName;
+        }
+
+        //TODO: Сохранять ImageData картинки в базе. В ImageData.Source писать url для последующего сравнения
         private void DownloadAlbumImages(DiscogsReleaseBase dRelease, string dirPath)
         {
             if (dRelease == null) throw new ArgumentNullException(nameof(dRelease));
@@ -297,6 +397,12 @@ namespace MusicStoreKeeper.CollectionManager
         private string CreateAlbumDirectoryName(Album album)
         {
             return $"({album.ReleaseDate}) {album.Title}";
+        }
+
+        private void CreateTempImageDirectory()
+        {
+            tempImageDirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tempImage");
+            Directory.CreateDirectory(tempImageDirectoryPath);
         }
 
         #endregion [  private methods  ]
