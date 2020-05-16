@@ -20,15 +20,23 @@ namespace Common
 
         bool TryClearDirectory(string path);
 
-        
-
         //general file methods
 
-         void MoveFile(string sourceFilePath, string targetDirectory, string newFileName = default);
+        void CopyFile(string sourceFilePath, string targetDirectory, string newFileName = default);
 
-        void MoveFile(ISimpleFileInfo sFileInfo, string targetDirectory, string newFileName = default);
+        void CopyFile(ISimpleFileInfo sourceFi, string targetDirectory, string newFileName = default);
+
+        void CopyFileWithAutomaticRenaming(string sourceFilePath, string targetDirectory);
+
+        void CopyFileWithAutomaticRenaming(ISimpleFileInfo sourceFi, string targetDirectory);
+
+        void MoveFile(string sourceFilePath, string targetDirectory, string newFileName = default);
+
+        void MoveFile(ISimpleFileInfo sourceFi, string targetDirectory, string newFileName = default);
 
         void MoveFileWithAutomaticRenaming(string sourceFilePath, string targetDirectory);
+
+        void MoveFileWithAutomaticRenaming(ISimpleFileInfo sourceFi, string targetDirectory);
 
         string IncrementFileName(string fileName);
 

@@ -268,15 +268,15 @@ namespace FileManager.Tests
         }
 
         [Test]
-        public void GenerateNewNameIfDuplicateShouldReturnStringEmptyIfNoMatchesWereFound()
+        public void GenerateUniqueNameShouldReturnSameNameIfNoMatchesWereFound()
         {
             var resultName=_sut.GenerateUniqueName(new List<string>() {"fileName_1", "fileName_2"}, "fileName_3");
 
-            Assert.That(resultName, Is.EqualTo(string.Empty));
+            Assert.That(resultName, Is.EqualTo("fileName_3"));
         }
 
         [Test]
-        public void GenerateNewNameIfDuplicateShouldReturnValidNewNameIfMatchesWereFound()
+        public void GenerateUniqueNameShouldReturnValidNewNameIfMatchesWereFound()
         {
             var resultName = _sut.GenerateUniqueName(new List<string>() { "fileName_1", "fileName_2" }, "fileName_1");
 

@@ -337,6 +337,7 @@ namespace FileManager
                     {
                         var fileNameWithExtension = Path.GetFileName(imageFile.Path);
                         var targetFileName = GenerateUniqueName(targetDirectoryFileNames, fileNameWithExtension);
+                        targetDirectoryFileNames.Add(targetFileName);
                         MoveFile(imageFile, imgDirPath, targetFileName);
                     }
                 }
@@ -363,140 +364,6 @@ namespace FileManager
             }
             //сигнал об успешном перемещении
             return true;
-        }
-
-        public void CopyFile(ISimpleFileInfo sourceFi, string targetDirectory, string newFileName = default)
-        {
-            CopyFile(sourceFi.Path, targetDirectory, newFileName);
-        }
-
-        public void CopyFile(string sourceFilePath, string targetDirectory, string newFileName = default)
-        {
-            if (string.IsNullOrEmpty(sourceFilePath)) throw new ArgumentException("Value cannot be null or empty.", nameof(sourceFilePath));
-
-            var targetFilePath = CreateTargetFilePath(sourceFilePath, targetDirectory, newFileName);
-            File.Copy(sourceFilePath, targetFilePath);
-        }
-
-        public void CopeFileWithAutomaticRenaming(string sourceFilePath, string targetDirectory)
-        {
-            var newName = CreateTargetFilePathWithAutomaticRenaming(sourceFilePath, targetDirectory);
-            CopyFile(sourceFilePath, targetDirectory, newName);
-        }
-
-
-
-
-        public void MoveFile(ISimpleFileInfo sFileInfo, string targetDirectory, string newFileName = default)
-        {
-            MoveFile(sFileInfo.Path, targetDirectory, newFileName);
-        }
-
-        public void MoveFile(string sourceFilePath, string targetDirectory, string newFileName = default)
-        {
-            if (string.IsNullOrEmpty(sourceFilePath)) throw new ArgumentException("Value cannot be null or empty.", nameof(sourceFilePath));
-
-            var targetFilePath = CreateTargetFilePath(sourceFilePath, targetDirectory, newFileName);
-
-            File.Move(sourceFilePath, targetFilePath);
-        }
-
-        public void MoveFileWithAutomaticRenaming(ISimpleFileInfo sFileInfo, string targetDirectory)
-        {
-            MoveFileWithAutomaticRenaming(sFileInfo.Path, targetDirectory);
-        }
-
-        public void MoveFileWithAutomaticRenaming(string sourceFilePath, string targetDirectory)
-        {
-            var newName = CreateTargetFilePathWithAutomaticRenaming(sourceFilePath, targetDirectory);
-            MoveFile(sourceFilePath, targetDirectory, newName);
-        }
-
-        private string CreateTargetFilePath(string sourceFilePath, string targetDirectory, string newFileName = default)
-        {
-            var targetFileName = string.IsNullOrEmpty(newFileName) ? Path.GetFileName(sourceFilePath) : newFileName;
-            return Path.Combine(targetDirectory, targetFileName);
-        }
-
-        private string CreateTargetFilePathWithAutomaticRenaming(string sourceFilePath, string targetDirectory)
-        {
-            var targetDirectoryFileNames = GetFileNamesFromDirectory(targetDirectory);
-            var fileName = Path.GetFileName(sourceFilePath);
-            return GenerateUniqueName(targetDirectoryFileNames, fileName);
-        }
-
-        /// <summary>
-        /// Generate new file name if the given list contains duplicate.
-        /// </summary>
-        /// <param name="fileNames">List of file names in directory.</param>
-        /// <param name="fileNameToCheck">File name to check.</param>
-        /// <returns></returns>
-        public string GenerateUniqueName(ICollection<string> fileNames, string fileNameToCheck)
-        {
-            fileNameToCheck = GenerateNewNameInRecursion(fileNames, fileNameToCheck);
-            return fileNameToCheck;
-        }
-
-        private string Ololo(ICollection<string> fileNames, string fileNameToCheck)
-        {
-            var duplicateName = fileNames.FirstOrDefault(f => f.Equals(fileNameToCheck, StringComparison.InvariantCultureIgnoreCase));
-
-            while (duplicateName != null)
-            {
-                fileNameToCheck = IncrementFileName(fileNameToCheck);
-                duplicateName = fileNames.FirstOrDefault(f => f.Equals(fileNameToCheck, StringComparison.InvariantCultureIgnoreCase));
-                
-            }
-            
-            return fileNameToCheck;
-        }
-
-        private string GenerateNewNameInRecursion(ICollection<string> fileNames, string fileNameToCheck)
-        {
-            var duplicateName = fileNames.FirstOrDefault(f => f.Equals(fileNameToCheck, StringComparison.InvariantCultureIgnoreCase));
-            if (duplicateName == null) return fileNameToCheck;
-            var tempName = IncrementFileName(duplicateName);
-            fileNameToCheck = GenerateNewNameInRecursion(fileNames, tempName);
-            return fileNameToCheck;
-        }
-
-        /// <summary>
-        /// Adds "_1"  to the end of provided file name with extension or increments number at the end of tne name by one. Skips the extension.
-        /// </summary>
-        /// <param name="fileName">File name without extension.</param>
-        /// <returns></returns>
-        public string IncrementFileName(string fileName)
-        {
-            var fileNameNoExtension = Path.GetFileNameWithoutExtension(fileName);
-            var numberAtTheEnd = GetNumberAtTheEndOfAString(fileName, out var numberIndex);
-            if (numberAtTheEnd > -1)
-            {
-                var fileNameNoNumber = fileName.Substring(0, numberIndex);
-                return $"{fileNameNoNumber}{++numberAtTheEnd}";
-            }
-            return $"{fileName}_{1}";
-        }
-
-        public int GetNumberAtTheEndOfAString(string fileName, out int numberIndex)
-        {
-            numberIndex = -1;
-            var numberAtTheEnd = -1;
-
-            for (var i = fileName.Length - 1; i >= 0; i--)
-            {
-                if (!char.IsNumber(fileName[i]))
-                {
-                    break;
-                }
-                numberIndex = i;
-            }
-
-            if (numberIndex > -1)
-            {
-                int.TryParse(fileName.Substring(numberIndex), out numberAtTheEnd);
-            }
-
-            return numberAtTheEnd;
         }
 
         /// <summary>
@@ -577,6 +444,141 @@ namespace FileManager
             }
         }
 
+        #region [  file methods  ]
+
+        #region [ copy file]
+
+        public void CopyFile(ISimpleFileInfo sourceFi, string targetDirectory, string newFileName = default)
+        {
+            CopyFile(sourceFi.Path, targetDirectory, newFileName);
+        }
+
+        public void CopyFile(string sourceFilePath, string targetDirectory, string newFileName = default)
+        {
+            if (string.IsNullOrEmpty(sourceFilePath)) throw new ArgumentException("Value cannot be null or empty.", nameof(sourceFilePath));
+
+            var targetFilePath = CreateTargetFilePath(sourceFilePath, targetDirectory, newFileName);
+            File.Copy(sourceFilePath, targetFilePath);
+        }
+
+        public void CopyFileWithAutomaticRenaming(string sourceFilePath, string targetDirectory)
+        {
+            var newName = CreateTargetFilePathWithAutomaticRenaming(sourceFilePath, targetDirectory);
+            CopyFile(sourceFilePath, targetDirectory, newName);
+        }
+
+        public void CopyFileWithAutomaticRenaming(ISimpleFileInfo sourceFi, string targetDirectory)
+        {
+            CopyFileWithAutomaticRenaming(sourceFi.Path, targetDirectory);
+        }
+
+        #endregion [ copy file]
+
+        #region [  move file  ]
+
+        public void MoveFile(ISimpleFileInfo sourceFi, string targetDirectory, string newFileName = default)
+        {
+            MoveFile(sourceFi.Path, targetDirectory, newFileName);
+        }
+
+        public void MoveFile(string sourceFilePath, string targetDirectory, string newFileName = default)
+        {
+            if (string.IsNullOrEmpty(sourceFilePath)) throw new ArgumentException("Value cannot be null or empty.", nameof(sourceFilePath));
+
+            var targetFilePath = CreateTargetFilePath(sourceFilePath, targetDirectory, newFileName);
+
+            File.Move(sourceFilePath, targetFilePath);
+        }
+
+        public void MoveFileWithAutomaticRenaming(ISimpleFileInfo sourceFi, string targetDirectory)
+        {
+            MoveFileWithAutomaticRenaming(sourceFi.Path, targetDirectory);
+        }
+
+        public void MoveFileWithAutomaticRenaming(string sourceFilePath, string targetDirectory)
+        {
+            var newName = CreateTargetFilePathWithAutomaticRenaming(sourceFilePath, targetDirectory);
+            MoveFile(sourceFilePath, targetDirectory, newName);
+        }
+
+        #endregion [  move file  ]
+
+        #region [  name modification methods  ]
+
+        /// <summary>
+        /// Generate new file name if the given list contains duplicate.
+        /// </summary>
+        /// <param name="fileNames">List of file names in directory.</param>
+        /// <param name="fileNameToCheck">File name to check.</param>
+        /// <returns></returns>
+        public string GenerateUniqueName(ICollection<string> fileNames, string fileNameToCheck)
+        {
+            //fileNameToCheck = GenerateNewNameInRecursion(fileNames, fileNameToCheck);
+            //return fileNameToCheck;
+            while (fileNames.FirstOrDefault(f => f.Equals(fileNameToCheck, StringComparison.InvariantCultureIgnoreCase)) != null)
+            {
+                fileNameToCheck = IncrementFileName(fileNameToCheck);
+            }
+
+            return fileNameToCheck;
+        }
+
+        private string CreateTargetFilePath(string sourceFilePath, string targetDirectory, string newFileName = default)
+        {
+            var targetFileName = string.IsNullOrEmpty(newFileName) ? Path.GetFileName(sourceFilePath) : newFileName;
+            return Path.Combine(targetDirectory, targetFileName);
+        }
+
+        private string CreateTargetFilePathWithAutomaticRenaming(string sourceFilePath, string targetDirectory)
+        {
+            var targetDirectoryFileNames = GetFileNamesFromDirectory(targetDirectory);
+            var fileName = Path.GetFileName(sourceFilePath);
+            return GenerateUniqueName(targetDirectoryFileNames, fileName);
+        }
+
+        /// <summary>
+        /// Adds "_1"  to the end of provided file name with extension or increments number at the end of tne name by one. Skips the extension.
+        /// </summary>
+        /// <param name="fileName">File name without extension.</param>
+        /// <returns></returns>
+        public string IncrementFileName(string fileName)
+        {
+            var fileNameNoExtension = Path.GetFileNameWithoutExtension(fileName);
+            var numberAtTheEnd = GetNumberAtTheEndOfAString(fileName, out var numberIndex);
+            if (numberAtTheEnd > -1)
+            {
+                var fileNameNoNumber = fileName.Substring(0, numberIndex);
+                return $"{fileNameNoNumber}{++numberAtTheEnd}";
+            }
+            return $"{fileName}_{1}";
+        }
+
+        public int GetNumberAtTheEndOfAString(string fileName, out int numberIndex)
+        {
+            numberIndex = -1;
+            var numberAtTheEnd = -1;
+
+            for (var i = fileName.Length - 1; i >= 0; i--)
+            {
+                if (!char.IsNumber(fileName[i]))
+                {
+                    break;
+                }
+                numberIndex = i;
+            }
+
+            if (numberIndex > -1)
+            {
+                int.TryParse(fileName.Substring(numberIndex), out numberAtTheEnd);
+            }
+
+            return numberAtTheEnd;
+        }
+
+        #endregion [  name modification methods  ]
+
+        #endregion [  file methods  ]
+
         #endregion [  public methods  ]
 
         #region [  private methods  ]
@@ -594,27 +596,6 @@ namespace FileManager
             var totalFileQuantity = dirInfo.GetFiles().Length;
             return imageFiles.Length == totalFileQuantity;
         }
-
-        //public void MoveImage(ISimpleFileInfo simpleFi, string targetDirectoryPath, bool deleteDuplicates = false)
-        //{
-        //    MoveImage(simpleFi.Path, targetDirectoryPath, deleteDuplicates);
-        //}
-
-        //public void MoveImage(string imagePath, string targetDirectoryPath, bool deleteDuplicates = false)
-        //{
-        //    var targetDirectoryImagesFileInfos = GetImagesFileInfosFromDirectory(targetDirectoryPath);
-        //    var matchingImage = false;
-        //    var oldIImageName = Path.GetFileName(imagePath);
-        //    var newIImageName = string.Empty;
-        //    foreach (var targetDirectoryImageFi in targetDirectoryImagesFileInfos)
-        //    {
-        //        if (oldIImageName.Equals(targetDirectoryImageFi.Name, StringComparison.InvariantCultureIgnoreCase))
-        //        {
-        //            newIImageName = GenerateNameForDuplicateFile(oldIImageName);
-        //        }
-
-        //    }
-        //}
 
         public List<FileInfo> GetImagesFileInfosFromDirectory(string directoryPath)
         {
