@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Common
@@ -38,29 +39,37 @@ namespace Common
 
         void MoveFileWithAutomaticRenaming(ISimpleFileInfo sourceFi, string targetDirectory);
 
-        string IncrementFileName(string fileName);
+        void DeleteFile(string path);
 
-        string GenerateUniqueName(ICollection<string> fileNames, string fileNameToCheck);
+        void DeleteFile(ISimpleFileInfo simpleFi);
 
-        //image directories methods
+        //file name operations
 
-        List<FileInfo> GetImagesFileInfosFromDirectory(string directoryPath);
+        Tuple<string, int> IncrementFileName(string fileName);
 
-        List<string> GetImageNamesFromDirectory(string directoryPath);
+        Tuple<string, int> GenerateUniqueName(ICollection<string> fileNames, string fileNameToCheck);
 
-        //void MoveImage(ISimpleFileInfo simpleFi, string targetDirectoryPath, bool deleteDuplicates = false);
+        Tuple<string, int> GenerateNameForDownloadedImage(List<string> imageNames, string imageNamePattern, int number);
 
-        //void MoveImage(string imagePath, string targetDirectoryPath, bool deleteDuplicates = false);
+        int GetNumberAtTheEndOfAFileName(string fileName, out int numberIndex);
+
+        int GetNumberAtTheEndOfAString(string fileName, out int numberIndex);
+
+        List<string> GetFileNamesFromDirectory(string directoryPath);
+
+        List<FileInfo> GetImageFileInfosFromDirectory(string directoryPath);
 
         //music directories methods
 
         List<DirectoryInfo> ScanDirectory(string path, string fileExtension);
 
-        bool MoveMusicDirectory(IMusicDirInfo mDirInfo, string albumStorageDir);
+        bool CopyMusicDirectory(IMusicDirInfo mDirInfo, string albumStorageDir);
 
         string CreateArtistStorageDirectory(string musicCollectionPath, string artistName);
 
         string CreateAlbumStorageDirectory(string artistDirectoryPath, string albumDirectoryName);
+
+        bool DeleteSourceMusicDirectoryFiles(IMusicDirInfo mDirInfo);
 
         bool DeleteSourceMusicDirectory(string path);
 

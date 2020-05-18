@@ -108,7 +108,7 @@ namespace MusicStoreKeeper.CollectionManager
             //создаю папку с исполнителем на диске
             var artPath = _fileManager.CreateArtistStorageDirectory(MusicCollectionDirectory, artist.Name);
             var imagePath = Path.Combine(artPath, _fileManager.DefaultArtistPhotosDirectory);
-            DownloadArtistImages(dArtist.images, dArtist.name, artist.ImageDataList, imagePath);
+            DownloadArtistOrAlbumImages(dArtist.images, dArtist.name, artist.ImageDataList, imagePath);
             //добавляю путь к папке исполнителя в базу
             _repo.AddArtistToStorage(artistId, artPath);
             return artist;
@@ -118,102 +118,126 @@ namespace MusicStoreKeeper.CollectionManager
         {
             if (artist == null) throw new ArgumentNullException(nameof(artist));
             if (mDirInfo == null) throw new ArgumentNullException(nameof(mDirInfo));
-
-            //получение имени артиста. переделать
-            var artistTrackInfo = mDirInfo.TrackInfos.FirstOrDefault();
-            if (artistTrackInfo == null) return null;
-
-            //получение списка всех альбомов исполнителя
-            var allDArtistReleases = await _discogsClient.GetArtistReleases(artist.DiscogsId, token);
-            //поиск заданного альбома в списке всех альбомов исполнителя
-            var matchingDArtistReleases = allDArtistReleases.Where(arg =>
-                arg.title.Equals(artistTrackInfo.AlbumTitle, StringComparison.InvariantCultureIgnoreCase) || arg.title.Contains(artistTrackInfo.AlbumTitle)).ToList();
-            if (!matchingDArtistReleases.Any())
+            var albumCopied = false;
+            var albumStoragePath = string.Empty;
+            try
             {
-                //TODO: Try searching by album and track names. Manage EPs and singles
-                return null;
-            }
+                //получение имени артиста. переделать
+                var artistTrackInfo = mDirInfo.TrackInfos.FirstOrDefault();
+                if (artistTrackInfo == null) return null;
 
-            DiscogsArtistRelease selectedDArtistRelease = null;
-            var releaseId = 0;
-            if (matchingDArtistReleases.Count() > 1)
-            {
-                //поиск по мастер релизу
-                var masterRelease = matchingDArtistReleases.FirstOrDefault(rel => rel.type == "master");
-                if (masterRelease != null)
+                //получение списка всех альбомов исполнителя
+                var allDArtistReleases = await _discogsClient.GetArtistReleases(artist.DiscogsId, token);
+                //поиск заданного альбома в списке всех альбомов исполнителя
+                var matchingDArtistReleases = allDArtistReleases.Where(arg =>
+                    arg.title.Equals(artistTrackInfo.AlbumTitle, StringComparison.InvariantCultureIgnoreCase) ||
+                    arg.title.Contains(artistTrackInfo.AlbumTitle)).ToList();
+                if (!matchingDArtistReleases.Any())
                 {
-                    selectedDArtistRelease = masterRelease;
+                    //TODO: Try searching by album and track names. Manage EPs and singles
+                    return null;
                 }
-                //сравнение директории с мазыкой и информации о релизе на дискогс
+
+                DiscogsArtistRelease selectedDArtistRelease = null;
+                var releaseId = 0;
+                if (matchingDArtistReleases.Count() > 1)
+                {
+                    //поиск по мастер релизу
+                    var masterRelease = matchingDArtistReleases.FirstOrDefault(rel => rel.type == "master");
+                    if (masterRelease != null)
+                    {
+                        selectedDArtistRelease = masterRelease;
+                    }
+                    //сравнение директории с мазыкой и информации о релизе на дискогс
+                    else
+                    {
+                        foreach (var dArtistRelease in matchingDArtistReleases)
+                        {
+                            var dReleaseToCompare = await _discogsClient.GetReleaseById(dArtistRelease.id, token);
+                            if (!_musicDirAnalyzer.CompareAlbums(mDirInfo, dReleaseToCompare)) continue;
+                            selectedDArtistRelease = dArtistRelease;
+                            break;
+                        }
+                    }
+                }
                 else
                 {
-                    foreach (var dArtistRelease in matchingDArtistReleases)
+                    selectedDArtistRelease = matchingDArtistReleases.First();
+                }
+
+                if (selectedDArtistRelease == null) return null;
+
+                //получение discogsId для заданного альбома. Пока пропускаю master release
+                if (selectedDArtistRelease.type == "master")
+                {
+                    //Always searches for main release
+                    var dMasterRelease = await _discogsClient.GetMatserReleaseById(selectedDArtistRelease.id, token);
+                    releaseId = dMasterRelease.main_release;
+                }
+                else
+                {
+                    releaseId = selectedDArtistRelease.id;
+                }
+
+                //поиск релиза в коллекции
+                var storedAlbum = _repo.FindAlbumByTitleOrDiscogsId(artistTrackInfo.AlbumTitle, releaseId);
+                var albumExistsInCollection = (storedAlbum != null && storedAlbum.InCollection);
+                //продумать удаление музыкальной папки
+                if (albumExistsInCollection && !updateExisting) return storedAlbum;
+
+                //получение информации об альбоме с дискогс
+                var dRelease = await _discogsClient.GetReleaseById(releaseId, token);
+                //создаю альбом с полной информацией
+                var albumToCollection = _discogsConverter.CreateAlbum(dRelease);
+                //добавляю стили исполнителю
+                artist.AddStyles(albumToCollection.Styles);
+                artist.AddGenres(albumToCollection.Genres);
+                //save album data in db
+                var albumId = 0;
+                if (storedAlbum == null)
+                {
+                    albumId = _repo.AddNewAlbum(artist.Id, albumToCollection);
+                }
+                else
+                {
+                    albumId = _repo.UpdateAlbum(artist.Id, albumToCollection);
+                }
+
+                //TODO: переделать эту жуть
+                storedAlbum = _repo.FindAlbumById(albumId);
+                //TODO:Получаю путь для сохранения альбома. Переделать
+                var albumStorageName = CreateAlbumDirectoryName(storedAlbum);
+                albumStoragePath = _fileManager.CreateAlbumStorageDirectory(artist.StoragePath, albumStorageName);
+                //save album copy to collection directory
+                albumCopied = _fileManager.CopyMusicDirectory(mDirInfo, albumStoragePath);
+                //save pictures from Discogs to album images directory
+                var albumImageDirectoryPath = Path.Combine(albumStoragePath, _fileManager.DefaultAlbumImagesDirectory);
+                DownloadArtistOrAlbumImages(dRelease.images, storedAlbum.Title, storedAlbum.ImageDataList, albumImageDirectoryPath);
+                //scan album images directory to get all images data
+                RefreshImageDirectory(storedAlbum.ImageDataList, albumImageDirectoryPath);
+                //delete duplicate images from album image directory and db
+                DeleteDuplicateImagesFromDirectoryAndDb(storedAlbum.ImageDataList, albumImageDirectoryPath);
+                //add album storage path to db and change album status to "InCollection"
+                _repo.AddAlbumToStorage(storedAlbum, albumStoragePath);
+
+                return albumToCollection;
+            }
+            finally
+            {
+                //delete source music directory if it was successfully copied
+                if (albumCopied)
+                {
+                    _fileManager.DeleteSourceMusicDirectoryFiles(mDirInfo);
+                }
+                //delete album directory in collection directory if something went wrong
+                else
+                {
+                    if (!string.IsNullOrEmpty(albumStoragePath))
                     {
-                        var dReleaseToCompare = await _discogsClient.GetReleaseById(dArtistRelease.id, token);
-                        if (!_musicDirAnalyzer.CompareAlbums(mDirInfo, dReleaseToCompare)) continue;
-                        selectedDArtistRelease = dArtistRelease;
-                        break;
+                        _fileManager.TryDeleteDirectory(albumStoragePath);
                     }
                 }
             }
-            else
-            {
-                selectedDArtistRelease = matchingDArtistReleases.First();
-            }
-
-            if (selectedDArtistRelease == null) return null;
-
-            //получение discogsId для заданного альбома. Пока пропускаю master release
-            if (selectedDArtistRelease.type == "master")
-            {
-                //Always searches for main release
-                var dMasterRelease = await _discogsClient.GetMatserReleaseById(selectedDArtistRelease.id, token);
-                releaseId = dMasterRelease.main_release;
-            }
-            else
-            {
-                releaseId = selectedDArtistRelease.id;
-            }
-
-            //поиск релиза в коллекции
-            var storedAlbum = _repo.FindAlbumByTitleOrDiscogsId(artistTrackInfo.AlbumTitle, releaseId);
-            var albumExistsInCollection = (storedAlbum != null && storedAlbum.InCollection);
-            //продумать удаление музыкальной папки
-            if (albumExistsInCollection && !updateExisting) return storedAlbum;
-
-            //получение информации об альбоме с дискогс
-            var dRelease = await _discogsClient.GetReleaseById(releaseId, token);
-            //создаю альбом с полной информацией
-            var albumToCollection = _discogsConverter.CreateAlbum(dRelease);
-            //добавляю стили исполнителю
-            artist.AddStyles(albumToCollection.Styles);
-            artist.AddGenres(albumToCollection.Genres);
-            // сохраняю альбом в базе
-            var albumId = 0;
-            if (storedAlbum == null)
-            {
-                albumId = _repo.AddNewAlbum(artist.Id, albumToCollection);
-            }
-            else
-            {
-                albumId = _repo.UpdateAlbum(artist.Id, albumToCollection);
-            }
-
-            //TODO: переделать эту жуть
-            storedAlbum = _repo.FindAlbumById(albumId);
-            //TODO:Получаю путь для сохранения альбома. Переделать
-            var albumStorageName = CreateAlbumDirectoryName(storedAlbum);
-            var albumStoragePath = _fileManager.CreateAlbumStorageDirectory(artist.StoragePath, albumStorageName);
-            //Сохраняю физическую копию альбома в хранилище.
-            _fileManager.MoveMusicDirectory(mDirInfo, albumStoragePath);
-            //сохраняю картинки с discogs
-            DownloadAlbumImages(dRelease, Path.Combine(albumStoragePath, _fileManager.DefaultAlbumImagesDirectory));
-            //сканирую папку для составления списка ImageData. Удаляю копии
-
-            //добавляю запись про место сохранения физической копии альбома
-            _repo.AddAlbumToStorage(storedAlbum, albumStoragePath);
-
-            return albumToCollection;
         }
 
         //TODO:Rework MoveToCollectionManually
@@ -278,13 +302,11 @@ namespace MusicStoreKeeper.CollectionManager
 
         #region [  private methods  ]
 
-        private void DownloadArtistImages(DiscogsImage[] discogsImages, string imageNamePattern, List<ImageData> imageDataList, string targetDirPath)
+        private void DownloadArtistOrAlbumImages(DiscogsImage[] discogsImages, string imageNamePattern, List<ImageData> imageDataList, string targetDirPath)
         {
-            //check  target directory for manually added files
-            CheckImageDirectoryForDuplicates(imageDataList, targetDirPath);
-
             var number = 1;
-
+            //list of image names in target directory
+            var imageNamesInTargetDirectory = _fileManager.GetFileNamesFromDirectory(targetDirPath);
             try
             {
                 foreach (var discogsImage in discogsImages)
@@ -296,15 +318,15 @@ namespace MusicStoreKeeper.CollectionManager
                         continue;
                     }
 
-                    //list of image names in target directory
-                    var imageNamesInTargetDirectory = _fileManager.GetImageNamesFromDirectory(targetDirPath);
                     //generate name for new image
-                    var newImageName = GenerateNameForDownloadedImage(imageNamesInTargetDirectory, imageNamePattern, ref number);
+                    var newImageNameAndNumber = _fileManager.GenerateNameForDownloadedImage(imageNamesInTargetDirectory, imageNamePattern, number);
+                    var newImageName = newImageNameAndNumber.Item1;
+                    imageNamesInTargetDirectory.Add(newImageName);
+                    number = newImageNameAndNumber.Item2 + 1;
                     //save image to temp directory
                     _discogsClient.SaveImage(discogsImage, tempImageDirectoryPath, newImageName);
                     //create new ImageData (important to add url to source property)
                     var tempImagePath = Path.Combine(tempImageDirectoryPath, newImageName);
-                     
                     var downloadedImageData = _imageService.CreateImageData(tempImagePath, newImageName, discogsImage.uri);
                     //move image to target directory
                     _fileManager.MoveFile(tempImagePath, targetDirPath);
@@ -313,28 +335,27 @@ namespace MusicStoreKeeper.CollectionManager
                     imageDataList.Add(downloadedImageData);
                 }
             }
+            //TODO: Add exception handling to CollectionManager
             catch (Exception e)
             {
                 Console.WriteLine(e);
-
             }
             finally
             {
                 _fileManager.ClearDirectory(tempImageDirectoryPath);
             }
-            
         }
 
         /// <summary>
-        /// Check target directory for files with no appropriate info in collection db
+        /// Check target directory for files with no appropriate info in collection db. Add new files to db.
         /// </summary>
         /// <param name="imageDataList">List of image data from db</param>
         /// <param name="targetDirPath">Directory to check</param>
         /// <returns>True whether any new images were found</returns>
-        private bool CheckImageDirectoryForDuplicates(List<ImageData> imageDataList, string targetDirPath)
+        private bool RefreshImageDirectory(List<ImageData> imageDataList, string targetDirPath)
         {
             var newImagesWereFound = false;
-            var imagesInTargetDirectory = _fileManager.GetImagesFileInfosFromDirectory(targetDirPath);
+            var imagesInTargetDirectory = _fileManager.GetImageFileInfosFromDirectory(targetDirPath);
             var imagesInCollection = _imageService.NumberOfImagesInCollection(imageDataList);
             //check number of images in collection and in target directory
             if (imagesInTargetDirectory.Count != imagesInCollection)
@@ -344,53 +365,46 @@ namespace MusicStoreKeeper.CollectionManager
                 foreach (var imageInTargetDirectory in imagesInTargetDirectory)
                 {
                     //get name of each image in target directory
-                    var imgName = Path.GetFileName(imageInTargetDirectory.FullName);
+                    var imgName = imageInTargetDirectory.Name;
                     //check for matches in imageDataList
                     if (!imageDataList.Any(img => img.Name.Equals(imgName)))
                     {
                         //create new imageData
                         var newImageData = _imageService.CreateImageData(imageInTargetDirectory.FullName, imgName);
-                        //TODO:check for exact  image copies and delete them?
                         //add new images to collection
                         newImageData.Status = ImageStatus.InCollection;
                         imageDataList.Add(newImageData);
                     }
                 }
             }
-
             return newImagesWereFound;
         }
 
-        private string GenerateNameForDownloadedImage(List<string> imageNames, string imageNamePattern, ref int number)
+        private void DeleteDuplicateImagesFromDirectoryAndDb(ICollection<ImageData> imageData, string directoryPath)
         {
-            var newImageName = $"{imageNamePattern}_photo_{number}.jpg";
-            for (var i = number; i < (number + imageNames.Count()); i++)
+            //search for duplicates in album images directory.
+            var imagePaths = _fileManager.GetImageFileInfosFromDirectory(directoryPath);
+            var duplicateImagePaths = _imageService.GetDuplicateImagePaths(imagePaths);
+            //delete lower resolution image duplicates
+            foreach (var duplicateImagePath in duplicateImagePaths)
             {
-                number = +1;
-                if (imageNames.Any(img => img.Equals(newImageName)))
+                var duplicateImageName = Path.GetFileName(duplicateImagePath);
+                //delete file from image directory
+                //TODO: Add TryDeleteFile to IFileManager
+                _fileManager.DeleteFile(duplicateImagePath);
+                //delete imageData from db
+                var imgDataToDelete = imageData.FirstOrDefault(img => img.Name.Equals(duplicateImageName));
+                if (imgDataToDelete != null)
                 {
-                    newImageName = $"{imageNamePattern}_photo_{i}.jpg";
+                    if (string.IsNullOrEmpty(imgDataToDelete.Source))
+                    {
+                        imageData.Remove(imgDataToDelete);
+                    }
+                    else
+                    {
+                        imgDataToDelete.Status = ImageStatus.Deleted;
+                    }
                 }
-                else
-                {
-                    return newImageName;
-                }
-            }
-            return newImageName;
-        }
-
-        //TODO: Сохранять ImageData картинки в базе. В ImageData.Source писать url для последующего сравнения
-        private void DownloadAlbumImages(DiscogsReleaseBase dRelease, string dirPath)
-        {
-            if (dRelease == null) throw new ArgumentNullException(nameof(dRelease));
-            if (string.IsNullOrEmpty(dirPath)) throw new ArgumentNullException(nameof(dirPath));
-
-            var number = 1;
-            foreach (var discogsImage in dRelease.images)
-            {
-                var photoName = $"{dRelease.title}_img_{number}.jpg";
-                _discogsClient.SaveImage(discogsImage, dirPath, photoName);
-                number += 1;
             }
         }
 

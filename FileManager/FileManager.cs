@@ -308,62 +308,94 @@ namespace FileManager
         //    }
         //}
 
-        public bool MoveMusicDirectory(IMusicDirInfo mDirInfo, string albumStorageDir)
+        public bool CopyMusicDirectory(IMusicDirInfo mDirInfo, string albumStorageDir)
         {
             if (mDirInfo == null) throw new ArgumentNullException(nameof(mDirInfo));
             if (string.IsNullOrEmpty(albumStorageDir)) throw new ArgumentNullException(nameof(albumStorageDir));
-
-            var targetDirectoryFileNames = new List<string>();
-
-            //перемещаю аудио файлы
+            //copy audio files
             foreach (var trackInfo in mDirInfo.TrackList)
             {
-                MoveFile(trackInfo, albumStorageDir);
+                CopyFile(trackInfo, albumStorageDir);
             }
-            //перемещаю отдельные изображения
+            //copy separate images
             var imgDirPath = Path.Combine(albumStorageDir, DefaultAlbumImagesDirectory);
             CreateDirectory(imgDirPath);
             foreach (var imageFile in mDirInfo.ImageFiles)
             {
                 MoveFile(imageFile, imgDirPath);
             }
-            //перемещаю файлы из папок с изображениями
+            //copy images from image directories
 
             foreach (var imageDirectory in mDirInfo.ImageDirectories)
             {
+                var targetDirectoryFileNames = GetFileNamesFromDirectory(imgDirPath);
+                foreach (var imageFile in imageDirectory.Children)
                 {
-                    targetDirectoryFileNames = GetFileNamesFromDirectory(imageDirectory.Path);
-                    foreach (var imageFile in imageDirectory.Children)
-                    {
-                        var fileNameWithExtension = Path.GetFileName(imageFile.Path);
-                        var targetFileName = GenerateUniqueName(targetDirectoryFileNames, fileNameWithExtension);
-                        targetDirectoryFileNames.Add(targetFileName);
-                        MoveFile(imageFile, imgDirPath, targetFileName);
-                    }
+                    var fileNameWithExtension = Path.GetFileName(imageFile.Path);
+                    var targetFileName = GenerateUniqueName(targetDirectoryFileNames, fileNameWithExtension).Item1;
+                    targetDirectoryFileNames.Add(targetFileName);
+                    CopyFile(imageFile, imgDirPath, targetFileName);
                 }
             }
-            //перемещаю текстовые файлы
+            //copy text files
             if (mDirInfo.TextFiles.Any())
             {
                 var docDirPath = Path.Combine(albumStorageDir, DefaultAlbumDocsDirectory);
                 CreateDirectory(docDirPath);
                 foreach (var textFile in mDirInfo.TextFiles)
                 {
-                    MoveFile(textFile, docDirPath);
+                    CopyFile(textFile, docDirPath);
                 }
             }
-            //пермещаю неизвестные файлы
+            //copy unknown type files
             if (mDirInfo.UnknownFiles.Any())
             {
                 var unknownDirPath = Path.Combine(albumStorageDir, DefaultAlbumUnknownFilesDirectory);
                 CreateDirectory(unknownDirPath);
                 foreach (var unknownFile in mDirInfo.UnknownFiles)
                 {
-                    MoveFile(unknownFile, unknownDirPath);
+                    CopyFile(unknownFile, unknownDirPath);
                 }
             }
             //сигнал об успешном перемещении
             return true;
+        }
+
+        /// <summary>
+        /// Deletes all files, related to album (tracks, images, text files,...) from directory. If no files left in directory, deletes it. Otherwise deletes all empty subdirectories.
+        /// </summary>
+        /// <param name="mDirInfo"></param>
+        /// <returns></returns>
+        public bool DeleteSourceMusicDirectoryFiles(IMusicDirInfo mDirInfo)
+        {
+            //delete audio files
+            foreach (var trackInfo in mDirInfo.TrackList)
+            {
+                DeleteFile(trackInfo);
+            }
+            //delete separate images
+            foreach (var imageFile in mDirInfo.ImageFiles)
+            {
+                DeleteFile(imageFile);
+            }
+            //delete images from image directories
+
+            foreach (var imageDirectory in mDirInfo.ImageDirectories)
+            {
+                DeleteDirectory(imageDirectory.Path);
+            }
+            //delete text files
+            foreach (var textFile in mDirInfo.TextFiles)
+            {
+                DeleteFile(textFile);
+            }
+            //delete unknown type files
+            foreach (var unknownFile in mDirInfo.UnknownFiles)
+            {
+                DeleteFile(unknownFile);
+            }
+
+            return DeleteSourceMusicDirectory(mDirInfo.Path);
         }
 
         /// <summary>
@@ -503,24 +535,51 @@ namespace FileManager
 
         #endregion [  move file  ]
 
+        #region [  delete file  ]
+
+        public void DeleteFile(ISimpleFileInfo simpleFi)
+        {
+            DeleteFile(simpleFi.Path);
+        }
+
+        public void DeleteFile(string path)
+        {
+            File.Delete(path);
+        }
+
+        #endregion [  delete file  ]
+
         #region [  name modification methods  ]
 
         /// <summary>
-        /// Generate new file name if the given list contains duplicate.
+        /// Generate new file name with some number at the end if the given list contains duplicate.
         /// </summary>
         /// <param name="fileNames">List of file names in directory.</param>
         /// <param name="fileNameToCheck">File name to check.</param>
-        /// <returns></returns>
-        public string GenerateUniqueName(ICollection<string> fileNames, string fileNameToCheck)
+        /// <returns>New file name and number at the end of the file name. If no numbers were added, returns -1.</returns>
+        public Tuple<string, int> GenerateUniqueName(ICollection<string> fileNames, string fileNameToCheck)
         {
-            //fileNameToCheck = GenerateNewNameInRecursion(fileNames, fileNameToCheck);
-            //return fileNameToCheck;
-            while (fileNames.FirstOrDefault(f => f.Equals(fileNameToCheck, StringComparison.InvariantCultureIgnoreCase)) != null)
+            var numberAtTheEndOfAFileName = GetNumberAtTheEndOfAFileName(fileNameToCheck, out var numberIndex);
+            Tuple<string, int> newNameAndNumber = new Tuple<string, int>(fileNameToCheck, numberAtTheEndOfAFileName);
+            while (fileNames.FirstOrDefault(f => f.Equals(newNameAndNumber.Item1, StringComparison.InvariantCultureIgnoreCase)) != null)
             {
-                fileNameToCheck = IncrementFileName(fileNameToCheck);
+                newNameAndNumber = IncrementFileName(newNameAndNumber.Item1);
             }
+            return newNameAndNumber;
+        }
 
-            return fileNameToCheck;
+        /// <summary>
+        /// Generates new name for image downloaded from discogs. Automatically increments given number at the end if any duplicates were found.
+        /// </summary>
+        /// <param name="imageNames">List of file names in directory</param>
+        /// <param name="imageNamePattern">Name of album or artist generally.</param>
+        /// <param name="number">Desired number at the end of the image name</param>
+        /// <returns>Tuple with string {imageNamePattern}_photo_{number} and actual number at the end of the image name.</returns>
+        public Tuple<string,int> GenerateNameForDownloadedImage(List<string> imageNames, string imageNamePattern, int number)
+        {
+            var newImageName = $"{imageNamePattern}_photo_{number}.jpg";
+            var newImageNameAndNumber = GenerateUniqueName(imageNames, newImageName);
+            return newImageNameAndNumber;
         }
 
         private string CreateTargetFilePath(string sourceFilePath, string targetDirectory, string newFileName = default)
@@ -533,31 +592,39 @@ namespace FileManager
         {
             var targetDirectoryFileNames = GetFileNamesFromDirectory(targetDirectory);
             var fileName = Path.GetFileName(sourceFilePath);
-            return GenerateUniqueName(targetDirectoryFileNames, fileName);
+            return GenerateUniqueName(targetDirectoryFileNames, fileName).Item1;
         }
 
         /// <summary>
-        /// Adds "_1"  to the end of provided file name with extension or increments number at the end of tne name by one. Skips the extension.
+        /// Adds "_1"  to the end of provided file name or increments number at the end of tne name by one. Skips file extension.
         /// </summary>
-        /// <param name="fileName">File name without extension.</param>
-        /// <returns></returns>
-        public string IncrementFileName(string fileName)
+        /// <param name="fileName">File name.</param>
+        /// <returns>New file name and number at the end of the file name.</returns>
+        public Tuple<string, int> IncrementFileName(string fileName)
         {
+            if (string.IsNullOrEmpty(fileName)) throw new ArgumentException("Value cannot be null or empty.", nameof(fileName));
+            var extension = Path.GetExtension(fileName);
             var fileNameNoExtension = Path.GetFileNameWithoutExtension(fileName);
-            var numberAtTheEnd = GetNumberAtTheEndOfAString(fileName, out var numberIndex);
+            var numberAtTheEnd = GetNumberAtTheEndOfAString(fileNameNoExtension, out var numberIndex);
             if (numberAtTheEnd > -1)
             {
                 var fileNameNoNumber = fileName.Substring(0, numberIndex);
-                return $"{fileNameNoNumber}{++numberAtTheEnd}";
+                return new Tuple<string, int>($"{fileNameNoNumber}{++numberAtTheEnd}{extension}", numberAtTheEnd);
             }
-            return $"{fileName}_{1}";
+            return new Tuple<string, int>($"{fileNameNoExtension}_{1}{extension}", 1);
+        }
+
+        public int GetNumberAtTheEndOfAFileName(string fileName, out int numberIndex)
+        {
+            numberIndex = -1;
+            var fileNameNoExtension = Path.GetFileNameWithoutExtension(fileName);
+            return GetNumberAtTheEndOfAString(fileNameNoExtension, out numberIndex);
         }
 
         public int GetNumberAtTheEndOfAString(string fileName, out int numberIndex)
         {
             numberIndex = -1;
             var numberAtTheEnd = -1;
-
             for (var i = fileName.Length - 1; i >= 0; i--)
             {
                 if (!char.IsNumber(fileName[i]))
@@ -597,28 +664,16 @@ namespace FileManager
             return imageFiles.Length == totalFileQuantity;
         }
 
-        public List<FileInfo> GetImagesFileInfosFromDirectory(string directoryPath)
-        {
-            return Directory.GetFiles(directoryPath).Where(IsImage).Select(img => new FileInfo(img)).ToList();
-        }
-
-        public List<string> GetImageNamesFromDirectory(string directoryPath)
-        {
-            var imageFileInfos = GetImagesFileInfosFromDirectory(directoryPath);
-            var imageNames = new List<string>();
-            foreach (var imageFileInfo in imageFileInfos)
-            {
-                imageNames.Add(Path.GetFileNameWithoutExtension(imageFileInfo.FullName));
-            }
-
-            return imageNames;
-        }
-
-        private List<string> GetFileNamesFromDirectory(string directoryPath)
+        public List<string> GetFileNamesFromDirectory(string directoryPath)
         {
             var filePaths = Directory.GetFiles(directoryPath);
 
             return filePaths.Select(Path.GetFileName).ToList();
+        }
+
+        public List<FileInfo> GetImageFileInfosFromDirectory(string directoryPath)
+        {
+            return new DirectoryInfo(directoryPath).GetFiles().Where(fi => IsImage(fi.FullName)).ToList();
         }
 
         //TODO: Rewrite this and put in a separate common class
@@ -627,7 +682,7 @@ namespace FileManager
             if (!File.Exists(path)) return false;
 
             var extension = Path.GetExtension(path);
-            return !string.IsNullOrEmpty(extension) && extension.Equals("jpg", StringComparison.InvariantCultureIgnoreCase);
+            return !string.IsNullOrEmpty(extension) && extension.Equals(".jpg", StringComparison.InvariantCultureIgnoreCase);
         }
 
         //TODO: Write proper path validation.

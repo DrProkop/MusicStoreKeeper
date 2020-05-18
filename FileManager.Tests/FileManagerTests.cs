@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using System;
+using Common;
 using Moq;
 using NUnit.Framework;
 using Serilog;
@@ -117,6 +118,28 @@ namespace FileManager.Tests
             ExtractResource(UnknownTypeFileName, _unknownTypeFilePath);
             //random file
             ExtractResource(RandomFileName, _randomFilePath);
+        }
+
+        private Mock<IMusicDirInfo> MusicDirectoryInfoMockSetup()
+        {
+            //mock data
+            var trackList = new List<ISimpleFileInfo>() { SimpleFileInfoFactory.Create(_musicFilePath) };
+            var imageFiles = new List<ISimpleFileInfo>() { SimpleFileInfoFactory.Create(_image1FilePath) };
+            var imageDirectories = new List<ISimpleFileInfo>() { SimpleFileInfoFactory.Create(_testImageSubDirPath) };
+            imageDirectories.First().Children = new List<ISimpleFileInfo>() { SimpleFileInfoFactory.Create(_image2FilePath), SimpleFileInfoFactory.Create(_image3FilePath) };
+            var textFiles = new List<ISimpleFileInfo>() { SimpleFileInfoFactory.Create(_textFilePath) };
+            var unknownFiles = new List<ISimpleFileInfo>() { SimpleFileInfoFactory.Create(_unknownTypeFilePath) };
+            var mDirInfoMock = new Mock<IMusicDirInfo>();
+            //mock setup
+            mDirInfoMock.SetupGet(m => m.Path).Returns(_testDirPath);
+            mDirInfoMock.SetupGet(m => m.MusicFilesInDirectory).Returns(1);
+            mDirInfoMock.SetupGet(m => m.TrackList).Returns(trackList);
+            mDirInfoMock.SetupGet(m => m.ImageFiles).Returns(imageFiles);
+            mDirInfoMock.SetupGet(m => m.ImageDirectories).Returns(imageDirectories);
+            mDirInfoMock.SetupGet(m => m.ImageDirectories).Returns(imageDirectories);
+            mDirInfoMock.SetupGet(m => m.TextFiles).Returns(textFiles);
+            mDirInfoMock.SetupGet(m => m.UnknownFiles).Returns(unknownFiles);
+            return mDirInfoMock;
         }
 
         [TearDown]
@@ -257,30 +280,52 @@ namespace FileManager.Tests
         }
 
         [Test]
-        [TestCase("fileName", "fileName_1")]
-        [TestCase("FileName33", "FileName34")]
-        [TestCase("FileName111_a", "FileName111_a_1")]
-        [TestCase("123", "124")]
-        public void IncrementFileNameShouldIncrementGivenNameByOneOrAddOneAtTheEnd(string duplicateFileName, string newFileName)
+        [TestCase("fileName.exe", "fileName_1.exe", 1)]
+        [TestCase("FileName33", "FileName34", 34)]
+        [TestCase("FileName111_a.dat", "FileName111_a_1.dat", 1)]
+        [TestCase("123.jpg", "124.jpg",124)]
+        public void IncrementFileNameShouldIncrementGivenNameByOneOrAddOneAtTheEnd(string duplicateFileName, string newFileName, int numberAtTheAnd)
         {
             var result = _sut.IncrementFileName(duplicateFileName);
-            Assert.That(result, Is.EqualTo(newFileName));
+            Assert.That(result.Item1, Is.EqualTo(newFileName));
+            Assert.That(result.Item2, Is.EqualTo(numberAtTheAnd));
+        }
+
+        [Test]
+        public void GenerateUniqueNameShouldReturnMinusOneIfNoNumberAtTheEndOfAFileName()
+        {
+            var resultNameAndNumber = _sut.GenerateUniqueName(new List<string>() { "fileName_1", "fileName_2" }, "fileName");
+
+            Assert.That(resultNameAndNumber.Item1, Is.EqualTo("fileName"));
+            Assert.That(resultNameAndNumber.Item2, Is.EqualTo(-1));
         }
 
         [Test]
         public void GenerateUniqueNameShouldReturnSameNameIfNoMatchesWereFound()
         {
-            var resultName=_sut.GenerateUniqueName(new List<string>() {"fileName_1", "fileName_2"}, "fileName_3");
+            var resultNameAndNumber = _sut.GenerateUniqueName(new List<string>() { "fileName_1", "fileName_2" }, "fileName_3");
 
-            Assert.That(resultName, Is.EqualTo("fileName_3"));
+            Assert.That(resultNameAndNumber.Item1, Is.EqualTo("fileName_3"));
+            Assert.That(resultNameAndNumber.Item2, Is.EqualTo(3));
         }
 
         [Test]
         public void GenerateUniqueNameShouldReturnValidNewNameIfMatchesWereFound()
         {
-            var resultName = _sut.GenerateUniqueName(new List<string>() { "fileName_1", "fileName_2" }, "fileName_1");
+            var resultNameAndNumber = _sut.GenerateUniqueName(new List<string>() { "fileName_1", "fileName_2" }, "fileName_1");
 
-            Assert.That(resultName, Is.EqualTo("fileName_3"));
+            Assert.That(resultNameAndNumber.Item1, Is.EqualTo("fileName_3"));
+            Assert.That(resultNameAndNumber.Item2, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void GenerateNameForDownloadedImageShouldReturnValidNewNameAndIncrementedNumberAtTheEndIfMatchesWereFound()
+        {
+            var numberAtTheEnd = 1;
+            var resultNameAndNumber = _sut.GenerateNameForDownloadedImage(new List<string>() { "someRandomImageName","fileName_photo_1.jpg", "fileName_photo_2.jpg" }, "fileName", numberAtTheEnd);
+
+            Assert.That(resultNameAndNumber.Item1, Is.EqualTo("fileName_photo_3.jpg"));
+            Assert.That(resultNameAndNumber.Item2, Is.EqualTo(3));
         }
 
         #endregion [  common methods  ]
@@ -320,27 +365,29 @@ namespace FileManager.Tests
                 Assert.That(!result);
             });
         }
+        
+        [Test]
+        public void DeleteSourceMusicDirectoryFilesShouldDeleteOnlyFilesProvidedInMusicDirInfo()
+        {
+            var mDirInfoMock = MusicDirectoryInfoMockSetup();
+
+            _sut.DeleteSourceMusicDirectoryFiles(mDirInfoMock.Object);
+
+            Assert.That(!File.Exists(_musicFilePath));
+            Assert.That(!File.Exists(_image1FilePath));
+            Assert.That(!File.Exists(_image2FilePath));
+            Assert.That(!File.Exists(_unknownTypeFilePath));
+            Assert.That(!File.Exists(_textFilePath));
+            Assert.That(File.Exists(_randomFilePath));
+            Assert.That(Directory.Exists(_testDirPath));
+            Assert.That(!Directory.Exists(_testImageSubDirPath));
+        }
 
         [Test]
-        public void MoveMusicDirectoryShouldMoveGivenMusicDirectory()
+        public void CopyMusicDirectoryShouldCopyGivenMusicDirectory()
         {
-            //mock data
-            var trackList = new List<ISimpleFileInfo>() { SimpleFileInfoFactory.Create(_musicFilePath) };
-            var imageFiles = new List<ISimpleFileInfo>() { SimpleFileInfoFactory.Create(_image1FilePath) };
-            var imageDirectories = new List<ISimpleFileInfo>() { SimpleFileInfoFactory.Create(_testImageSubDirPath) };
-            imageDirectories.First().Children = new List<ISimpleFileInfo>() { SimpleFileInfoFactory.Create(_image2FilePath), SimpleFileInfoFactory.Create(_image3FilePath) };
-            var textFiles = new List<ISimpleFileInfo>() { SimpleFileInfoFactory.Create(_textFilePath) };
-            var unknownFiles = new List<ISimpleFileInfo>() { SimpleFileInfoFactory.Create(_unknownTypeFilePath) };
-            var mDirInfoMock = new Mock<IMusicDirInfo>();
             //mock setup
-            mDirInfoMock.SetupGet(m => m.Path).Returns(_testDirPath);
-            mDirInfoMock.SetupGet(m => m.MusicFilesInDirectory).Returns(1);
-            mDirInfoMock.SetupGet(m => m.TrackList).Returns(trackList);
-            mDirInfoMock.SetupGet(m => m.ImageFiles).Returns(imageFiles);
-            mDirInfoMock.SetupGet(m => m.ImageDirectories).Returns(imageDirectories);
-            mDirInfoMock.SetupGet(m => m.ImageDirectories).Returns(imageDirectories);
-            mDirInfoMock.SetupGet(m => m.TextFiles).Returns(textFiles);
-            mDirInfoMock.SetupGet(m => m.UnknownFiles).Returns(unknownFiles);
+            var mDirInfoMock = MusicDirectoryInfoMockSetup();
             //target paths
             var targetTextSubDir = Path.Combine(_targetDirPath, _sut.DefaultAlbumDocsDirectory);
             var targetImageSubDir = Path.Combine(_targetDirPath, _sut.DefaultAlbumImagesDirectory);
@@ -348,7 +395,7 @@ namespace FileManager.Tests
 
             Directory.CreateDirectory(_targetDirPath);
 
-            _sut.MoveMusicDirectory(mDirInfoMock.Object, _targetDirPath);
+            _sut.CopyMusicDirectory(mDirInfoMock.Object, _targetDirPath);
 
             //target directories
             Assert.That(Directory.Exists(targetTextSubDir));
@@ -361,18 +408,6 @@ namespace FileManager.Tests
             Assert.That(File.Exists(Path.Combine(targetImageSubDir, Image1FileName)));
             Assert.That(File.Exists(Path.Combine(targetImageSubDir, Image3FileName)));
             Assert.That(File.Exists(Path.Combine(targetUnknownFilesSubDir, UnknownTypeFileName)));
-
-            //source directories
-            Assert.That(!Directory.Exists(_testImageSubDirPath));
-            Assert.That(Directory.Exists(_testDirPath));
-            Assert.That(Directory.Exists(_testSubDirPath));
-
-            //source files
-            Assert.That(!File.Exists(_musicFilePath));
-            Assert.That(!File.Exists(_image1FilePath));
-            Assert.That(!File.Exists(_image3FilePath));
-            Assert.That(File.Exists(_randomFilePath));
-            Assert.That(!File.Exists(_unknownTypeFilePath));
         }
 
         #endregion [  music directories methods  ]

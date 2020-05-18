@@ -175,18 +175,13 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         {
             if (dirSfi == null) throw new ArgumentNullException(nameof(dirSfi));
             if (dirSfi.Type != SfiType.Directory) return;//TODO: если передали муз файл, добавить поиск каталога, в котором находится музыкальный файл
-            ct.ThrowIfCancellationRequested();
-            LongOperationService.StartLongBlockingOperation("Searching for directory info on Discogs.");
-            await Task.Delay(20000, ct);
+            LongOperationService.StartLongBlockingOperation("Searching for album info on Discogs.");
             LoadDirectoryWithSubdirectories(dirSfi);
-            //получение информации о выбранном каталоге с музыкой
+            //get music directory info 
             var mdi = _musicDirAnalyzer.AnalyzeMusicDirectory(dirSfi);
-
-            //поиск информации на дискогс
-
+            //search album and artist info on Discogs
             var artist = await _collectionManager.SearchArtistAndAllAlbumsOnDiscogs(mdi, true, ct);
             await _collectionManager.SearchFullAlbumOnDiscogs(artist, mdi, true, ct);
-
             LongOperationService.FinishLongBlockingOperation();
         }
 

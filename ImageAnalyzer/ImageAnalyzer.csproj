@@ -46,7 +46,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArrayComparer.cs" />
+    <Compile Include="ImageContainer.cs" />
     <Compile Include="ImageService.cs" />
+    <Compile Include="ImageSizeComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
