@@ -2,6 +2,7 @@
 
 namespace MusicStoreKeeper.Model
 {
+    //TODO: Delete if not used
     public static class ImageDataConverter
     {
         public static byte[,] ConvertTo16X16GrayScale(byte[] sourceGrayScale)

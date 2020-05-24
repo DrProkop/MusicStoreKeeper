@@ -1,16 +1,12 @@
-﻿using System.Data.Entity;
-using System.Data.Entity.Core.EntityClient;
-using System.Data.Entity.Migrations;
-using System.Data.SqlClient;
-using MusicStoreKeeper.Model;
-using System.Data.SQLite;
-using System.Data.SQLite.EF6;
-using System.Data.SQLite.EF6.Migrations;
+﻿using MusicStoreKeeper.Model;
 using SQLite.CodeFirst;
+using System.Data.Entity;
+using System.Data.Entity.Migrations;
+using System.Data.SQLite.EF6.Migrations;
 
 namespace MusicStoreKeeper.DataModel
 {
-    public class MusicStoreContextLite:DbContext
+    public class MusicStoreContextLite : DbContext
     {
         /// <summary>
         /// Constructs a new context instance using conventions to create the name of the database to
@@ -18,9 +14,8 @@ namespace MusicStoreKeeper.DataModel
         /// of the derived context class.
         /// See the class remarks for how this is used to create a connection.
         /// </summary>
-        public MusicStoreContextLite():base("name = MusicStoreContextLiteConnection")
+        public MusicStoreContextLite() : base("name = MusicStoreContextLiteConnection")
         {
-            
         }
 
         public DbSet<Artist> Artists { get; set; }
@@ -32,7 +27,6 @@ namespace MusicStoreKeeper.DataModel
         {
             var initializer = new SqliteCreateDatabaseIfNotExists<MusicStoreContextLite>(modelBuilder);
             Database.SetInitializer(initializer);
-            modelBuilder.Entity<ImageData>().Property(i => i.GrayScaleDb).HasMaxLength(256);
         }
     }
 

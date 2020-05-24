@@ -327,11 +327,10 @@ namespace MusicStoreKeeper.CollectionManager
                     _discogsClient.SaveImage(discogsImage, tempImageDirectoryPath, newImageName);
                     //create new ImageData (important to add url to source property)
                     var tempImagePath = Path.Combine(tempImageDirectoryPath, newImageName);
-                    var downloadedImageData = _imageService.CreateImageData(tempImagePath, newImageName, discogsImage.uri);
                     //move image to target directory
                     _fileManager.MoveFile(tempImagePath, targetDirPath);
                     //add new imageData to imageDataList
-                    downloadedImageData.Status = ImageStatus.InCollection;
+                    var downloadedImageData = new ImageData() { Name = newImageName, Source = discogsImage.uri, Status = ImageStatus.InCollection };
                     imageDataList.Add(downloadedImageData);
                 }
             }
@@ -356,7 +355,7 @@ namespace MusicStoreKeeper.CollectionManager
         {
             var newImagesWereFound = false;
             var imagesInTargetDirectory = _fileManager.GetImageFileInfosFromDirectory(targetDirPath);
-            var imagesInCollection = _imageService.NumberOfImagesInCollection(imageDataList);
+            var imagesInCollection = _imageService.GetNumberOfImagesInCollection(imageDataList);
             //check number of images in collection and in target directory
             if (imagesInTargetDirectory.Count != imagesInCollection)
             {
@@ -370,9 +369,8 @@ namespace MusicStoreKeeper.CollectionManager
                     if (!imageDataList.Any(img => img.Name.Equals(imgName)))
                     {
                         //create new imageData
-                        var newImageData = _imageService.CreateImageData(imageInTargetDirectory.FullName, imgName);
+                        var newImageData = new ImageData { Name = imgName, Status = ImageStatus.InCollection };
                         //add new images to collection
-                        newImageData.Status = ImageStatus.InCollection;
                         imageDataList.Add(newImageData);
                     }
                 }

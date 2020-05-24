@@ -11,26 +11,13 @@ namespace ImageAnalyzer
 {
     public class ImageService : IImageService
     {
-        #region [  fields  ]
 
-        private readonly ArrayComparer<byte> _arrayComparer = new ArrayComparer<byte>();
-
-        #endregion [  fields  ]
-
-        public ImageData CreateImageData(string imagePath, string imageName, string source = default)
-        {
-            var image = Image.FromFile(imagePath);
-            var grayScale16X16 = image.GetGrayScaleValues();
-            image.Dispose();
-            return new ImageData() { GrayScale16X16 = grayScale16X16, Name = imageName, Source = source };
-        }
-
-        public int CompareImageDataGrayScales(ImageData imgDataA, ImageData imgDataB)
-        {
-            return _arrayComparer.Compare(imgDataA.GrayScale16X16, imgDataB.GrayScale16X16);
-        }
-
-        public int NumberOfImagesInCollection(IEnumerable<ImageData> imageDataList)
+        /// <summary>
+        /// Returns number of images which have ImageStatus.InCollection.
+        /// </summary>
+        /// <param name="imageDataList">List of ImageData of artist or album</param>
+        /// <returns></returns>
+        public int GetNumberOfImagesInCollection(IEnumerable<ImageData> imageDataList)
         {
             return imageDataList.Count(img => img.Status == ImageStatus.InCollection);
         }
@@ -39,9 +26,10 @@ namespace ImageAnalyzer
         /// Returns a list of lower resolution duplicate image paths.
         /// </summary>
         /// <param name="imageFileInfos">List of image file infos to compare</param>
+        /// <param name="threshold">How big a difference in a pair of pixels (out of 255) will be ignored.</param>
         /// <param name="imageDifferenceLimit"></param>
         /// <returns>List of of lower resolution duplicate image paths.</returns>
-        public IEnumerable<string> GetDuplicateImagePaths(IEnumerable<FileInfo> imageFileInfos, float imageDifferenceLimit=0.1f)
+        public IEnumerable<string> GetDuplicateImagePaths(IEnumerable<FileInfo> imageFileInfos, byte threshold = 3, float imageDifferenceLimit = 0.1f)
         {
             var imageSizeComparer = new ImageSizeComparer();
             var duplicateImagePathsList = new List<string>();
@@ -61,11 +49,11 @@ namespace ImageAnalyzer
                 var lowResolutionDuplicateImages = new List<ImageContainer>();
                 //set first image to compare as default best image
                 var bestImage = imageContainers[i];
-                for (var j = i+1; j < imageContainers.Count; j++)
+                for (var j = i + 1; j < imageContainers.Count; j++)
                 {
                     //get percentage difference for images 16x16 gray scales
                     var difference = GetPercentageDifferenceFor16X16GrayScales(imageContainers[i].Image16X16GrayScale,
-                        imageContainers[j].Image16X16GrayScale);
+                        imageContainers[j].Image16X16GrayScale, threshold);
                     if (difference < imageDifferenceLimit)
                     {
                         //select image with higher resolution. the lower resolution image goes to lowResolutionDuplicateImages list
@@ -106,7 +94,6 @@ namespace ImageAnalyzer
             foreach (var imageContainer in imageContainers)
             {
                 imageContainer.Image.Dispose();
-                
             }
             return duplicateImagePathsList;
         }
