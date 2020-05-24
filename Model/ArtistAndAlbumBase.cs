@@ -6,15 +6,14 @@ namespace MusicStoreKeeper.Model
 {
     public abstract class ArtistAndAlbumBase : BaseEntity
     {
-        protected ArtistAndAlbumBase()
-        {
-        }
-
         #region [  properties  ]
 
         public int DiscogsId { get; set; }
 
         public string StoragePath { get; set; }
+
+        [ForeignKey("ImageOwnerId")]
+        public List<ImageData> ImageDataList { get; set; } = new List<ImageData>();
 
         public string StylesString
         {

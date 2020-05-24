@@ -21,6 +21,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         //get rid of this field
         private readonly IMusicFileAnalyzer _musicFileAnalyzer;
+
         private readonly IFileManager _fileManager;
 
         #endregion [  fields  ]
@@ -64,10 +65,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             var artistPreviewVm = new ArtistPreviewVm(artist);
             if (string.IsNullOrEmpty(artist.StoragePath)) return artistPreviewVm;
             var imgDirPath = Path.Combine(artist.StoragePath, _fileManager.DefaultArtistPhotosDirectory);
-            var images = LoadImages(imgDirPath);
-            if (!images.Any()) return artistPreviewVm;
-            artistPreviewVm.ImageCollection = images;
-            artistPreviewVm.SelectedImage = artistPreviewVm.ImageCollection.First();
+            HandlePreviewImages(artistPreviewVm, imgDirPath);
             return artistPreviewVm;
         }
 
@@ -77,10 +75,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             var albumPreviewVm = new AlbumPreviewVm(album);
             if (string.IsNullOrEmpty(album.StoragePath)) return albumPreviewVm;
             var imgDirPath = Path.Combine(album.StoragePath, _fileManager.DefaultAlbumImagesDirectory);
-            var images = LoadImages(imgDirPath);
-            if (!images.Any()) return albumPreviewVm;
-            albumPreviewVm.ImageCollection = images;
-            albumPreviewVm.SelectedImage = albumPreviewVm.ImageCollection.First();
+            HandlePreviewImages(albumPreviewVm, imgDirPath);
             return albumPreviewVm;
         }
 
@@ -104,6 +99,13 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         private TextFilePreviewVm CreateTextFilePreviewVm(ISimpleFileInfo file)
         {
             return new TextFilePreviewVm(file);
+        }
+
+        private void HandlePreviewImages(ModelEntityPreviewVmBase modelEntityPreviewVmBase, string imageDirectoryPath)
+        {
+            var images = LoadImages(imageDirectoryPath);
+            modelEntityPreviewVmBase.ImageCollection = images;
+            modelEntityPreviewVmBase.SelectedImage = modelEntityPreviewVmBase.ImageCollection.FirstOrDefault();
         }
 
         //TODO: Rework LoadImages

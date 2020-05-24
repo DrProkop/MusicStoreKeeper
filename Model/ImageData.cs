@@ -1,4 +1,6 @@
-﻿namespace MusicStoreKeeper.Model
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace MusicStoreKeeper.Model
 {
     /// <summary>
     /// Info about artist and album images in collection.
@@ -11,7 +13,7 @@
 
         public ImageStatus Status { get; set; } = ImageStatus.Unknown;
 
-
+        public int ImageOwnerId { get; set; }
     }
 
     public enum ImageStatus

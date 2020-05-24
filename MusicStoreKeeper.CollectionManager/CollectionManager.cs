@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace MusicStoreKeeper.CollectionManager
 {
@@ -19,7 +20,8 @@ namespace MusicStoreKeeper.CollectionManager
             IMusicFileAnalyzer musicFileAnalyzer,
             IMusicDirAnalyzer musicDirAnalyzer,
             IImageService imageService,
-            IRepository repository)
+            IRepository repository,
+            ILoggerManager manager)
         {
             _discogsClient = client;
             _fileManager = fileManager;
@@ -27,6 +29,7 @@ namespace MusicStoreKeeper.CollectionManager
             _musicDirAnalyzer = musicDirAnalyzer;
             _imageService = imageService;
             _repo = repository;
+            log = manager.GetLogger(this);
             _genreAndStyleProvider = new GenreAndStyleProvider();
             _discogsConverter = new DiscogsConverter(_genreAndStyleProvider);
             CreateTempImageDirectory();
@@ -40,6 +43,7 @@ namespace MusicStoreKeeper.CollectionManager
         private readonly IMusicDirAnalyzer _musicDirAnalyzer;
         private readonly IImageService _imageService;
         private readonly IRepository _repo;
+        protected readonly ILogger log;
         private readonly DiscogsConverter _discogsConverter;
         private readonly GenreAndStyleProvider _genreAndStyleProvider;
         private string tempImageDirectoryPath;
@@ -349,12 +353,12 @@ namespace MusicStoreKeeper.CollectionManager
         /// Check target directory for files with no appropriate info in collection db. Add new files to db.
         /// </summary>
         /// <param name="imageDataList">List of image data from db</param>
-        /// <param name="targetDirPath">Directory to check</param>
+        /// <param name="directoryPath">Directory to check</param>
         /// <returns>True whether any new images were found</returns>
-        private bool RefreshImageDirectory(List<ImageData> imageDataList, string targetDirPath)
+        private bool RefreshImageDirectory(List<ImageData> imageDataList, string directoryPath)
         {
             var newImagesWereFound = false;
-            var imagesInTargetDirectory = _fileManager.GetImageFileInfosFromDirectory(targetDirPath);
+            var imagesInTargetDirectory = _fileManager.GetImageFileInfosFromDirectory(directoryPath);
             var imagesInCollection = _imageService.GetNumberOfImagesInCollection(imageDataList);
             //check number of images in collection and in target directory
             if (imagesInTargetDirectory.Count != imagesInCollection)
@@ -366,7 +370,7 @@ namespace MusicStoreKeeper.CollectionManager
                     //get name of each image in target directory
                     var imgName = imageInTargetDirectory.Name;
                     //check for matches in imageDataList
-                    if (!imageDataList.Any(img => img.Name.Equals(imgName)))
+                    if (!imageDataList.Any(data => data.Name.Equals(imgName)))
                     {
                         //create new imageData
                         var newImageData = new ImageData { Name = imgName, Status = ImageStatus.InCollection };
@@ -374,6 +378,7 @@ namespace MusicStoreKeeper.CollectionManager
                         imageDataList.Add(newImageData);
                     }
                 }
+                //TODO: Add method for saving ImageDatas to db
             }
             return newImagesWereFound;
         }

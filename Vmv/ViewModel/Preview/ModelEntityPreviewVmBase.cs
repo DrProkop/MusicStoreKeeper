@@ -4,14 +4,8 @@ using System.Windows.Media;
 
 namespace MusicStoreKeeper.Vmv.ViewModel
 {
-    public class ModelEntityPreviewVmBase : NotifyPropertyChangedBase, IPreviewVm
+    public abstract class ModelEntityPreviewVmBase : NotifyPropertyChangedBase, IPreviewVm
     {
-        public ModelEntityPreviewVmBase()
-        {
-        }
-
-
-
         #region [  properties  ]
 
         private string _itemName;
