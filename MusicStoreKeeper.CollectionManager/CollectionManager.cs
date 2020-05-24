@@ -3,13 +3,13 @@ using Discogs;
 using Discogs.Entity;
 using MusicStoreKeeper.DataModel;
 using MusicStoreKeeper.Model;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Serilog;
 
 namespace MusicStoreKeeper.CollectionManager
 {
@@ -111,6 +111,7 @@ namespace MusicStoreKeeper.CollectionManager
             var artistId = _repo.AddNewArtist(artist);
             //создаю папку с исполнителем на диске
             var artPath = _fileManager.CreateArtistStorageDirectory(MusicCollectionDirectory, artist.Name);
+            //TODO: Add same image handling as for album
             var imagePath = Path.Combine(artPath, _fileManager.DefaultArtistPhotosDirectory);
             DownloadArtistOrAlbumImages(dArtist.images, dArtist.name, artist.ImageDataList, imagePath);
             //добавляю путь к папке исполнителя в базу
@@ -219,8 +220,10 @@ namespace MusicStoreKeeper.CollectionManager
                 DownloadArtistOrAlbumImages(dRelease.images, storedAlbum.Title, storedAlbum.ImageDataList, albumImageDirectoryPath);
                 //scan album images directory to get all images data
                 RefreshImageDirectory(storedAlbum.ImageDataList, albumImageDirectoryPath);
-                //delete duplicate images from album image directory and db
+                //delete duplicate images from album image directory
                 DeleteDuplicateImagesFromDirectoryAndDb(storedAlbum.ImageDataList, albumImageDirectoryPath);
+                //save imagedata list to db
+                _repo.AddImagesData(storedAlbum.ImageDataList, albumId);
                 //add album storage path to db and change album status to "InCollection"
                 _repo.AddAlbumToStorage(storedAlbum, albumStoragePath);
 

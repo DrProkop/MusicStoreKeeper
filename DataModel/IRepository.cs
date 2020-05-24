@@ -58,6 +58,13 @@ namespace MusicStoreKeeper.DataModel
 
         Album FindAlbumByTitleOrDiscogsId(string title, int discogsId);
 
+        // imagedata
+
+        void AddImageData(ImageData imageData, int ownerId);
+
+        void AddImagesData(IEnumerable<ImageData> imagesData, int ownerId);
+
+        // save
         void Save();
     }
 }

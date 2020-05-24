@@ -224,6 +224,28 @@ namespace MusicStoreKeeper.DataModel
 
         #endregion [  album  ]
 
+        #region [  imagedata  ]
+
+        public void AddImageData(ImageData imageData, int ownerId)
+        {
+            if (imageData.ImageOwnerId == 0)
+            {
+                imageData.ImageOwnerId = ownerId;
+            }
+            _musicStoreContext.ImagesData.Add(imageData);
+        }
+
+        public void AddImagesData(IEnumerable<ImageData> imagesData, int ownerId)
+        {
+            foreach (var imageData in imagesData)
+            {
+                AddImageData(imageData, ownerId);
+            }
+            Save();
+        }
+
+        #endregion
+
         public void Save()
         {
             _musicStoreContext.SaveChanges();
