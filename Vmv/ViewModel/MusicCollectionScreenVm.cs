@@ -3,6 +3,7 @@ using MusicStoreKeeper.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,12 +15,14 @@ namespace MusicStoreKeeper.Vmv.ViewModel
     {
         public MusicCollectionScreenVm(
             ICollectionManager collectionManager,
+            IFileManager fileManager,
             PreviewFactory previewFactory,
             ILongOperationService longOperationService,
             IUserNotificationService userNotificationService,
             ILoggerManager manager) : base(longOperationService, userNotificationService, manager)
         {
             _collectionManager = collectionManager;
+            _fileManager = fileManager;
             _previewFactory = previewFactory;
             _allArtists = _collectionManager.GetAllArtists().ToList();
             LoadAllArtistsInCollection();
@@ -32,6 +35,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         #region [  fields  ]
 
         private readonly ICollectionManager _collectionManager;
+        private readonly IFileManager _fileManager;
         private readonly PreviewFactory _previewFactory;
         private readonly List<Artist> _allArtists;
         private readonly List<string> _selectedStyles = new List<string>();
@@ -185,30 +189,40 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         #region [  private methods  ]
 
+        //TODO: Add image handling (refresh and delete duplicates)
         private void ChangeSelectedItem(object arg)
         {
             SelectedItemWrap = arg;
+            var imgDirPath = string.Empty;
+
             switch (arg)
             {
                 case AlbumWrap albumWrap when albumWrap.Value.InCollection:
                     albumWrap.Value = _collectionManager.GetAlbum(albumWrap.Value.Id);
+                    imgDirPath = Path.Combine(albumWrap.Value.StoragePath, _fileManager.DefaultAlbumImagesDirectory);
+                    _collectionManager.CleanupImageDirectory(albumWrap.Value.ImageDataList, albumWrap.Value.Id, imgDirPath);
                     CollectionItemPreview = _previewFactory.CreateAlbumPreviewVm(albumWrap.Value);
                     SelectedAlbum = albumWrap.Value;
                     SelectedArtist = null;
                     return;
 
                 case AlbumWrap albumWrap:
+                    imgDirPath = Path.Combine(albumWrap.Value.StoragePath, _fileManager.DefaultAlbumImagesDirectory);
+                    _collectionManager.CleanupImageDirectory(albumWrap.Value.ImageDataList, albumWrap.Value.Id, imgDirPath);
                     CollectionItemPreview = _previewFactory.CreateAlbumPreviewVm(albumWrap.Value);
                     SelectedAlbum = albumWrap.Value;
                     SelectedArtist = null;
                     break;
 
                 case ArtistWrap artistWrap:
+                    imgDirPath = Path.Combine(artistWrap.Value.StoragePath, _fileManager.DefaultArtistPhotosDirectory);
+                    _collectionManager.CleanupImageDirectory(artistWrap.Value.ImageDataList, artistWrap.Value.Id, imgDirPath);
                     CollectionItemPreview = _previewFactory.CreateArtistPreviewVm(artistWrap.Value);
                     SelectedArtist = artistWrap.Value;
                     SelectedAlbum = null;
                     break;
             }
+
         }
 
         private void ExpandTreeViewItem(RoutedEventArgs arg)

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using MusicStoreKeeper.Model;
+using System.Collections.Generic;
 using System.Threading;
-using MusicStoreKeeper.Model;
 using System.Threading.Tasks;
 
 namespace Common
@@ -17,14 +17,25 @@ namespace Common
         void MoveToCollectionManually(ISimpleFileInfo sFi);
 
         IEnumerable<Artist> GetAllArtists();
+
         IEnumerable<Artist> GetRecentArtists();
+
         IEnumerable<Album> GetAllArtistAlbums(int artistId);
+
         Album GetAlbum(int albumId);
 
         void DeleteAlbumFromCollection(Album album);
+
         void DeleteArtistFromCollection(Artist artist);
 
         List<string> GetMusicStylesList();
+
         List<string> GetMusicGenresList();
+
+        bool RefreshImageDirectory(ICollection<ImageData> imageDataList, int ownerId, string directoryPath);
+
+        void DeleteDuplicateImagesFromDirectoryAndDb(ICollection<ImageData> imageData, int ownerId, string directoryPath);
+
+        void CleanupImageDirectory(ICollection<ImageData> imageData, int ownerId, string directoryPath);
     }
 }

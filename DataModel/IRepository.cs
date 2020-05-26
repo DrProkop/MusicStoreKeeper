@@ -31,7 +31,7 @@ namespace MusicStoreKeeper.DataModel
 
         IEnumerable<Artist> GetAllArtists();
 
-        Artist GetArtistWithAlbums(int id);
+        Artist GetArtistWithAlbumsAndImageData(int id);
 
         IEnumerable<int> GetRecentlyAddedArtists();
 
@@ -48,7 +48,7 @@ namespace MusicStoreKeeper.DataModel
 
         IEnumerable<Album> GetAllArtistAlbums(int artistId);
 
-        Album GetAlbumWithTracks(int albumId);
+        Album GetAlbumWithTracksAndImageData(int albumId);
 
         void DeleteAlbum(Album album);
 
@@ -60,9 +60,15 @@ namespace MusicStoreKeeper.DataModel
 
         // imagedata
 
+        IEnumerable<ImageData> FindArtistOrAlbumImagesData(int ownerId);
+
         void AddImageData(ImageData imageData, int ownerId);
 
         void AddImagesData(IEnumerable<ImageData> imagesData, int ownerId);
+
+        void DeleteImageData(ImageData imageData);
+
+        void DeleteImageData(int id);
 
         // save
         void Save();

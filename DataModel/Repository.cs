@@ -44,7 +44,7 @@ namespace MusicStoreKeeper.DataModel
         public void UpdateArtist(int artistCollectionId, Artist artist)
         {
             if (artist == null) throw new ArgumentNullException(nameof(artist));
-            var existingArtist = GetArtistWithAlbums(artistCollectionId);
+            var existingArtist = GetArtistWithAlbumsAndImageData(artistCollectionId);
             if (existingArtist == null) return;
 
             existingArtist.Merge(artist);
@@ -111,9 +111,12 @@ namespace MusicStoreKeeper.DataModel
             return _musicStoreContext.Artists.ToList();
         }
 
-        public Artist GetArtistWithAlbums(int id)
+        public Artist GetArtistWithAlbumsAndImageData(int id)
         {
-            return _musicStoreContext.Artists.Include(art => art.Albums).FirstOrDefault(art => art.Id == id);
+            return _musicStoreContext.Artists
+                .Include(art => art.Albums)
+                .Include(art => art.ImageDataList)
+                .FirstOrDefault(art => art.Id == id);
         }
 
         public IEnumerable<int> GetRecentlyAddedArtists()
@@ -131,7 +134,7 @@ namespace MusicStoreKeeper.DataModel
         {
             if (newAlbums == null) throw new ArgumentNullException(nameof(newAlbums));
 
-            var existingArtist = GetArtistWithAlbums(artistCollectionId);
+            var existingArtist = GetArtistWithAlbumsAndImageData(artistCollectionId);
             if (existingArtist == null) return;
             UpdateArtistDiscography(existingArtist, newAlbums);
         }
@@ -190,9 +193,12 @@ namespace MusicStoreKeeper.DataModel
             return _musicStoreContext.Albums.Where(alb => alb.ArtistId == artistId).ToList();
         }
 
-        public Album GetAlbumWithTracks(int albumId)
+        public Album GetAlbumWithTracksAndImageData(int albumId)
         {
-            return _musicStoreContext.Albums.Include(alb => alb.Tracks).FirstOrDefault(alb => alb.Id == albumId);
+            return _musicStoreContext.Albums
+                .Include(alb => alb.Tracks)
+                .Include(alb => alb.ImageDataList)
+                .FirstOrDefault(alb => alb.Id == albumId);
         }
 
         public Album FindAlbumById(int albumId)
@@ -226,13 +232,20 @@ namespace MusicStoreKeeper.DataModel
 
         #region [  imagedata  ]
 
+        public IEnumerable<ImageData> FindArtistOrAlbumImagesData(int ownerId)
+        {
+            return _musicStoreContext.ImagesData.Where(i => i.ImageOwnerId == ownerId).ToList();
+        }
+
         public void AddImageData(ImageData imageData, int ownerId)
         {
             if (imageData.ImageOwnerId == 0)
             {
                 imageData.ImageOwnerId = ownerId;
             }
+            imageData.Status = ImageStatus.InCollection;
             _musicStoreContext.ImagesData.Add(imageData);
+            Save();
         }
 
         public void AddImagesData(IEnumerable<ImageData> imagesData, int ownerId)
@@ -241,10 +254,32 @@ namespace MusicStoreKeeper.DataModel
             {
                 AddImageData(imageData, ownerId);
             }
+        }
+
+        public void DeleteImageData(ImageData imageData)
+        {
+            if (imageData == null) throw new ArgumentNullException(nameof(imageData));
+            if (string.IsNullOrEmpty(imageData.Source))
+            {
+                _musicStoreContext.ImagesData.Remove(imageData);
+            }
+            else
+            {
+                imageData.Status = ImageStatus.Deleted;
+            }
             Save();
         }
 
-        #endregion
+        public void DeleteImageData(int id)
+        {
+            var imageData = _musicStoreContext.ImagesData.Find(id);
+            if (imageData != null)
+            {
+                DeleteImageData(imageData);
+            }
+        }
+
+        #endregion [  imagedata  ]
 
         public void Save()
         {

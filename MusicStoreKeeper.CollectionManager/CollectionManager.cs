@@ -113,7 +113,8 @@ namespace MusicStoreKeeper.CollectionManager
             var artPath = _fileManager.CreateArtistStorageDirectory(MusicCollectionDirectory, artist.Name);
             //TODO: Add same image handling as for album
             var imagePath = Path.Combine(artPath, _fileManager.DefaultArtistPhotosDirectory);
-            DownloadArtistOrAlbumImages(dArtist.images, dArtist.name, artist.ImageDataList, imagePath);
+            DownloadArtistOrAlbumImages(dArtist.images, dArtist.name, artist.ImageDataList, artistId, imagePath);
+            CleanupImageDirectory(artist.ImageDataList, artistId, imagePath);
             //добавляю путь к папке исполнителя в базу
             _repo.AddArtistToStorage(artistId, artPath);
             return artist;
@@ -215,15 +216,13 @@ namespace MusicStoreKeeper.CollectionManager
                 albumStoragePath = _fileManager.CreateAlbumStorageDirectory(artist.StoragePath, albumStorageName);
                 //save album copy to collection directory
                 albumCopied = _fileManager.CopyMusicDirectory(mDirInfo, albumStoragePath);
-                //save pictures from Discogs to album images directory
+                //get list of album ImageDatam
+                storedAlbum.ImageDataList = (List<ImageData>)_repo.FindArtistOrAlbumImagesData(storedAlbum.Id);
                 var albumImageDirectoryPath = Path.Combine(albumStoragePath, _fileManager.DefaultAlbumImagesDirectory);
-                DownloadArtistOrAlbumImages(dRelease.images, storedAlbum.Title, storedAlbum.ImageDataList, albumImageDirectoryPath);
-                //scan album images directory to get all images data
-                RefreshImageDirectory(storedAlbum.ImageDataList, albumImageDirectoryPath);
-                //delete duplicate images from album image directory
-                DeleteDuplicateImagesFromDirectoryAndDb(storedAlbum.ImageDataList, albumImageDirectoryPath);
-                //save imagedata list to db
-                _repo.AddImagesData(storedAlbum.ImageDataList, albumId);
+                //save pictures from Discogs to album images directory
+                DownloadArtistOrAlbumImages(dRelease.images, storedAlbum.Title, storedAlbum.ImageDataList, albumId, albumImageDirectoryPath);
+                //scan album images directory to get all images data and delete duplicates
+                CleanupImageDirectory(storedAlbum.ImageDataList, albumId, albumImageDirectoryPath);
                 //add album storage path to db and change album status to "InCollection"
                 _repo.AddAlbumToStorage(storedAlbum, albumStoragePath);
 
@@ -282,7 +281,7 @@ namespace MusicStoreKeeper.CollectionManager
 
         public Album GetAlbum(int albumId)
         {
-            return _repo.GetAlbumWithTracks(albumId);
+            return _repo.GetAlbumWithTracksAndImageData(albumId);
         }
 
         public void DeleteAlbumFromCollection(Album album)
@@ -305,11 +304,109 @@ namespace MusicStoreKeeper.CollectionManager
             return _genreAndStyleProvider.GetGenres().ToList();
         }
 
-        #endregion [  public methods  ]
+        #region [  image handling  ]
 
-        #region [  private methods  ]
+        /// <summary>
+        /// Check target directory for files with no appropriate info in collection db. Add new files to db.
+        /// </summary>
+        /// <param name="imageDataList">List of image data from db.</param>
+        /// <param name="ownerId">Id of imageDataList owner.</param>
+        /// <param name="directoryPath">Directory to check.</param>
+        /// <returns>True whether any changes in target directory were found.</returns>
+        public bool RefreshImageDirectory(ICollection<ImageData> imageDataList, int ownerId, string directoryPath)
+        {
+            var imagesInTargetDirectory = _fileManager.GetImageFileInfosFromDirectory(directoryPath);
+            var imageNamesInTargetDirectory = imagesInTargetDirectory.Select(iFi => iFi.Name).ToList();
+            var imageNamesInCollection = imageDataList
+                .Where(img => img.Status == ImageStatus.InCollection)
+                .Select(img => img.Name).ToList();
+            //find difference in image names in db and target image directory
+            var difference = imageNamesInTargetDirectory.Except(imageNamesInCollection).ToList();
+            //image directory hasn't changed changed
+            if (difference.Count == 0) return false;
+            //something changed in image directory
+            foreach (var diff in difference)
+            {
+                //image added to image directory
+                if (imageNamesInTargetDirectory.Contains(diff))
+                {
+                    //create new imageData
+                    var newImageData = new ImageData { Name = diff };
+                    //add new image data to db
+                    _repo.AddImageData(newImageData, ownerId);
+                    //add new image to collection
+                    imageDataList.Add(newImageData);
 
-        private void DownloadArtistOrAlbumImages(DiscogsImage[] discogsImages, string imageNamePattern, List<ImageData> imageDataList, string targetDirPath)
+                    continue;
+                }
+                //image removed from image directory or renamed
+                var removedImageData = imageDataList.First(img => img.Name.Equals(diff));
+                _repo.DeleteImageData(removedImageData);
+                imageDataList.Remove(removedImageData);
+            }
+
+            return true;
+            ////check number of images in collection and in target directory
+            ////new images were added
+            //if (imagesInTargetDirectory.Count > imagesInCollection)
+            //{
+            //    imageQuantityChanged = true;
+            //    var imagesToAdd = imagesInTargetDirectory.Count - imagesInCollection;
+            //    //find new images
+            //    foreach (var imageInTargetDirectory in imagesInTargetDirectory)
+            //    {
+            //        //get name of each image in target directory
+            //        var imgName = imageInTargetDirectory.Name;
+            //        //check for image name matches in imageDataList
+            //        if (!imageDataList.Any(data => data.Name.Equals(imgName)))
+            //        {
+            //            //create new imageData
+            //            var newImageData = new ImageData { Name = imgName, Status = ImageStatus.InCollection };
+            //            //add new images to collection
+            //            imageDataList.Add(newImageData);
+            //            //add new image data to db
+            //            _repo.AddImageData(newImageData, ownerId);
+            //        }
+            //    }
+            //    _repo.Save();
+            //}
+            ////some images were deleted
+            //if (imagesInTargetDirectory.Count < imagesInCollection)
+            //{
+            //}
+            //return imageQuantityChanged;
+        }
+
+        public void DeleteDuplicateImagesFromDirectoryAndDb(ICollection<ImageData> imageData, int ownerId, string directoryPath)
+        {
+            //search for duplicates in album images directory.
+            var imagePaths = _fileManager.GetImageFileInfosFromDirectory(directoryPath);
+            var duplicateImagePaths = _imageService.GetDuplicateImagePaths(imagePaths);
+            //delete lower resolution image duplicates
+            foreach (var duplicateImagePath in duplicateImagePaths)
+            {
+                var duplicateImageName = Path.GetFileName(duplicateImagePath);
+                //delete file from image directory
+                //TODO: Add TryDeleteFile to IFileManager
+                _fileManager.DeleteFile(duplicateImagePath);
+                //delete imageData from image data collection
+                var imgDataToDelete = imageData.FirstOrDefault(img => img.Name.Equals(duplicateImageName));
+                imageData.Remove(imgDataToDelete);
+                //delete imageData from db
+                _repo.DeleteImageData(imgDataToDelete);
+            }
+        }
+
+        public void CleanupImageDirectory(ICollection<ImageData> imageData, int ownerId, string directoryPath)
+        {
+            var directoryStateChanged = RefreshImageDirectory(imageData, ownerId, directoryPath);
+            if (directoryStateChanged)
+            {
+                DeleteDuplicateImagesFromDirectoryAndDb(imageData, ownerId, directoryPath);
+            }
+        }
+
+        private void DownloadArtistOrAlbumImages(DiscogsImage[] discogsImages, string imageNamePattern, List<ImageData> imageDataList, int ownerId, string targetDirPath)
         {
             var number = 1;
             //list of image names in target directory
@@ -319,12 +416,10 @@ namespace MusicStoreKeeper.CollectionManager
                 foreach (var discogsImage in discogsImages)
                 {
                     //check imageDataList for exact image copies with the same not null source
-                    if (!string.IsNullOrEmpty(discogsImage.uri) &&
-                        imageDataList.Any(arg => arg.Source.Equals(discogsImage.uri)))
+                    if (!string.IsNullOrEmpty(discogsImage.uri) && imageDataList.Any(arg => arg.Source.Equals(discogsImage.uri)))
                     {
                         continue;
                     }
-
                     //generate name for new image
                     var newImageNameAndNumber = _fileManager.GenerateNameForDownloadedImage(imageNamesInTargetDirectory, imageNamePattern, number);
                     var newImageName = newImageNameAndNumber.Item1;
@@ -340,6 +435,8 @@ namespace MusicStoreKeeper.CollectionManager
                     var downloadedImageData = new ImageData() { Name = newImageName, Source = discogsImage.uri, Status = ImageStatus.InCollection };
                     imageDataList.Add(downloadedImageData);
                 }
+                //save image data for downloaded discogs images
+                _repo.AddImagesData(imageDataList, ownerId);
             }
             //TODO: Add exception handling to CollectionManager
             catch (Exception e)
@@ -352,67 +449,11 @@ namespace MusicStoreKeeper.CollectionManager
             }
         }
 
-        /// <summary>
-        /// Check target directory for files with no appropriate info in collection db. Add new files to db.
-        /// </summary>
-        /// <param name="imageDataList">List of image data from db</param>
-        /// <param name="directoryPath">Directory to check</param>
-        /// <returns>True whether any new images were found</returns>
-        private bool RefreshImageDirectory(List<ImageData> imageDataList, string directoryPath)
-        {
-            var newImagesWereFound = false;
-            var imagesInTargetDirectory = _fileManager.GetImageFileInfosFromDirectory(directoryPath);
-            var imagesInCollection = _imageService.GetNumberOfImagesInCollection(imageDataList);
-            //check number of images in collection and in target directory
-            if (imagesInTargetDirectory.Count != imagesInCollection)
-            {
-                newImagesWereFound = true;
-                //find new images
-                foreach (var imageInTargetDirectory in imagesInTargetDirectory)
-                {
-                    //get name of each image in target directory
-                    var imgName = imageInTargetDirectory.Name;
-                    //check for matches in imageDataList
-                    if (!imageDataList.Any(data => data.Name.Equals(imgName)))
-                    {
-                        //create new imageData
-                        var newImageData = new ImageData { Name = imgName, Status = ImageStatus.InCollection };
-                        //add new images to collection
-                        imageDataList.Add(newImageData);
-                    }
-                }
-                //TODO: Add method for saving ImageDatas to db
-            }
-            return newImagesWereFound;
-        }
+        #endregion [  image handling  ]
 
-        private void DeleteDuplicateImagesFromDirectoryAndDb(ICollection<ImageData> imageData, string directoryPath)
-        {
-            //search for duplicates in album images directory.
-            var imagePaths = _fileManager.GetImageFileInfosFromDirectory(directoryPath);
-            var duplicateImagePaths = _imageService.GetDuplicateImagePaths(imagePaths);
-            //delete lower resolution image duplicates
-            foreach (var duplicateImagePath in duplicateImagePaths)
-            {
-                var duplicateImageName = Path.GetFileName(duplicateImagePath);
-                //delete file from image directory
-                //TODO: Add TryDeleteFile to IFileManager
-                _fileManager.DeleteFile(duplicateImagePath);
-                //delete imageData from db
-                var imgDataToDelete = imageData.FirstOrDefault(img => img.Name.Equals(duplicateImageName));
-                if (imgDataToDelete != null)
-                {
-                    if (string.IsNullOrEmpty(imgDataToDelete.Source))
-                    {
-                        imageData.Remove(imgDataToDelete);
-                    }
-                    else
-                    {
-                        imgDataToDelete.Status = ImageStatus.Deleted;
-                    }
-                }
-            }
-        }
+        #endregion [  public methods  ]
+
+        #region [  private methods  ]
 
         private string CreateAlbumDirectoryName(Album album)
         {
