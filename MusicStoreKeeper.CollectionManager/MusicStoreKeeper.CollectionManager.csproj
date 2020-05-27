@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ImageCollectionManager.cs" />
     <Compile Include="MusicCollectionManager.cs" />
     <Compile Include="DiscogsConverter.cs" />
     <Compile Include="GenreAndStyleProvider.cs" />

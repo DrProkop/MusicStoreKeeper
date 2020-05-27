@@ -20,6 +20,7 @@ namespace MusicStoreKeeper.CollectionManager
             IMusicFileAnalyzer musicFileAnalyzer,
             IMusicDirAnalyzer musicDirAnalyzer,
             IImageService imageService,
+            IImageCollectionManager imageCollectionManager,
             IRepository repository,
             ILoggerManager manager)
         {
@@ -28,11 +29,11 @@ namespace MusicStoreKeeper.CollectionManager
             _musicFileAnalyzer = musicFileAnalyzer;
             _musicDirAnalyzer = musicDirAnalyzer;
             _imageService = imageService;
+            _imageCollectionManager = imageCollectionManager;
             _repo = repository;
             log = manager.GetLogger(this);
             _genreAndStyleProvider = new GenreAndStyleProvider();
             _discogsConverter = new DiscogsConverter(_genreAndStyleProvider);
-            CreateTempImageDirectory();
         }
 
         #region [  fields  ]
@@ -42,11 +43,11 @@ namespace MusicStoreKeeper.CollectionManager
         private readonly IMusicFileAnalyzer _musicFileAnalyzer;
         private readonly IMusicDirAnalyzer _musicDirAnalyzer;
         private readonly IImageService _imageService;
+        private readonly IImageCollectionManager _imageCollectionManager;
         private readonly IRepository _repo;
         protected readonly ILogger log;
         private readonly DiscogsConverter _discogsConverter;
         private readonly GenreAndStyleProvider _genreAndStyleProvider;
-        private string tempImageDirectoryPath;
 
         #endregion [  fields  ]
 
@@ -113,8 +114,8 @@ namespace MusicStoreKeeper.CollectionManager
             var artPath = _fileManager.CreateArtistStorageDirectory(MusicCollectionDirectory, artist.Name);
             //TODO: Add same image handling as for album
             var imagePath = Path.Combine(artPath, _fileManager.DefaultArtistPhotosDirectory);
-            DownloadArtistOrAlbumImages(dArtist.images, dArtist.name, artist.ImageDataList, artistId, imagePath);
-            CleanupImageDirectory(artist.ImageDataList, artistId, imagePath);
+            _imageCollectionManager.DownloadArtistOrAlbumImages(dArtist.images, dArtist.name, artist.ImageDataList, artistId, imagePath);
+            _imageCollectionManager.CleanupImageDirectory(artist.ImageDataList, artistId, imagePath);
             //добавляю путь к папке исполнителя в базу
             _repo.AddArtistToStorage(artistId, artPath);
             return artist;
@@ -220,9 +221,9 @@ namespace MusicStoreKeeper.CollectionManager
                 storedAlbum.ImageDataList = (List<ImageData>)_repo.FindArtistOrAlbumImagesData(storedAlbum.Id);
                 var albumImageDirectoryPath = Path.Combine(albumStoragePath, _fileManager.DefaultAlbumImagesDirectory);
                 //save pictures from Discogs to album images directory
-                DownloadArtistOrAlbumImages(dRelease.images, storedAlbum.Title, storedAlbum.ImageDataList, albumId, albumImageDirectoryPath);
+                _imageCollectionManager.DownloadArtistOrAlbumImages(dRelease.images, storedAlbum.Title, storedAlbum.ImageDataList, albumId, albumImageDirectoryPath);
                 //scan album images directory to get all images data and delete duplicates
-                CleanupImageDirectory(storedAlbum.ImageDataList, albumId, albumImageDirectoryPath);
+                _imageCollectionManager.CleanupImageDirectory(storedAlbum.ImageDataList, albumId, albumImageDirectoryPath);
                 //add album storage path to db and change album status to "InCollection"
                 _repo.AddAlbumToStorage(storedAlbum, albumStoragePath);
 
@@ -304,153 +305,6 @@ namespace MusicStoreKeeper.CollectionManager
             return _genreAndStyleProvider.GetGenres().ToList();
         }
 
-        #region [  image handling  ]
-
-        /// <summary>
-        /// Check target directory for files with no appropriate info in collection db. Add new files to db.
-        /// </summary>
-        /// <param name="imageDataList">List of image data from db.</param>
-        /// <param name="ownerId">Id of imageDataList owner.</param>
-        /// <param name="directoryPath">Directory to check.</param>
-        /// <returns>True whether any changes in target directory were found.</returns>
-        public bool RefreshImageDirectory(ICollection<ImageData> imageDataList, int ownerId, string directoryPath)
-        {
-            var imagesInTargetDirectory = _fileManager.GetImageFileInfosFromDirectory(directoryPath);
-            var imageNamesInTargetDirectory = imagesInTargetDirectory.Select(iFi => iFi.Name).ToList();
-            var imageNamesInCollection = imageDataList
-                .Where(img => img.Status == ImageStatus.InCollection)
-                .Select(img => img.Name).ToList();
-            //find difference in image names in db and target image directory
-            var difference = imageNamesInTargetDirectory.Except(imageNamesInCollection).ToList();
-            //image directory hasn't changed changed
-            if (difference.Count == 0) return false;
-            //something changed in image directory
-            foreach (var diff in difference)
-            {
-                //image added to image directory
-                if (imageNamesInTargetDirectory.Contains(diff))
-                {
-                    //create new imageData
-                    var newImageData = new ImageData { Name = diff };
-                    //add new image data to db
-                    _repo.AddImageData(newImageData, ownerId);
-                    //add new image to collection
-                    imageDataList.Add(newImageData);
-
-                    continue;
-                }
-                //image removed from image directory or renamed
-                var removedImageData = imageDataList.First(img => img.Name.Equals(diff));
-                _repo.DeleteImageData(removedImageData);
-                imageDataList.Remove(removedImageData);
-            }
-
-            return true;
-            ////check number of images in collection and in target directory
-            ////new images were added
-            //if (imagesInTargetDirectory.Count > imagesInCollection)
-            //{
-            //    imageQuantityChanged = true;
-            //    var imagesToAdd = imagesInTargetDirectory.Count - imagesInCollection;
-            //    //find new images
-            //    foreach (var imageInTargetDirectory in imagesInTargetDirectory)
-            //    {
-            //        //get name of each image in target directory
-            //        var imgName = imageInTargetDirectory.Name;
-            //        //check for image name matches in imageDataList
-            //        if (!imageDataList.Any(data => data.Name.Equals(imgName)))
-            //        {
-            //            //create new imageData
-            //            var newImageData = new ImageData { Name = imgName, Status = ImageStatus.InCollection };
-            //            //add new images to collection
-            //            imageDataList.Add(newImageData);
-            //            //add new image data to db
-            //            _repo.AddImageData(newImageData, ownerId);
-            //        }
-            //    }
-            //    _repo.Save();
-            //}
-            ////some images were deleted
-            //if (imagesInTargetDirectory.Count < imagesInCollection)
-            //{
-            //}
-            //return imageQuantityChanged;
-        }
-
-        public void DeleteDuplicateImagesFromDirectoryAndDb(ICollection<ImageData> imageData, int ownerId, string directoryPath)
-        {
-            //search for duplicates in album images directory.
-            var imagePaths = _fileManager.GetImageFileInfosFromDirectory(directoryPath);
-            var duplicateImagePaths = _imageService.GetDuplicateImagePaths(imagePaths);
-            //delete lower resolution image duplicates
-            foreach (var duplicateImagePath in duplicateImagePaths)
-            {
-                var duplicateImageName = Path.GetFileName(duplicateImagePath);
-                //delete file from image directory
-                //TODO: Add TryDeleteFile to IFileManager
-                _fileManager.DeleteFile(duplicateImagePath);
-                //delete imageData from image data collection
-                var imgDataToDelete = imageData.FirstOrDefault(img => img.Name.Equals(duplicateImageName));
-                imageData.Remove(imgDataToDelete);
-                //delete imageData from db
-                _repo.DeleteImageData(imgDataToDelete);
-            }
-        }
-
-        public void CleanupImageDirectory(ICollection<ImageData> imageData, int ownerId, string directoryPath)
-        {
-            var directoryStateChanged = RefreshImageDirectory(imageData, ownerId, directoryPath);
-            if (directoryStateChanged)
-            {
-                DeleteDuplicateImagesFromDirectoryAndDb(imageData, ownerId, directoryPath);
-            }
-        }
-
-        private void DownloadArtistOrAlbumImages(DiscogsImage[] discogsImages, string imageNamePattern, List<ImageData> imageDataList, int ownerId, string targetDirPath)
-        {
-            var number = 1;
-            //list of image names in target directory
-            var imageNamesInTargetDirectory = _fileManager.GetFileNamesFromDirectory(targetDirPath);
-            try
-            {
-                foreach (var discogsImage in discogsImages)
-                {
-                    //check imageDataList for exact image copies with the same not null source
-                    if (!string.IsNullOrEmpty(discogsImage.uri) && imageDataList.Any(arg => arg.Source.Equals(discogsImage.uri)))
-                    {
-                        continue;
-                    }
-                    //generate name for new image
-                    var newImageNameAndNumber = _fileManager.GenerateNameForDownloadedImage(imageNamesInTargetDirectory, imageNamePattern, number);
-                    var newImageName = newImageNameAndNumber.Item1;
-                    imageNamesInTargetDirectory.Add(newImageName);
-                    number = newImageNameAndNumber.Item2 + 1;
-                    //save image to temp directory
-                    _discogsClient.SaveImage(discogsImage, tempImageDirectoryPath, newImageName);
-                    //create new ImageData (important to add url to source property)
-                    var tempImagePath = Path.Combine(tempImageDirectoryPath, newImageName);
-                    //move image to target directory
-                    _fileManager.MoveFile(tempImagePath, targetDirPath);
-                    //add new imageData to imageDataList
-                    var downloadedImageData = new ImageData() { Name = newImageName, Source = discogsImage.uri, Status = ImageStatus.InCollection };
-                    imageDataList.Add(downloadedImageData);
-                }
-                //save image data for downloaded discogs images
-                _repo.AddImagesData(imageDataList, ownerId);
-            }
-            //TODO: Add exception handling to MusicCollectionManager
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            finally
-            {
-                _fileManager.ClearDirectory(tempImageDirectoryPath);
-            }
-        }
-
-        #endregion [  image handling  ]
-
         #endregion [  public methods  ]
 
         #region [  private methods  ]
@@ -458,12 +312,6 @@ namespace MusicStoreKeeper.CollectionManager
         private string CreateAlbumDirectoryName(Album album)
         {
             return $"({album.ReleaseDate}) {album.Title}";
-        }
-
-        private void CreateTempImageDirectory()
-        {
-            tempImageDirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tempImage");
-            Directory.CreateDirectory(tempImageDirectoryPath);
         }
 
         #endregion [  private methods  ]

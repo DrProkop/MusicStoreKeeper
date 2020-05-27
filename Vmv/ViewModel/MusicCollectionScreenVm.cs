@@ -15,6 +15,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
     {
         public MusicCollectionScreenVm(
             IMusicCollectionManager musicCollectionManager,
+            IImageCollectionManager imageCollectionManager,
             IFileManager fileManager,
             PreviewFactory previewFactory,
             ILongOperationService longOperationService,
@@ -22,6 +23,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             ILoggerManager manager) : base(longOperationService, userNotificationService, manager)
         {
             _musicCollectionManager = musicCollectionManager;
+            _imageCollectionManager = imageCollectionManager;
             _fileManager = fileManager;
             _previewFactory = previewFactory;
             _allArtists = _musicCollectionManager.GetAllArtists().ToList();
@@ -35,6 +37,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         #region [  fields  ]
 
         private readonly IMusicCollectionManager _musicCollectionManager;
+        private readonly IImageCollectionManager _imageCollectionManager;
         private readonly IFileManager _fileManager;
         private readonly PreviewFactory _previewFactory;
         private readonly List<Artist> _allArtists;
@@ -200,7 +203,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
                 case AlbumWrap albumWrap when albumWrap.Value.InCollection:
                     albumWrap.Value = _musicCollectionManager.GetAlbum(albumWrap.Value.Id);
                     imgDirPath = Path.Combine(albumWrap.Value.StoragePath, _fileManager.DefaultAlbumImagesDirectory);
-                    _musicCollectionManager.CleanupImageDirectory(albumWrap.Value.ImageDataList, albumWrap.Value.Id, imgDirPath);
+                    _imageCollectionManager.CleanupImageDirectory(albumWrap.Value.ImageDataList, albumWrap.Value.Id, imgDirPath);
                     CollectionItemPreview = _previewFactory.CreateAlbumPreviewVm(albumWrap.Value);
                     SelectedAlbum = albumWrap.Value;
                     SelectedArtist = null;
@@ -208,7 +211,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
                 case AlbumWrap albumWrap:
                     imgDirPath = Path.Combine(albumWrap.Value.StoragePath, _fileManager.DefaultAlbumImagesDirectory);
-                    _musicCollectionManager.CleanupImageDirectory(albumWrap.Value.ImageDataList, albumWrap.Value.Id, imgDirPath);
+                    _imageCollectionManager.CleanupImageDirectory(albumWrap.Value.ImageDataList, albumWrap.Value.Id, imgDirPath);
                     CollectionItemPreview = _previewFactory.CreateAlbumPreviewVm(albumWrap.Value);
                     SelectedAlbum = albumWrap.Value;
                     SelectedArtist = null;
@@ -216,7 +219,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
                 case ArtistWrap artistWrap:
                     imgDirPath = Path.Combine(artistWrap.Value.StoragePath, _fileManager.DefaultArtistPhotosDirectory);
-                    _musicCollectionManager.CleanupImageDirectory(artistWrap.Value.ImageDataList, artistWrap.Value.Id, imgDirPath);
+                    _imageCollectionManager.CleanupImageDirectory(artistWrap.Value.ImageDataList, artistWrap.Value.Id, imgDirPath);
                     CollectionItemPreview = _previewFactory.CreateArtistPreviewVm(artistWrap.Value);
                     SelectedArtist = artistWrap.Value;
                     SelectedAlbum = null;

@@ -31,11 +31,5 @@ namespace Common
         List<string> GetMusicStylesList();
 
         List<string> GetMusicGenresList();
-
-        bool RefreshImageDirectory(ICollection<ImageData> imageDataList, int ownerId, string directoryPath);
-
-        void DeleteDuplicateImagesFromDirectoryAndDb(ICollection<ImageData> imageData, int ownerId, string directoryPath);
-
-        void CleanupImageDirectory(ICollection<ImageData> imageData, int ownerId, string directoryPath);
     }
 }

@@ -3,6 +3,7 @@ using Common;
 using Discogs;
 using FileAnalyzer;
 using ImageAnalyzer;
+using MusicStoreKeeper.CollectionManager;
 using MusicStoreKeeper.DataModel;
 using MusicStoreKeeper.Vmv.View;
 using MusicStoreKeeper.Vmv.ViewModel;
@@ -22,6 +23,7 @@ namespace MusicStoreKeeper
             builder.RegisterType<MusicFileAnalyzer>().As<IMusicFileAnalyzer>();
             builder.RegisterType<MusicDirAnalyzer>().As<IMusicDirAnalyzer>();
             builder.RegisterType<CollectionManager.MusicCollectionManager>().As<IMusicCollectionManager>();
+            builder.RegisterType<ImageCollectionManager>().As<IImageCollectionManager>().SingleInstance();
             builder.RegisterType<DiscogsClient>();
             builder.RegisterType<Repository>().As<IRepository>().SingleInstance();
             builder.RegisterType<PreviewFactory>();
