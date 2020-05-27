@@ -125,7 +125,7 @@ namespace FileManager
                     DeleteDirectory(dir.FullName);
                 }
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException )
             {
                 ++deleteAttempts;
                 if (deleteAttempts >= 5)
@@ -134,7 +134,7 @@ namespace FileManager
                 }
                 ClearDirectory(path);
             }
-            catch (IOException e)
+            catch (IOException)
             {
                 ++deleteAttempts;
                 if (deleteAttempts >= 5)
@@ -669,6 +669,18 @@ namespace FileManager
             var filePaths = Directory.GetFiles(directoryPath);
 
             return filePaths.Select(Path.GetFileName).ToList();
+        }
+
+        public List<string> GetImageNamesFromDirectory(string directoryPath)
+        {
+            var filePaths = GetFileNamesFromDirectory(directoryPath);
+            return filePaths.Where(IsImage).ToList();
+        }
+
+        public List<ISimpleFileInfo> GetImageSimpleFileInfosFromDirectory(string directoryPath)
+        {
+            var fileInfos=new DirectoryInfo(directoryPath).GetFiles().Where(fi => IsImage(fi.FullName)).ToList();
+            return fileInfos.Select(SimpleFileInfoFactory.Create).ToList();
         }
 
         public List<FileInfo> GetImageFileInfosFromDirectory(string directoryPath)

@@ -8,6 +8,6 @@ namespace Common
     {
         int GetNumberOfImagesInCollection(IEnumerable<ImageData> imageDataList);
 
-        IEnumerable<string> GetDuplicateImagePaths(IEnumerable<FileInfo> imageFileInfos, byte threshold = default, float imageDifferenceLimit = 0.1F);
+        IEnumerable<string> GetDuplicateImagePaths(IEnumerable<string> imagePaths, byte threshold = default, float imageDifferenceLimit = 0.1F);
     }
 }

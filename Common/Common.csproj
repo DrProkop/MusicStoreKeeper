@@ -70,6 +70,7 @@
     <Compile Include="IMusicDirAnalyzer.cs" />
     <Compile Include="IMusicDirInfo.cs" />
     <Compile Include="IUserNotificationService.cs" />
+    <Compile Include="LoggingBase.cs" />
     <Compile Include="Logging\ILoggerManager.cs" />
     <Compile Include="Logging\LoggerManager.cs" />
     <Compile Include="NotifyPropertyChangedBase.cs" />

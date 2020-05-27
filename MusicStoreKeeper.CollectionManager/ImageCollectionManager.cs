@@ -10,11 +10,14 @@ using System.Linq;
 
 namespace MusicStoreKeeper.CollectionManager
 {
-    public class ImageCollectionManager : IImageCollectionManager
+    public class ImageCollectionManager : LoggingBase, IImageCollectionManager
     {
-        public ImageCollectionManager(DiscogsClient client, IFileManager fileManager,
+        public ImageCollectionManager(
+            DiscogsClient client,
+            IFileManager fileManager,
             IRepository repository,
-            IImageService imageService)
+            IImageService imageService,
+            ILoggerManager manager) : base(manager)
         {
             _discogsClient = client;
             _fileManager = fileManager;
@@ -46,13 +49,16 @@ namespace MusicStoreKeeper.CollectionManager
         /// <returns>True whether any changes in target directory were found.</returns>
         public bool RefreshImageDirectory(ICollection<ImageData> imageDataList, int ownerId, string directoryPath)
         {
-            var imagesInTargetDirectory = _fileManager.GetImageFileInfosFromDirectory(directoryPath);
-            var imageNamesInTargetDirectory = imagesInTargetDirectory.Select(iFi => iFi.Name).ToList();
+            var imageNamesInTargetDirectory = _fileManager.GetImageNamesFromDirectory(directoryPath);
             var imageNamesInCollection = imageDataList
                 .Where(img => img.Status == ImageStatus.InCollection)
                 .Select(img => img.Name).ToList();
             //find difference in image names in db and target image directory
-            var difference = imageNamesInTargetDirectory.Except(imageNamesInCollection).ToList();
+            //TODO: write custom method for collections comparison
+            var commonNames = imageNamesInTargetDirectory.Intersect(imageNamesInCollection).ToList();
+            var difference1 = imageNamesInTargetDirectory.Except(commonNames).ToList();
+            var difference2= imageNamesInCollection.Except(commonNames).ToList();
+            var difference = difference1.Concat(difference2).ToList();
             //image directory hasn't changed changed
             if (difference.Count == 0) return false;
             //something changed in image directory
@@ -71,9 +77,13 @@ namespace MusicStoreKeeper.CollectionManager
                     continue;
                 }
                 //image removed from image directory or renamed
-                var removedImageData = imageDataList.First(img => img.Name.Equals(diff));
-                _repository.DeleteImageData(removedImageData);
-                imageDataList.Remove(removedImageData);
+                var imageDataToRemove = imageDataList.First(img => img.Name.Equals(diff));
+                _repository.DeleteImageData(imageDataToRemove);
+                if (string.IsNullOrEmpty(imageDataToRemove.Source))
+                {
+                    imageDataList.Remove(imageDataToRemove);
+                }
+                
             }
 
             return true;
@@ -117,7 +127,7 @@ namespace MusicStoreKeeper.CollectionManager
         public void DeleteDuplicateImagesFromDirectoryAndDb(ICollection<ImageData> imageData, int ownerId, string directoryPath)
         {
             //search for duplicates in album images directory.
-            var imagePaths = _fileManager.GetImageFileInfosFromDirectory(directoryPath);
+            var imagePaths = _fileManager.GetImageSimpleFileInfosFromDirectory(directoryPath).Select(sfi=>sfi.Path);
             var duplicateImagePaths = _imageService.GetDuplicateImagePaths(imagePaths);
             //delete lower resolution image duplicates
             foreach (var duplicateImagePath in duplicateImagePaths)
@@ -127,10 +137,19 @@ namespace MusicStoreKeeper.CollectionManager
                 //TODO: Add TryDeleteFile to IFileManager
                 _fileManager.DeleteFile(duplicateImagePath);
                 //delete imageData from image data collection
-                var imgDataToDelete = imageData.FirstOrDefault(img => img.Name.Equals(duplicateImageName));
-                imageData.Remove(imgDataToDelete);
+                var imageDataToRemove = imageData.FirstOrDefault(img => img.Name.Equals(duplicateImageName));
+                //skip images with no records in collection
+                if (imageDataToRemove==null)
+                {
+                    continue;
+                }
                 //delete imageData from db
-                _repository.DeleteImageData(imgDataToDelete);
+                _repository.DeleteImageData(imageDataToRemove);
+                //delete imageData from imageData collection
+                if (string.IsNullOrEmpty(imageDataToRemove.Source))
+                {
+                    imageData.Remove(imageDataToRemove);
+                }
             }
         }
 

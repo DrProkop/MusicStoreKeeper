@@ -33,6 +33,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MusicStoreKeeper.Tests", "M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageAnalyzer", "ImageAnalyzer\ImageAnalyzer.csproj", "{0C5CDDB4-0D7A-4921-AE6B-C7072555CBD7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CollectionManager.Tests", "CollectionManager.Tests\CollectionManager.Tests.csproj", "{88FA76CB-61FF-488A-9593-487EEB698646}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -153,6 +155,14 @@ Global
 		{0C5CDDB4-0D7A-4921-AE6B-C7072555CBD7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0C5CDDB4-0D7A-4921-AE6B-C7072555CBD7}.Release|x86.ActiveCfg = Release|Any CPU
 		{0C5CDDB4-0D7A-4921-AE6B-C7072555CBD7}.Release|x86.Build.0 = Release|Any CPU
+		{88FA76CB-61FF-488A-9593-487EEB698646}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88FA76CB-61FF-488A-9593-487EEB698646}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88FA76CB-61FF-488A-9593-487EEB698646}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{88FA76CB-61FF-488A-9593-487EEB698646}.Debug|x86.Build.0 = Debug|Any CPU
+		{88FA76CB-61FF-488A-9593-487EEB698646}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88FA76CB-61FF-488A-9593-487EEB698646}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88FA76CB-61FF-488A-9593-487EEB698646}.Release|x86.ActiveCfg = Release|Any CPU
+		{88FA76CB-61FF-488A-9593-487EEB698646}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -161,6 +171,7 @@ Global
 		{1FF3CE77-CFDA-46B5-BE73-714CC1FA95B9} = {2B2E2D92-5C44-45BE-9A18-C210E0730BA8}
 		{8DCC673E-0941-477B-8E94-C9E0CD2C7694} = {2B2E2D92-5C44-45BE-9A18-C210E0730BA8}
 		{C69E7ACA-A886-4558-93E1-84F508DF8A4B} = {2B2E2D92-5C44-45BE-9A18-C210E0730BA8}
+		{88FA76CB-61FF-488A-9593-487EEB698646} = {2B2E2D92-5C44-45BE-9A18-C210E0730BA8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {43B9EE37-70B0-4AC0-AC12-3877E1A9CCB2}

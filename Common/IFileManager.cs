@@ -59,6 +59,9 @@ namespace Common
 
         List<FileInfo> GetImageFileInfosFromDirectory(string directoryPath);
 
+        List<string> GetImageNamesFromDirectory(string directoryPath);
+
+        List<ISimpleFileInfo> GetImageSimpleFileInfosFromDirectory(string directoryPath);
         //music directories methods
 
         List<DirectoryInfo> ScanDirectory(string path, string fileExtension);

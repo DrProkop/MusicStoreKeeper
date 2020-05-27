@@ -25,20 +25,20 @@ namespace ImageAnalyzer
         /// <summary>
         /// Returns a list of lower resolution duplicate image paths.
         /// </summary>
-        /// <param name="imageFileInfos">List of image file infos to compare</param>
+        /// <param name="imagePaths">List of image paths to compare</param>
         /// <param name="threshold">How big a difference in a pair of pixels (out of 255) will be ignored.</param>
         /// <param name="imageDifferenceLimit"></param>
         /// <returns>List of of lower resolution duplicate image paths.</returns>
-        public IEnumerable<string> GetDuplicateImagePaths(IEnumerable<FileInfo> imageFileInfos, byte threshold = 3, float imageDifferenceLimit = 0.1f)
+        public IEnumerable<string> GetDuplicateImagePaths(IEnumerable<string> imagePaths, byte threshold = 3, float imageDifferenceLimit = 0.1f)
         {
             var imageSizeComparer = new ImageSizeComparer();
             var duplicateImagePathsList = new List<string>();
             // create list of yobaImages
             var imageContainers = new List<ImageContainer>();
-            foreach (var imageFileInfo in imageFileInfos)
+            foreach (var imagePath in imagePaths)
             {
                 var imageContainer = new ImageContainer();
-                imageContainer.ImagePath = imageFileInfo.FullName;
+                imageContainer.ImagePath = imagePath;
                 imageContainer.Image = Image.FromFile(imageContainer.ImagePath);
                 imageContainer.Image16X16GrayScale = imageContainer.Image.GetGrayScaleValues();
                 imageContainers.Add(imageContainer);
