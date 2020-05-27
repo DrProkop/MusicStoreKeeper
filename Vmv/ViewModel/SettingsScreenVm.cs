@@ -8,17 +8,17 @@ namespace MusicStoreKeeper.Vmv.ViewModel
     public class SettingsScreenVm : BaseScreenVm
     {
         public SettingsScreenVm(
-            ICollectionManager collectionManager,
+            IMusicCollectionManager musicCollectionManager,
             ILongOperationService longOperationService,
             IUserNotificationService userNotificationService,
             ILoggerManager manager) : base(longOperationService, userNotificationService, manager)
         {
-            _collectionManager = collectionManager;
+            _musicCollectionManager = musicCollectionManager;
         }
 
         #region [  fields  ]
 
-        private readonly ICollectionManager _collectionManager;
+        private readonly IMusicCollectionManager _musicCollectionManager;
 
         #endregion
 
@@ -28,11 +28,11 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public string MusicCollectionDirectoryPath
         {
-            get => _musicCollectionDirectoryPath ?? _collectionManager.MusicCollectionDirectory;
+            get => _musicCollectionDirectoryPath ?? _musicCollectionManager.MusicCollectionDirectory;
             set
             {
                 if (MusicCollectionDirectoryPath.Equals(value)) return;
-                _collectionManager.MusicCollectionDirectory = value;
+                _musicCollectionManager.MusicCollectionDirectory = value;
                 _musicCollectionDirectoryPath = value;
                 OnPropertyChanged();
             }
@@ -42,11 +42,11 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public string MusicSearchDirectoryPath
         {
-            get => _musicSearchDirectoryPath ?? _collectionManager.MusicSearchDirectory;
+            get => _musicSearchDirectoryPath ?? _musicCollectionManager.MusicSearchDirectory;
             set
             {
                 if (MusicSearchDirectoryPath.Equals(value)) return;
-                _collectionManager.MusicSearchDirectory = value;
+                _musicCollectionManager.MusicSearchDirectory = value;
                 _musicSearchDirectoryPath = value;
                 OnPropertyChanged();
             }

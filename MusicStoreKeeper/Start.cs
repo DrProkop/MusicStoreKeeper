@@ -21,7 +21,7 @@ namespace MusicStoreKeeper
             builder.RegisterType<FileManager.FileManager>().As<IFileManager>().SingleInstance();
             builder.RegisterType<MusicFileAnalyzer>().As<IMusicFileAnalyzer>();
             builder.RegisterType<MusicDirAnalyzer>().As<IMusicDirAnalyzer>();
-            builder.RegisterType<CollectionManager.CollectionManager>().As<ICollectionManager>();
+            builder.RegisterType<CollectionManager.MusicCollectionManager>().As<IMusicCollectionManager>();
             builder.RegisterType<DiscogsClient>();
             builder.RegisterType<Repository>().As<IRepository>().SingleInstance();
             builder.RegisterType<PreviewFactory>();

@@ -61,7 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IBasicTrackInfo.cs" />
-    <Compile Include="ICollectionManager.cs" />
+    <Compile Include="IMusicCollectionManager.cs" />
     <Compile Include="IImageService.cs" />
     <Compile Include="ILongOperationService.cs" />
     <Compile Include="IMusicFileAnalyzer.cs" />

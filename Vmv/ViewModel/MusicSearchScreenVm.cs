@@ -18,7 +18,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
     {
         public MusicSearchScreenVm(
             DiscogsClient client,
-            ICollectionManager collectionManager,
+            IMusicCollectionManager musicCollectionManager,
             IRepository repository, IMusicFileAnalyzer musicFileAnalyzer,
             IMusicDirAnalyzer musicDirAnalyzer,
             IFileManager fileManager,
@@ -28,7 +28,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             ILoggerManager manager) : base(longOperationService, userNotificationService, manager)
         {
             _discogsClient = client;
-            _collectionManager = collectionManager;
+            _musicCollectionManager = musicCollectionManager;
             _repo = repository;
             _musicFileAnalyzer = musicFileAnalyzer;
             _musicDirAnalyzer = musicDirAnalyzer;
@@ -39,7 +39,7 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         #region [  fields  ]
 
         private readonly DiscogsClient _discogsClient;
-        private readonly ICollectionManager _collectionManager;
+        private readonly IMusicCollectionManager _musicCollectionManager;
         private readonly IRepository _repo;
         private readonly IMusicFileAnalyzer _musicFileAnalyzer;
         private readonly IMusicDirAnalyzer _musicDirAnalyzer;
@@ -99,10 +99,10 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public string MusicSearchDirectory
         {
-            get => _collectionManager.MusicSearchDirectory;
+            get => _musicCollectionManager.MusicSearchDirectory;
             set
             {
-                _collectionManager.MusicSearchDirectory = value;
+                _musicCollectionManager.MusicSearchDirectory = value;
                 OnPropertyChanged();
             }
         }
@@ -111,10 +111,10 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         public string MusicCollectionDirectory
         {
-            get => _collectionManager.MusicCollectionDirectory;
+            get => _musicCollectionManager.MusicCollectionDirectory;
             set
             {
-                _collectionManager.MusicCollectionDirectory = value;
+                _musicCollectionManager.MusicCollectionDirectory = value;
                 OnPropertyChanged();
             }
         }
@@ -180,14 +180,14 @@ namespace MusicStoreKeeper.Vmv.ViewModel
             //get music directory info 
             var mdi = _musicDirAnalyzer.AnalyzeMusicDirectory(dirSfi);
             //search album and artist info on Discogs
-            var artist = await _collectionManager.SearchArtistAndAllAlbumsOnDiscogs(mdi, true, ct);
-            await _collectionManager.SearchFullAlbumOnDiscogs(artist, mdi, true, ct);
+            var artist = await _musicCollectionManager.SearchArtistAndAllAlbumsOnDiscogs(mdi, true, ct);
+            await _musicCollectionManager.SearchFullAlbumOnDiscogs(artist, mdi, true, ct);
             LongOperationService.FinishLongBlockingOperation();
         }
 
         private void AddAlbumToCollectionManually()
         {
-            _collectionManager.MoveToCollectionManually(SelectedItem.Value);
+            _musicCollectionManager.MoveToCollectionManually(SelectedItem.Value);
         }
 
         private void ExpandTreeViewItem(RoutedEventArgs arg)
