@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace ImageAnalyzer
+namespace MusicStoreKeeper.ImageCollectionManager
 {
     internal class ImageContainer
     {

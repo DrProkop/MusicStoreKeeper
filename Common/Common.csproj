@@ -63,7 +63,6 @@
     <Compile Include="IBasicTrackInfo.cs" />
     <Compile Include="IImageCollectionManager.cs" />
     <Compile Include="IMusicCollectionManager.cs" />
-    <Compile Include="IImageService.cs" />
     <Compile Include="ILongOperationService.cs" />
     <Compile Include="IMusicFileAnalyzer.cs" />
     <Compile Include="IFileManager.cs" />

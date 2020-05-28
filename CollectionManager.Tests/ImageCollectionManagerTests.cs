@@ -1,34 +1,28 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using Common;
+﻿using Common;
 using Discogs;
-using NUnit.Framework;
 using Moq;
 using MusicStoreKeeper.CollectionManager;
 using MusicStoreKeeper.DataModel;
 using MusicStoreKeeper.Model;
+using NUnit.Framework;
 using Serilog;
+using System.Collections.Generic;
+using MusicStoreKeeper.ImageCollectionManager;
 
 namespace CollectionManager.Tests
 {
     [TestFixture]
     public class ImageCollectionManagerTests
     {
-
-        #region [  constants  ]
-
-        #endregion
-
         #region [  fields  ]
 
         private IImageCollectionManager _sut;
-        private Mock<IFileManager> fileManager;
-
-
-        #endregion
+        private Mock<IFileManager> _fileManager;
+        
+        #endregion [  fields  ]
 
         #region [  setup/teardown  ]
-
+        
         [OneTimeSetUp]
         public void Init()
         {
@@ -36,47 +30,44 @@ namespace CollectionManager.Tests
             //DiscogsClient
             var client = new DiscogsClient();
             //IFileManager
-            fileManager = new Mock<IFileManager>();
+            _fileManager = new Mock<IFileManager>();
             //IRepository
-            var repository=new Mock<IRepository>();
-            //IImageService
-            var imageService =new Mock<IImageService>();
-            //ILoggerManager
+            var repository = new Mock<IRepository>();
+           //ILoggerManager
             var loggerManager = new Mock<ILoggerManager>();
             var iLoggerSerilog = new Mock<ILogger>();
             loggerManager.Setup(log => log.GetLogger(It.IsAny<object>())).Returns(iLoggerSerilog.Object);
             //sut
-            _sut=new ImageCollectionManager(client,fileManager.Object,repository.Object,imageService.Object,loggerManager.Object);
+            _sut = new ImageCollectionManager(client, _fileManager.Object, repository.Object, loggerManager.Object);
         }
 
         [OneTimeTearDown]
         public void CleanUp()
         {
-
         }
 
         [SetUp]
         public void BeforeEachTest()
         {
-            
         }
 
         [TearDown]
         public void AfterEachTest()
         {
-           
         }
 
-        #endregion
+        #endregion [  setup/teardown  ]
 
         #region [  tests  ]
 
+        #region [  RefreshImageDirectory  ]
+
         [Test]
-        public void RefreshImageDirectoryShouldReturnFalseIfImageDirectoryHasntChanged()
+        public void RefreshImageDirectory_ShouldReturnFalseIfImageDirectoryHasntChanged()
         {
-            fileManager.Setup(f => f.GetImageNamesFromDirectory(It.IsAny<string>())).Returns(new List<string>()
+            _fileManager.Setup(f => f.GetImageNamesFromDirectory(It.IsAny<string>())).Returns(new List<string>()
                 {"Image1.jpg", "Image2.jpg", "Image3.jpg"});
-            var imageDataList=new List<ImageData>()
+            var imageDataList = new List<ImageData>()
             {
                 new ImageData(){Name = "Image1.jpg", Status = ImageStatus.InCollection},
                 new ImageData(){Name = "Image2.jpg", Status = ImageStatus.InCollection},
@@ -89,10 +80,10 @@ namespace CollectionManager.Tests
         }
 
         [Test]
-        public void RefreshImageDirectoryShouldAddNewImagesFoundInImageDirectory()
+        public void RefreshImageDirectory_ShouldAddNewImagesFoundInImageDirectory()
         {
             //new images are "Image4.jpg", "cover.jpg".
-            fileManager.Setup(f => f.GetImageNamesFromDirectory(It.IsAny<string>())).Returns(new List<string>()
+            _fileManager.Setup(f => f.GetImageNamesFromDirectory(It.IsAny<string>())).Returns(new List<string>()
                 {"Image1.jpg", "Image2.jpg", "Image3.jpg", "Image4.jpg", "cover.jpg" });
 
             var imageDataList = new List<ImageData>()
@@ -101,21 +92,20 @@ namespace CollectionManager.Tests
                 new ImageData(){Name = "Image2.jpg", Status = ImageStatus.InCollection},
                 new ImageData(){Name = "Image3.jpg", Status = ImageStatus.InCollection},
                 new ImageData(){Name = "SomeDeletedImage.jpg", Status = ImageStatus.Deleted}
-
             };
 
             var result = _sut.RefreshImageDirectory(imageDataList, 1, "directoryPath");
-            Assert.That(result, Is.EqualTo(false));
-            Assert.That(imageDataList, Has.Count.EqualTo(6) );
-            Assert.That(imageDataList, Has.Exactly(1).Matches<ImageData>(i=>i.Name.Equals("Image4.jpg")));
+            Assert.That(result, Is.EqualTo(true));
+            Assert.That(imageDataList, Has.Count.EqualTo(6));
+            Assert.That(imageDataList, Has.Exactly(1).Matches<ImageData>(i => i.Name.Equals("Image4.jpg")));
             Assert.That(imageDataList, Has.Exactly(1).Matches<ImageData>(i => i.Name.Equals("cover.jpg")));
         }
 
         [Test]
-        public void RefreshImageDirectoryShouldRemoveImageDataOfDeletedImagesWithEmptySource()
+        public void RefreshImageDirectory_ShouldRemoveImageDataOfDeletedImagesWithEmptySource()
         {
             //deleted images are "Image4.jpg", "cover.jpg". "Image4.jpg" had some source
-            fileManager.Setup(f => f.GetImageNamesFromDirectory(It.IsAny<string>())).Returns(new List<string>()
+            _fileManager.Setup(f => f.GetImageNamesFromDirectory(It.IsAny<string>())).Returns(new List<string>()
                 {"Image1.jpg", "Image2.jpg", "Image3.jpg"});
 
             var imageDataList = new List<ImageData>()
@@ -125,22 +115,21 @@ namespace CollectionManager.Tests
                 new ImageData(){Name = "Image3.jpg", Status = ImageStatus.InCollection},
                 new ImageData(){Name = "Image4.jpg", Status = ImageStatus.InCollection, Source = "someUrl"},
                 new ImageData(){Name = "cover.jpg", Status = ImageStatus.InCollection }
-
             };
 
             var result = _sut.RefreshImageDirectory(imageDataList, 1, "directoryPath");
-            Assert.That(result, Is.EqualTo(false));
+            Assert.That(result, Is.EqualTo(true));
             Assert.That(imageDataList, Has.Count.EqualTo(4));
             Assert.That(imageDataList, Has.Exactly(1).Matches<ImageData>(i => i.Name.Equals("Image4.jpg")));
             Assert.That(imageDataList, Has.None.Matches<ImageData>(i => i.Name.Equals("cover.jpg")));
         }
 
         [Test]
-        public void RefreshImageDirectoryShouldRemoveAndAddNewImageDataSimultaneously()
+        public void RefreshImageDirectory_ShouldRemoveAndAddNewImageDataSimultaneously()
         {
             //new images are "newImage1.jpg", "newImage2.jpg".
             //deleted images are "Image4.jpg", "cover.jpg". "Image4.jpg" had some source
-            fileManager.Setup(f => f.GetImageNamesFromDirectory(It.IsAny<string>())).Returns(new List<string>()
+            _fileManager.Setup(f => f.GetImageNamesFromDirectory(It.IsAny<string>())).Returns(new List<string>()
                 {"Image1.jpg", "Image2.jpg", "Image3.jpg", "newImage1.jpg", "newImage2.jpg" });
 
             var imageDataList = new List<ImageData>()
@@ -150,11 +139,10 @@ namespace CollectionManager.Tests
                 new ImageData(){Name = "Image3.jpg", Status = ImageStatus.InCollection},
                 new ImageData(){Name = "Image4.jpg", Status = ImageStatus.InCollection, Source = "someUrl"},
                 new ImageData(){Name = "cover.jpg", Status = ImageStatus.InCollection }
-
             };
 
             var result = _sut.RefreshImageDirectory(imageDataList, 1, "directoryPath");
-            Assert.That(result, Is.EqualTo(false));
+            Assert.That(result, Is.EqualTo(true));
             Assert.That(imageDataList, Has.Count.EqualTo(6));
             Assert.That(imageDataList, Has.Exactly(1).Matches<ImageData>(i => i.Name.Equals("newImage1.jpg")));
             Assert.That(imageDataList, Has.Exactly(1).Matches<ImageData>(i => i.Name.Equals("newImage2.jpg")));
@@ -162,11 +150,41 @@ namespace CollectionManager.Tests
             Assert.That(imageDataList, Has.None.Matches<ImageData>(i => i.Name.Equals("cover.jpg")));
         }
 
-        #endregion
+        #endregion [  RefreshImageDirectory  ]
 
-        #region [  private methods  ]
+        #region [  DeleteDuplicateImagesFromDirectoryAndDb  ]
 
-        #endregion
+        [Test]
+        public void DeleteDuplicateImagesFromDirectoryAndDb_ShouldDeleteDuplicateImageDataFromCollection()
+        {
+            //mocks for ISimpleFileInfo
+            var simpleFileInfo1 = new Mock<ISimpleFileInfo>();
+            simpleFileInfo1.SetupGet(sfi => sfi.Path).Returns("c://directoryPath//image1.jpg");
+            //fileManager.Setup
+            _fileManager.Setup(f => f.GetImageSimpleFileInfosFromDirectory(It.IsAny<string>()))
+                .Returns(new List<ISimpleFileInfo>() { simpleFileInfo1.Object });
+            //imageData collection setup
+            var imageDataList = new List<ImageData>()
+            {
+                new ImageData(){Name = "Image1.jpg"},
+                new ImageData(){Name = "Image2.jpg"},
+                new ImageData(){Name = "duplicateImageToKeep.jpg"},
+                new ImageData(){Name = "duplicateImageToDelete1.jpg", Source = "someUrl"},
+                new ImageData(){Name = "duplicateImageToDelete2.jpg" }
+            };
+            //imageService Setup
+           // _imageService.Setup(s => s.GetDuplicateImagePaths(It.IsAny<IEnumerable<string>>(), 0, 0.1F))
+              // .Returns(new List<string>() { "c://directoryPath//duplicateImageToDelete1.jpg", "c://directoryPath//duplicateImageToDelete2.jpg" });
 
+            _sut.DeleteDuplicateImagesFromDirectoryAndDb(imageDataList, 1, "directoryPath");
+
+            Assert.That(imageDataList, Has.Count.EqualTo(4));
+            Assert.That(imageDataList, Has.Exactly(1).Matches<ImageData>(i => i.Name.Equals("duplicateImageToDelete1.jpg")));
+            Assert.That(imageDataList, Has.None.Matches<ImageData>(i => i.Name.Equals("duplicateImageToDelete2.jpg")));
+        }
+
+        #endregion [  DeleteDuplicateImagesFromDirectoryAndDb  ]
+
+        #endregion [  tests  ]
     }
 }

@@ -87,6 +87,10 @@
       <Project>{0adbc15e-3cba-411c-804c-e8fe44e50811}</Project>
       <Name>MusicStoreKeeper.CollectionManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MusicStoreKeeper.ImageCollectionManager\MusicStoreKeeper.ImageCollectionManager.csproj">
+      <Project>{2f554623-e5a7-435a-b336-1d04df2b9b56}</Project>
+      <Name>MusicStoreKeeper.ImageCollectionManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

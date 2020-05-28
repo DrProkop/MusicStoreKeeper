@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ImageAnalyzer")]
+[assembly: AssemblyTitle("MusicStoreKeeper.ImageCollectionManager")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ImageAnalyzer")]
+[assembly: AssemblyProduct("MusicStoreKeeper.ImageCollectionManager")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("0c5cddb4-0d7a-4921-ae6b-c7072555cbd7")]
+[assembly: Guid("2f554623-e5a7-435a-b336-1d04df2b9b56")]
 
 // Version information for an assembly consists of the following four values:
 //

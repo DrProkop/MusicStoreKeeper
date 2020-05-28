@@ -182,10 +182,6 @@
       <Project>{5093c2e8-99fa-451c-9779-3e9fee29884d}</Project>
       <Name>FileManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ImageAnalyzer\ImageAnalyzer.csproj">
-      <Project>{0c5cddb4-0d7a-4921-ae6b-c7072555cbd7}</Project>
-      <Name>ImageAnalyzer</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Model\MusicStoreKeeper.Model.csproj">
       <Project>{5e330b60-bb17-440c-acaa-182483a0418e}</Project>
       <Name>MusicStoreKeeper.Model</Name>
@@ -193,6 +189,10 @@
     <ProjectReference Include="..\MusicStoreKeeper.CollectionManager\MusicStoreKeeper.CollectionManager.csproj">
       <Project>{0adbc15e-3cba-411c-804c-e8fe44e50811}</Project>
       <Name>MusicStoreKeeper.CollectionManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MusicStoreKeeper.ImageCollectionManager\MusicStoreKeeper.ImageCollectionManager.csproj">
+      <Project>{2f554623-e5a7-435a-b336-1d04df2b9b56}</Project>
+      <Name>MusicStoreKeeper.ImageCollectionManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\ResourceLibrary\ResourceLibrary.csproj">
       <Project>{c1524334-3a27-4015-b74f-ad3c54d45fee}</Project>

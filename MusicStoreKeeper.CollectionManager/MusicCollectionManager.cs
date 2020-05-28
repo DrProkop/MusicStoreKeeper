@@ -19,7 +19,6 @@ namespace MusicStoreKeeper.CollectionManager
             IFileManager fileManager,
             IMusicFileAnalyzer musicFileAnalyzer,
             IMusicDirAnalyzer musicDirAnalyzer,
-            IImageService imageService,
             IImageCollectionManager imageCollectionManager,
             IRepository repository,
             ILoggerManager manager)
@@ -28,8 +27,7 @@ namespace MusicStoreKeeper.CollectionManager
             _fileManager = fileManager;
             _musicFileAnalyzer = musicFileAnalyzer;
             _musicDirAnalyzer = musicDirAnalyzer;
-            _imageService = imageService;
-            _imageCollectionManager = imageCollectionManager;
+           _imageCollectionManager = imageCollectionManager;
             _repo = repository;
             log = manager.GetLogger(this);
             _genreAndStyleProvider = new GenreAndStyleProvider();
@@ -42,7 +40,6 @@ namespace MusicStoreKeeper.CollectionManager
         private readonly IFileManager _fileManager;
         private readonly IMusicFileAnalyzer _musicFileAnalyzer;
         private readonly IMusicDirAnalyzer _musicDirAnalyzer;
-        private readonly IImageService _imageService;
         private readonly IImageCollectionManager _imageCollectionManager;
         private readonly IRepository _repo;
         protected readonly ILogger log;

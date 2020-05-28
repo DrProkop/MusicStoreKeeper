@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace ImageAnalyzer
+namespace MusicStoreKeeper.ImageCollectionManager
 {
     /// <summary>
     /// Compares two images by their area.
