@@ -45,9 +45,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArrayComparer.cs" />
+    <Compile Include="IImageDuplicateFinder.cs" />
     <Compile Include="ImageCollectionManager.cs" />
-    <Compile Include="ImageContainer.cs" />
+    <Compile Include="ImageDuplicateFinder.cs" />
     <Compile Include="ImageSizeComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

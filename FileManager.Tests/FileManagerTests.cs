@@ -145,7 +145,7 @@ namespace FileManager.Tests
         [TearDown]
         public void AfterEachTest()
         {
-            DirectoryInfo di = new DirectoryInfo(_rootTestDirPath);
+            var di = new DirectoryInfo(_rootTestDirPath);
             foreach (var file in di.GetFiles())
             {
                 file.Delete();

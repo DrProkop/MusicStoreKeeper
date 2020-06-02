@@ -7,7 +7,7 @@ namespace MusicStoreKeeper.ImageCollectionManager
     /// <summary>
     /// Compares two images by their area.
     /// </summary>
-    internal class ImageSizeComparer : IComparer<Image>
+    public class ImageSizeComparer : IComparer<Image>
     {
         /// <summary>Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.</summary>
         /// <param name="x">The first object to compare.</param>
@@ -30,7 +30,7 @@ namespace MusicStoreKeeper.ImageCollectionManager
             return 0;
         }
 
-        internal Image GetHigherResolutionImage(Image imageA, Image imageB)
+        public Image GetHigherResolutionImage(Image imageA, Image imageB)
         {
             var comparisonResult = Compare(imageA, imageB);
             if (comparisonResult > 1)
@@ -46,7 +46,7 @@ namespace MusicStoreKeeper.ImageCollectionManager
             return imageA;
         }
 
-        internal Tuple<string, Image> GetHigherResolutionImage(Tuple<string, Image> imageTupleA,
+        public Tuple<string, Image> GetHigherResolutionImage(Tuple<string, Image> imageTupleA,
             Tuple<string, Image> imageTupleB)
         {
             var comparisonResult = Compare(imageTupleA.Item2, imageTupleB.Item2);

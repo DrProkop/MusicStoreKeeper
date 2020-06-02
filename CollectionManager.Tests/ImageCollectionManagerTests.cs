@@ -7,6 +7,7 @@ using MusicStoreKeeper.Model;
 using NUnit.Framework;
 using Serilog;
 using System.Collections.Generic;
+using System.Drawing;
 using MusicStoreKeeper.ImageCollectionManager;
 
 namespace CollectionManager.Tests
@@ -18,11 +19,11 @@ namespace CollectionManager.Tests
 
         private IImageCollectionManager _sut;
         private Mock<IFileManager> _fileManager;
-        
+        private Mock<IImageDuplicateFinder> _imageDuplicateFinder;
         #endregion [  fields  ]
 
         #region [  setup/teardown  ]
-        
+
         [OneTimeSetUp]
         public void Init()
         {
@@ -33,12 +34,14 @@ namespace CollectionManager.Tests
             _fileManager = new Mock<IFileManager>();
             //IRepository
             var repository = new Mock<IRepository>();
+            //ImageDuplicateFinder
+            _imageDuplicateFinder=new Mock<IImageDuplicateFinder>();
            //ILoggerManager
             var loggerManager = new Mock<ILoggerManager>();
             var iLoggerSerilog = new Mock<ILogger>();
             loggerManager.Setup(log => log.GetLogger(It.IsAny<object>())).Returns(iLoggerSerilog.Object);
             //sut
-            _sut = new ImageCollectionManager(client, _fileManager.Object, repository.Object, loggerManager.Object);
+            _sut = new ImageCollectionManager(client, _fileManager.Object, repository.Object, _imageDuplicateFinder.Object, loggerManager.Object);
         }
 
         [OneTimeTearDown]
@@ -157,12 +160,19 @@ namespace CollectionManager.Tests
         [Test]
         public void DeleteDuplicateImagesFromDirectoryAndDb_ShouldDeleteDuplicateImageDataFromCollection()
         {
-            //mocks for ISimpleFileInfo
+            //mock for ISimpleFileInfo
             var simpleFileInfo1 = new Mock<ISimpleFileInfo>();
             simpleFileInfo1.SetupGet(sfi => sfi.Path).Returns("c://directoryPath//image1.jpg");
-            //fileManager.Setup
+            //fileManager setup
             _fileManager.Setup(f => f.GetImageSimpleFileInfosFromDirectory(It.IsAny<string>()))
                 .Returns(new List<ISimpleFileInfo>() { simpleFileInfo1.Object });
+            //imageDuplicateFinder  setup
+            _imageDuplicateFinder.Setup(a => a.GetDuplicateImagePaths(
+                    It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IComparer<Image>>(),
+                    It.IsAny<byte>(),
+                    It.IsAny<float>()))
+                .Returns(new List<string>(){ "c://directoryPath//duplicateImageToDelete1.jpg", "c://directoryPath//duplicateImageToDelete2.jpg" });
             //imageData collection setup
             var imageDataList = new List<ImageData>()
             {
@@ -172,10 +182,7 @@ namespace CollectionManager.Tests
                 new ImageData(){Name = "duplicateImageToDelete1.jpg", Source = "someUrl"},
                 new ImageData(){Name = "duplicateImageToDelete2.jpg" }
             };
-            //imageService Setup
-           // _imageService.Setup(s => s.GetDuplicateImagePaths(It.IsAny<IEnumerable<string>>(), 0, 0.1F))
-              // .Returns(new List<string>() { "c://directoryPath//duplicateImageToDelete1.jpg", "c://directoryPath//duplicateImageToDelete2.jpg" });
-
+            
             _sut.DeleteDuplicateImagesFromDirectoryAndDb(imageDataList, 1, "directoryPath");
 
             Assert.That(imageDataList, Has.Count.EqualTo(4));
@@ -184,6 +191,12 @@ namespace CollectionManager.Tests
         }
 
         #endregion [  DeleteDuplicateImagesFromDirectoryAndDb  ]
+
+        #region [  GetDuplicateImagePaths  ]
+
+
+
+        #endregion
 
         #endregion [  tests  ]
     }

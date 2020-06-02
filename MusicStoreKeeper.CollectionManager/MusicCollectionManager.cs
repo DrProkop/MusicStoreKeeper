@@ -109,7 +109,7 @@ namespace MusicStoreKeeper.CollectionManager
             var artistId = _repo.AddNewArtist(artist);
             //создаю папку с исполнителем на диске
             var artPath = _fileManager.CreateArtistStorageDirectory(MusicCollectionDirectory, artist.Name);
-            //TODO: Add same image handling as for album
+            //manage artist images
             var imagePath = Path.Combine(artPath, _fileManager.DefaultArtistPhotosDirectory);
             _imageCollectionManager.DownloadArtistOrAlbumImages(dArtist.images, dArtist.name, artist.ImageDataList, artistId, imagePath);
             _imageCollectionManager.CleanupImageDirectory(artist.ImageDataList, artistId, imagePath);
