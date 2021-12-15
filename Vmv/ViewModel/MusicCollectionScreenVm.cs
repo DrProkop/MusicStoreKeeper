@@ -50,6 +50,9 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         private ObservableCollection<ArtistWrap> _fullArtistsCollection;
 
+        /// <summary>
+        /// All artists in music collection.
+        /// </summary>
         public ObservableCollection<ArtistWrap> FullArtistsCollection
         {
             get => _fullArtistsCollection;
@@ -57,7 +60,9 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         }
 
         private ObservableCollection<ArtistWrap> _artistsCollectionToShow;
-
+        /// <summary>
+        /// Collection of artists sorted by genres and styles.
+        /// </summary>
         public ObservableCollection<ArtistWrap> ArtistsCollectionToShow
         {
             get => _artistsCollectionToShow;
@@ -103,7 +108,9 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         }
 
         private bool _isSelectionEnabled;
-
+        /// <summary>
+        /// Enables artist and album checkboxes
+        /// </summary>
         public bool IsSelectionEnabled
         {
             get => _isSelectionEnabled;
@@ -115,7 +122,9 @@ namespace MusicStoreKeeper.Vmv.ViewModel
         }
 
         private bool _showAlbumsNotInCollection;
-
+        /// <summary>
+        /// Show info about artist's album, which are not stored on HDD.
+        /// </summary>
         public bool ShowAlbumsNotInCollection
         {
             get => _showAlbumsNotInCollection;
@@ -125,9 +134,14 @@ namespace MusicStoreKeeper.Vmv.ViewModel
                 OnPropertyChanged();
             }
         }
-
+        /// <summary>
+        /// List of music styles of all artists in collection.
+        /// </summary>
         public List<string> MusicStyles { get; set; }
 
+        /// <summary>
+        /// List of music genres of all artists in collection.
+        /// </summary>
         public List<string> MusicGenres { get; set; }
 
         #endregion [  properties  ]
@@ -192,13 +206,12 @@ namespace MusicStoreKeeper.Vmv.ViewModel
 
         #region [  private methods  ]
 
-        //TODO: Add image handling (refresh and delete duplicates)
-        private void ChangeSelectedItem(object arg)
+        private void ChangeSelectedItem(object item)
         {
-            SelectedItemWrap = arg;
+            SelectedItemWrap = item;
             var imgDirPath = string.Empty;
-
-            switch (arg)
+            //TODO Refactor duplicate code
+            switch (item)
             {
                 case AlbumWrap albumWrap when albumWrap.Value.InCollection:
                     albumWrap.Value = _musicCollectionManager.GetAlbum(albumWrap.Value.Id);

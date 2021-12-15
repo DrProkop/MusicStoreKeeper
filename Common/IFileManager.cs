@@ -78,7 +78,6 @@ namespace Common
 
         //default directory names
         string DefaultArtistPhotosDirectory { get; }
-
         string DefaultAlbumImagesDirectory { get; }
         string DefaultAlbumDocsDirectory { get; }
         string DefaultAlbumUnknownFilesDirectory { get; }
