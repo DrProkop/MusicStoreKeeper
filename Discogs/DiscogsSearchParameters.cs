@@ -1,7 +1,7 @@
-﻿using System.ComponentModel;
-using System.Text;
-using Discogs.Enums;
+﻿using Discogs.Enums;
 using RestSharp.Extensions;
+using System.ComponentModel;
+using System.Text;
 
 namespace Discogs
 {
@@ -132,6 +132,7 @@ namespace Discogs
         {
             _str.Clear();
             _str.Append(SearchStringStart);
+
             foreach (var propInfo in obj.GetType().GetProperties())
             {
                 var value = propInfo.GetValue(obj, null);
